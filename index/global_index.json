@@ -11672,7 +11672,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T15:52:47.819147+00:00",
+      "last_extracted": "2026-05-20T03:55:22.426630+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -25005,13 +25005,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
+              "streaming",
+              "react",
               "shadcn",
               "nextjs",
-              "streaming",
-              "chat-ui",
-              "vercel-ai-sdk",
               "registry",
-              "react"
+              "vercel-ai-sdk",
+              "chat-ui"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25056,11 +25056,11 @@
               "composability over monolithic skills:"
             ],
             "purpose_keywords": [
-              "tool-quality",
               "skills",
+              "skill-authoring",
               "composability",
-              "deterministic-scripts",
-              "skill-authoring"
+              "tool-quality",
+              "deterministic-scripts"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25117,11 +25117,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "autonomous-operation",
               "overnight-agents",
-              "program-md",
               "experimentation",
-              "research-protocol"
+              "research-protocol",
+              "program-md",
+              "autonomous-operation"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25175,11 +25175,11 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "efficiency",
+              "solution-comparison",
               "joint-quality",
               "elegance",
               "ranking",
-              "solution-comparison",
+              "efficiency",
               "effectiveness",
               "multiplicative"
             ],
@@ -25230,10 +25230,10 @@
               "conclusion:"
             ],
             "purpose_keywords": [
+              "architecture",
               "velocity",
               "build-vs-buy",
               "decision-framework",
-              "architecture",
               "component-libraries",
               "saas"
             ],
@@ -25294,11 +25294,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "asyncio",
-              "tool-handlers",
-              "mcp",
               "integration-testing",
-              "testing"
+              "asyncio",
+              "mcp",
+              "testing",
+              "tool-handlers"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25347,11 +25347,11 @@
             ],
             "purpose_keywords": [
               "routing",
-              "auth",
-              "middleware",
               "api-routes",
-              "nextjs",
-              "supabase"
+              "auth",
+              "supabase",
+              "middleware",
+              "nextjs"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25402,11 +25402,11 @@
             ],
             "purpose_keywords": [
               "library-selection",
-              "sheetjs",
+              "document-generation",
               "exceljs",
               "node",
               "excel",
-              "document-generation"
+              "sheetjs"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25469,14 +25469,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "pdf-lib",
               "library-selection",
-              "pdf",
-              "node",
-              "pdfkit",
-              "jspdf",
+              "document-generation",
               "puppeteer",
-              "document-generation"
+              "node",
+              "pdf-lib",
+              "jspdf",
+              "pdf",
+              "pdfkit"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25535,12 +25535,12 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "supabase",
+              "e2e-testing",
               "auth",
               "storage-state",
               "nextjs",
-              "supabase",
-              "playwright",
-              "e2e-testing"
+              "playwright"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25584,13 +25584,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "patterns",
+              "prompt-master",
+              "quality-techniques",
+              "prompt-engineering",
               "negative-few-shot",
               "self-challenge",
-              "variant-generation",
-              "quality-techniques",
-              "prompt-master",
-              "prompt-engineering"
+              "patterns",
+              "variant-generation"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25638,12 +25638,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "mocking",
-              "testing",
-              "mcp",
               "sentence-transformers",
-              "fixtures",
-              "pytest"
+              "mocking",
+              "pytest",
+              "mcp",
+              "testing",
+              "fixtures"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25690,13 +25690,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "python",
-              "docker",
               "library-selection",
-              "pdf",
-              "weasyprint",
+              "document-generation",
+              "python",
               "reportlab",
-              "document-generation"
+              "docker",
+              "weasyprint",
+              "pdf"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25754,11 +25754,11 @@
               "applied:"
             ],
             "purpose_keywords": [
-              "governance",
-              "re-evaluation",
               "velocity",
               "decision-making",
               "anchor-bias",
+              "re-evaluation",
+              "governance",
               "planning"
             ],
             "applies_to": [],
@@ -25816,12 +25816,12 @@
               "3. skill retirement (\u00a79.5.5):"
             ],
             "purpose_keywords": [
-              "directive-style",
-              "progressive-disclosure",
               "skills",
-              "capability-vs-preference",
-              "constraint-retirement",
               "skill-authoring",
+              "directive-style",
+              "constraint-retirement",
+              "progressive-disclosure",
+              "capability-vs-preference",
               "claude-code"
             ],
             "applies_to": [],
@@ -25868,13 +25868,13 @@
               "still safe against xss"
             ],
             "purpose_keywords": [
-              "markdown",
               "xss",
-              "rehype",
               "streaming",
-              "sanitization",
               "security",
-              "react"
+              "react",
+              "rehype",
+              "sanitization",
+              "markdown"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25920,11 +25920,11 @@
             ],
             "purpose_keywords": [
               "jwt",
-              "auth",
-              "nextjs",
-              "supabase",
               "custom-claims",
-              "ssr"
+              "supabase",
+              "auth",
+              "ssr",
+              "nextjs"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25971,12 +25971,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "cookies",
-              "pkce",
-              "nextjs",
-              "supabase",
               "async",
-              "auth-callback"
+              "cookies",
+              "supabase",
+              "auth-callback",
+              "nextjs",
+              "pkce"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26027,12 +26027,12 @@
               "self-improvement skill"
             ],
             "purpose_keywords": [
-              "superpowers",
-              "procedural-knowledge",
-              "slash-commands",
               "workflow",
               "skills",
-              "claude-code"
+              "procedural-knowledge",
+              "superpowers",
+              "claude-code",
+              "slash-commands"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26090,10 +26090,10 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "vitest",
-              "typescript",
               "mocking",
+              "typescript",
               "vi-mock",
+              "vitest",
               "testing"
             ],
             "applies_to": [],
@@ -26149,14 +26149,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "fastapi",
-              "express",
-              "nextjs",
-              "streaming",
-              "web-app",
-              "s3",
+              "file-download",
               "document-generation",
-              "file-download"
+              "express",
+              "streaming",
+              "fastapi",
+              "nextjs",
+              "s3",
+              "web-app"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26213,10 +26213,10 @@
               "willison's infrastructure for this:"
             ],
             "purpose_keywords": [
-              "patterns",
               "agent-productivity",
-              "knowledge-management",
-              "reuse"
+              "reuse",
+              "patterns",
+              "knowledge-management"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26224,7 +26224,7 @@
           "embedding_id": 560
         }
       ],
-      "last_extracted": "2026-05-18T15:52:47.847630+00:00",
+      "last_extracted": "2026-05-20T03:55:22.452480+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29597,7 +29597,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T15:52:47.853955+00:00",
+      "last_extracted": "2026-05-20T03:55:22.458131+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -33499,13 +33499,13 @@
               "sensor (feedback):"
             ],
             "purpose_keywords": [
-              "model-harness-gap",
-              "context-management",
+              "agent-architecture",
               "ratchet-pattern",
+              "context-management",
+              "model-harness-gap",
               "enforcement",
               "harness-engineering",
-              "benchmark-evidence",
-              "agent-architecture"
+              "benchmark-evidence"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -33569,13 +33569,13 @@
               "`additionalcontext` for just-in-time injection:"
             ],
             "purpose_keywords": [
-              "hooks",
-              "gap-analysis-sensor",
+              "tiered-enforcement",
+              "deterministic-compliance",
               "http-hooks",
               "enforcement",
               "token-compression",
-              "deterministic-compliance",
-              "tiered-enforcement"
+              "gap-analysis-sensor",
+              "hooks"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -33592,7 +33592,7 @@
           "embedding_id": 700
         }
       ],
-      "last_extracted": "2026-05-18T15:52:47.862126+00:00",
+      "last_extracted": "2026-05-20T03:55:22.465587+00:00",
       "version": "1.0"
     },
     "accounting": {
@@ -35233,7 +35233,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T15:52:47.864632+00:00",
+      "last_extracted": "2026-05-20T03:55:22.467804+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -37538,11 +37538,11 @@
             "purpose_keywords": [
               "smart-packet",
               "str",
-              "data-extraction",
               "openpyxl",
-              "marriott",
+              "data-extraction",
+              "hotel",
               "revenue-management",
-              "hotel"
+              "marriott"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37597,13 +37597,13 @@
               "philosophy:"
             ],
             "purpose_keywords": [
-              "docx",
+              "report",
               "str",
+              "docx",
               "performance-analysis",
-              "document-building",
-              "revenue-management",
               "hotel",
-              "report"
+              "revenue-management",
+              "document-building"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37618,7 +37618,7 @@
           "embedding_id": 793
         }
       ],
-      "last_extracted": "2026-05-18T15:52:47.868798+00:00",
+      "last_extracted": "2026-05-20T03:55:22.471582+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -40412,7 +40412,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T15:52:47.872635+00:00",
+      "last_extracted": "2026-05-20T03:55:22.475103+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -45136,12 +45136,12 @@
               "archrag"
             ],
             "purpose_keywords": [
-              "knowledge-graph",
               "multi-hop-retrieval",
+              "cognee",
+              "knowledge-graph",
+              "graphrag",
               "hipporag",
               "personalized-pagerank",
-              "cognee",
-              "graphrag",
               "community-detection"
             ],
             "applies_to": [],
@@ -45166,7 +45166,7 @@
           "embedding_id": 948
         }
       ],
-      "last_extracted": "2026-05-18T15:52:47.879199+00:00",
+      "last_extracted": "2026-05-20T03:55:22.481118+00:00",
       "version": "1.0"
     }
   },
@@ -45252,7 +45252,7 @@
       "embedding_id": 7
     }
   ],
-  "created_at": "2026-05-18T15:52:47.881194+00:00",
+  "created_at": "2026-05-20T03:55:22.482758+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
