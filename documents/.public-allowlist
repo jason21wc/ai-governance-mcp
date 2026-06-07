@@ -1,0 +1,71 @@
+# Public-release path allowlist (fail-closed).
+#
+# The single source of truth for WHAT MAY EXIST in the public repo. Consumed by:
+#   - scripts/build-public-release.sh  (what to copy private -> public staging)
+#   - scripts/check-public-release.py  (path layer: any tree file not matching a
+#                                        glob here is a violation -> exit 2)
+#   - the public repo's CI leak-guard job
+# Because copy-set == check-set == this file, the two cannot drift.
+#
+# FAIL-CLOSED: anything not listed here is PRIVATE by default. Adding a glob is a
+# conscious decision to publish. Prefer narrow globs over broad ones.
+#
+# Format: <glob> | <reason>   (relative to repo root; '**' recurses; '#' comments;
+# blank lines ignored). Globs are expanded with pathlib semantics.
+
+# --- Engine + tests (the framework code) ---
+src/**/* | governance + context-engine source (domain-agnostic)
+tests/**/* | test suite (de-domained by scripts/dedomain-public.py before publish)
+pyproject.toml | package metadata
+requirements.lock | pinned deps
+Dockerfile | container build (rebuilds a meta-only index from documents/)
+docker-compose.yml | container orchestration
+.dockerignore | excludes index/ from the image (index rebuilt in-container)
+
+# --- Infra / CI / enforcement ---
+.github/**/* | CI workflows (SHA-pinned, least-privilege)
+.claude/hooks/**/* | governance enforcement hooks (framework)
+.claude/agents/**/* | subagent definitions (verified clean of domain/client refs)
+.pre-commit-config.yaml | local pre-commit hooks
+.gitignore | ignore rules
+.editorconfig | editor config
+
+# --- Framework skills (canonical home = global-skills/) ---
+global-skills/**/* | framework-owned skills (content-enhancer hotel examples scrubbed pre-publish)
+
+# --- Meta-framework content (NOT subject-matter domains) ---
+documents/constitution.md | constitutional principles (meta)
+documents/rules-of-procedure.md | governance methods (meta)
+documents/ai-instructions.md | framework activation loader (meta)
+documents/failure-mode-registry.md | engineering failure-mode registry (meta)
+documents/test-failure-mode-map.md | derived test->FM coverage map (meta)
+documents/tiers.json | universal-floor / critical-5 config (runtime-required, meta)
+documents/agents/**/* | canonical agent templates (meta)
+documents/.public-allowlist | this file (the allowlist is itself public)
+
+# --- Reference library: EXCLUDED from public ---
+# The reference library is domain-KEYED (extractor scans reference-library/<domain>/
+# per registered domain). With no domains registered in public, entries are never
+# indexed, and per "all domains private" the whole domain-keyed library is private.
+# (No reference-library/** globs here -> not copied. A future public-only generic
+# reference set could be added if desired.)
+
+# --- Release tooling that the PUBLIC repo needs (for its own CI guard) ---
+scripts/check-public-release.py | the leak-guard itself (runs in public CI)
+scripts/check-citations.py | citation-form guard (public CI citation-check job + its test)
+documents/.citation-allowlist | citation allowlist read by check-citations.py
+
+# --- Root docs ---
+README.md | project overview (domain table reduced to constitution at publish)
+ARCHITECTURE.md | system design
+SPECIFICATION.md | requirements
+API.md | API reference
+EXECUTION-FRAMEWORK.md | execution methodology
+SECURITY.md | security model
+INFLUENCES.md | attribution
+AGENTS.md | agent/project overview
+CLAUDE.md | Claude Code governance instructions (framework; verified leak-clean)
+LICENSE | Apache-2.0 (code)
+LICENSE-CONTENT | CC-BY-NC-ND-4.0 (framework content)
+SBOM.md | software bill of materials
+RELEASE.md | public/private split + leak-remediation runbook

@@ -1,0 +1,201 @@
+"""Data models for the Context Engine.
+
+Defines content chunks, file metadata, project indexes,
+query results, and code graph edges used throughout the context engine.
+"""
+
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+# Valid content types for chunks and file metadata
+ContentType = Literal["code", "document", "data", "image"]
+
+# Valid edge types for code reference graph
+EdgeType = Literal["imports", "calls", "extends", "implements", "type_of"]
+
+# Valid indexing modes for projects
+IndexMode = Literal["realtime", "ondemand"]
+
+# Valid watcher states for projects
+WatcherStatus = Literal[
+    "running", "stopped", "circuit_broken", "disabled", "not_loaded"
+]
+
+
+class ContentChunk(BaseModel):
+    """A chunk of content extracted from a project file.
+
+    Chunks are the atomic unit of indexing and retrieval.
+    Each chunk should be self-contained enough for standalone
+    comprehension while focused enough for precise retrieval.
+    """
+
+    content: str = Field(..., description="The text content of this chunk")
+    source_path: str = Field(
+        ...,
+        description="Path to the source file (relative to project root when available)",
+    )
+    start_line: int = Field(..., description="Starting line number in source file")
+    end_line: int = Field(..., description="Ending line number in source file")
+    content_type: ContentType = Field(
+        ..., description="Content type: code, document, data, image"
+    )
+    language: str | None = Field(
+        None, description="Programming language or file format"
+    )
+    heading: str | None = Field(
+        None, description="Section heading or function/class name"
+    )
+    import_context: str | None = Field(
+        None,
+        description="Filtered import lines relevant to this chunk (Python only). "
+        "Used at embedding time to enrich semantic signal; not displayed.",
+    )
+    frontmatter: dict | None = Field(
+        None,
+        description="Parsed YAML frontmatter metadata from markdown files. "
+        "Contains structured fields (tags, status, maturity, domain, etc.) "
+        "for metadata-enhanced retrieval. Reference Library entries and other "
+        "YAML-fronted markdown files populate this field.",
+    )
+    embedding_id: int | None = Field(None, description="Index into embeddings array")
+
+
+class FileMetadata(BaseModel):
+    """Metadata about an indexed file."""
+
+    path: str = Field(
+        ...,
+        description="Absolute file path (used for file manifest keying and change detection)",
+    )
+    content_type: ContentType = Field(
+        ..., description="Content type: code, document, data, image"
+    )
+    language: str | None = Field(
+        None, description="Programming language or file format"
+    )
+    size_bytes: int = Field(..., description="File size in bytes")
+    last_modified: float = Field(..., description="Last modification timestamp")
+    content_hash: str | None = Field(
+        None, description="SHA-256 hash of file content for change detection"
+    )
+    chunk_count: int = Field(0, description="Number of chunks extracted")
+
+
+class ProjectIndex(BaseModel):
+    """Complete index for a single project."""
+
+    project_id: str = Field(..., description="Unique project identifier")
+    project_path: str = Field(..., description="Absolute path to project root")
+    chunks: list[ContentChunk] = Field(
+        default_factory=list, description="All indexed content chunks"
+    )
+    files: list[FileMetadata] = Field(
+        default_factory=list, description="Metadata for all indexed files"
+    )
+    created_at: str = Field(..., description="ISO timestamp of index creation")
+    updated_at: str = Field(..., description="ISO timestamp of last update")
+    embedding_model: str = Field(..., description="Model used for embeddings")
+    total_chunks: int = Field(0, description="Total number of chunks indexed")
+    total_files: int = Field(0, description="Total number of files indexed")
+    index_mode: IndexMode = Field(
+        "ondemand",
+        description="Indexing mode: realtime (file watcher with incremental updates) "
+        "or ondemand (manual re-index only). Defaults to ondemand.",
+    )
+    schema_version: int = Field(
+        1, description="Index format version; increment on breaking changes"
+    )
+    chunking_version: str = Field(
+        "line-based-v1",
+        description="Parser strategy identifier (e.g., 'line-based-v1', 'tree-sitter-v1'). "
+        "Mismatch triggers full re-index in incremental path.",
+    )
+
+
+class QueryResult(BaseModel):
+    """A single result from a project content query."""
+
+    chunk: ContentChunk = Field(..., description="The matching content chunk")
+    semantic_score: float = Field(
+        0.0, ge=0.0, le=1.0, description="Semantic similarity score"
+    )
+    keyword_score: float = Field(
+        0.0, ge=0.0, le=1.0, description="BM25 keyword score (normalized)"
+    )
+    combined_score: float = Field(
+        0.0, ge=0.0, le=1.0, description="Fused relevance score"
+    )
+    boost_score: float = Field(
+        0.0,
+        ge=-0.10,
+        le=0.12,
+        description="Combined bonus (file-type + recency + metadata) applied before clamping",
+    )
+
+
+class ProjectQueryResult(BaseModel):
+    """Complete result from querying a project's content."""
+
+    query: str = Field(..., description="The original query")
+    project_id: str = Field(..., description="Project that was queried")
+    project_path: str = Field(..., description="Path to project root")
+    results: list[QueryResult] = Field(
+        default_factory=list, description="Ranked results"
+    )
+    total_results: int = Field(0, description="Number of results returned")
+    query_time_ms: float | None = Field(
+        None, description="Query execution time in milliseconds"
+    )
+    last_indexed_at: str | None = Field(
+        None, description="ISO timestamp of when the index was last updated"
+    )
+    index_age_seconds: float | None = Field(
+        None, description="Seconds since the index was last updated"
+    )
+    readonly_message: str | None = Field(
+        None, description="Message when read-only mode prevents an operation"
+    )
+
+
+class ProjectStatus(BaseModel):
+    """Status information about a project's index."""
+
+    project_id: str = Field(..., description="Unique project identifier")
+    project_path: str = Field(..., description="Absolute path to project root")
+    total_files: int = Field(0, description="Number of indexed files")
+    total_chunks: int = Field(0, description="Number of indexed chunks")
+    index_mode: IndexMode = Field("ondemand", description="Current indexing mode")
+    last_updated: str | None = Field(
+        None, description="ISO timestamp of last index update"
+    )
+    index_size_bytes: int = Field(0, description="Total index size on disk")
+    embedding_model: str = Field(..., description="Model used for embeddings")
+    chunking_version: str = Field(
+        "unknown", description="Chunking strategy version (e.g., tree-sitter-v2)"
+    )
+    watcher_status: WatcherStatus = Field(
+        "stopped",
+        description="File watcher state: running, stopped, circuit_broken, disabled, not_loaded",
+    )
+
+
+class CodeEdge(BaseModel):
+    """A directed edge in the code reference graph.
+
+    Represents a structural relationship between two symbols
+    (import, call, inheritance) discovered via static analysis.
+    """
+
+    source_path: str = Field(..., description="File containing the reference")
+    source_symbol: str = Field(..., description="Symbol making the reference")
+    target_path: str = Field(..., description="File being referenced")
+    target_symbol: str = Field(..., description="Symbol being referenced")
+    edge_type: EdgeType = Field(..., description="Relationship type")
+    confidence: float = Field(
+        1.0,
+        ge=0.0,
+        le=1.0,
+        description="Resolution confidence (1.0=deterministic, 0.8=best-effort)",
+    )

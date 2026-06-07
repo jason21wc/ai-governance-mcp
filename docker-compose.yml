@@ -1,0 +1,70 @@
+# AI Governance MCP Server - Docker Compose
+#
+# NOTE: MCP servers use stdio (stdin/stdout), not HTTP.
+# This compose file is primarily for local testing and development.
+#
+# For production use with AI clients (Claude, Gemini, etc.),
+# configure your AI client to run the container directly.
+# See README.md for client configuration examples.
+#
+# The default service uses the enforcement proxy (soft mode — warns but
+# does not block). Use the advisory service for direct server access.
+
+services:
+  ai-governance-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jason21wc/ai-governance-mcp:latest
+    container_name: ai-governance-mcp
+
+    # Interactive mode required for MCP stdio communication
+    stdin_open: true
+    tty: true
+
+    # Enforcement proxy is the default (from Dockerfile CMD).
+    # Set GOVERNANCE_ENFORCEMENT_SOFT_MODE=false for hard blocking.
+    environment:
+      - GOVERNANCE_ENFORCEMENT_SOFT_MODE=true
+
+    # Optional: Mount custom documents (uncomment to use your own)
+    # volumes:
+    #   - ./my-documents:/app/documents:ro
+    #   - ./my-index:/app/index
+
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  # Advisory-only mode (no enforcement, direct server access)
+  ai-governance-mcp-advisory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jason21wc/ai-governance-mcp:latest
+    container_name: ai-governance-mcp-advisory
+    stdin_open: true
+    tty: true
+    command: ["python", "-m", "ai_governance_mcp.server"]
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+# Usage:
+#
+# Build and test locally (with enforcement):
+#   docker compose build
+#   docker compose run --rm ai-governance-mcp
+#
+# Build and test locally (advisory-only):
+#   docker compose run --rm ai-governance-mcp-advisory
+#
+# For AI client configuration, use:
+#   docker run -i --rm jason21wc/ai-governance-mcp

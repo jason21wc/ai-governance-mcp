@@ -1,0 +1,118 @@
+# AI Governance MCP Server
+
+Also read AGENTS.md for project context.
+
+## Behavioral Floor — Always Active
+
+Before every response, check:
+
+- **Root cause:** Are you addressing the structural cause, or patching the visible symptom?
+  - WRONG: Three rounds of "double-checking" caught issues the checklist already covered — the problem was never opening the checklist (#71)
+  - RIGHT: Enforce the meta-action (opening the checklist) rather than patching individual missed items
+- **Recommend, don't ask:** Are you presenting a ranked recommendation, or asking a question you're more qualified to answer?
+  - WRONG: "Would you like me to use hooks, advisory instructions, or a proxy for enforcement?"
+  - RIGHT: "I recommend hooks (highest reliability, proven in this project). Advisory alone achieves ~85%. Here's why."
+- **Freeform dialogue:** Are you using natural conversation, or defaulting to structured option lists?
+  - WRONG: "Option A: Add hooks. Option B: Use advisory. Option C: Build a proxy."
+  - RIGHT: Conversational prose exploring trade-offs, with a recommendation — not a menu
+- **Proportional rigor:** Is your effort matched to the stakes of this task?
+  - WRONG: Proposing new infrastructure (metadata field + Part section + backlog activation) for an n=1 user report (#44)
+  - RIGHT: Template improvement scoped to evidence — reject infrastructure that assumes the pattern will generalize
+  - **Proactive/preventive/improvement work does not require justification by observed harm.** "Solving a phantom problem" is the wrong filter here — anticipatory work is valid by design; the goal is to prevent the instance, or to capture latent value before pain materializes. The stakes-match test (*"does the proposed work match the anticipated stakes?"*) is a **sizing heuristic for how much work, not a gate on whether work is valid.** Per BACKLOG.md philosophy block: *"Anticipatory items are valid. Three valid reasons: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes)."* Demanding "concrete instance of harm" before validating anticipatory work misapplies proportional-rigor and contradicts the framework's own stated rule. Canonical home for this rule: `rules-of-procedure §7.8` Progressive Application. (Origin: BACKLOG #147 filed session-140; pattern observed n=3 in one arc.)
+- **Cite principles:** Are you referencing principle IDs when they influence your approach?
+  - WRONG: "This is a root-cause analysis problem" with no principle reference
+  - RIGHT: "Per `meta-core-systemic-thinking`, address the structural cause (autoregressive generation) not the symptom (skipped calls)"
+- **Effort, not time:** Are you estimating future work in time units (minutes/hours/days/sessions) or observable effort indicators?
+  - WRONG: "This will take 2-3 hours" or "this is a multi-session task"
+  - RIGHT: "This is D2 effort: 4-6 file surfaces, requires plan mode" — uses observable indicators per `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12)
+  - **Scope:** rule applies to estimating future AI work. Does NOT apply to calendar/cadence dates (BACKLOG triggers), historical durations in audit logs, timeout values in code, or explicit user request for time framing.
+- **BLUF for user-facing briefs:** Are you leading with the recommendation, or burying it in caveats?
+  - WRONG: 5-page analysis where the recommendation appears in the middle of section 4
+  - RIGHT: 2-3 sentence Bottom Line Up Front, then context, then 2-3 alternatives with embedded risk per `meta-method-bluf-pyramid-briefing` (rules-of-procedure §7.13)
+  - **Scope:** rule applies to user-facing decision briefs and recommendations. Does NOT apply to internal technical artifacts (plan files, ADRs, spec documents, audit logs).
+- **External input — gap analysis, not coverage analysis:** When the user presents external articles, research, or tools, evaluate for *what's new or different* — not whether existing coverage makes it unnecessary. Coverage overlap does not equal zero value. Anticipatory learning is valid per backlog philosophy. The frame is "what can we learn from this?" not "do we already have this?"
+  - WRONG: "All 12 rules map to things we already cover — no action needed."
+  - RIGHT: "10 of 12 are covered. The instruction density ceiling is new evidence for a measurable risk we should track. Rule 7 names a failure mode we haven't explicitly codified."
+- **Conflicting patterns:** When two approaches exist in the codebase or discussion, are you picking one and explaining why, or silently blending them?
+  - WRONG: Writing code that uses both async/await try/catch AND a global error boundary, satisfying both patterns but creating incoherent behavior
+  - RIGHT: Pick the more recent or better-tested pattern, explain the choice, flag the other for cleanup
+- **Comprehension scaffold:** For non-trivial outputs, present a brief comprehension scaffold — intent (what goal, why this approach), boundaries (assumptions, exclusions, scope), handoff (what to verify, where to debug). Scale depth to stakes per `meta-quality-effective-efficient-outputs` and rules-of-procedure §16.8. The human chooses engagement depth: Understood / Acknowledged / Explain / Continue (silence = Acknowledged). Never block on the response.
+  - WRONG: Generating 300 lines of code and moving to the next task with no scaffold
+  - RIGHT: "INTENT: adds rate limiting via token bucket for memory efficiency. BOUNDARIES: assumes Redis available, untested above 10k req/s. HANDOFF: verify Redis config, rate limit values need business input."
+- **Intent over literal ask:** Before producing something a request asks for, if you already hold evidence it's redundant/obsolete/contradicted (and it's non-trivial), surface it in one line and let the *user* decide proceed-or-drop — don't proceed on your own judgment, don't do both. Per `meta-core-systemic-thinking` (Literal Compliance Trap); reversible/trivial → just do it.
+  - WRONG: Already verified the conversion in /tmp, then created the `-2.pdf` anyway — worse, *flagged it AND complied* ("the user explicitly asked" is not sufficient reason to produce something you've shown is redundant)
+  - RIGHT: "My /tmp run already verified this — do you want a file in your folder, or are we good?" then act on the answer
+- **Default register:** Are you committing to the claim and trusting the reader, or writing in the AI default register (hedging, throat-clearing, manufactured emphasis, padding)? Advisory — shifts the default, doesn't eliminate every tell. Per `meta-method-default-register-discipline` (rules-of-procedure §7.14).
+  - WRONG: "It's worth noting that there are really a number of important factors to weigh here — and that, ultimately, is the key point." (unbacked hedge + throat-clear + filler + em-dash flourish)
+  - RIGHT: Stand behind the claim, open on the substance, let content carry the emphasis, say it once. Strip the *unearned* default; keep the writer's voice. Function-test, not a banlist — a device is fine when it carries information, slop when it manufactures drama a plain statement would convey.
+  - **Scope:** the AI's own prose. Does NOT apply to a human author's or character's voice being preserved (`stor-safety-e1-human-voice-preservation`), verbatim quoted material, code, or a deliberately-specified register/persona.
+
+Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9), Effort-Not-Time Estimation (§7.12), BLUF-Pyramid Briefing (§7.13), Comprehension Scaffold Format (§16.8), Default-Register Discipline (§7.14).
+
+## Governance — ENFORCED BY HOOK
+
+Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is structural, not advisory.
+
+- `evaluate_governance(planned_action="...")` — required before any non-read action
+- `query_project(query="...")` — required before creating or modifying code/content
+- `contrarian-reviewer` via Task subagent — required before `ExitPlanMode` (per pre-exit-plan-mode-gate hook, session-122). Invoke unprompted during plan-writing to pressure-test the approach BEFORE approval. Bypasses: `PLAN_CONTRARIAN_CONFIRMED=1` (semantic) + `PLAN_CONTRARIAN_SKIP_HOOK=1` (structural, audit-logged).
+
+**Content-security hook (Layer 2):** `pre-tool-content-security.sh` blocks Bash commands accessing machine-level credential paths (`~/.ssh/*`, `~/.aws/*`, `~/.gnupg/*`, `~/.netrc`, `~/.docker/config.json`, `~/.kube/config`, `~/.npmrc`, `/etc/ssl/private/*`, `*.key`). Layer 1 (Read deny rules in user settings) covers the Read tool. Bypass: `CONTENT_SECURITY_SKIP=1`. Origin: BACKLOG #19.
+
+**Skip list (narrow):** reading files, non-sensitive questions, trivial formatting, user says "skip governance/CE". Note: analysis tasks that determine what to change (propagation checks, audit reviews) are NOT read-only — they lead to writes. Call governance before analysis, not just before the write.
+
+**Eat your own dogfood:** Use governance tools AND subagents for your own analysis work — propagation checks, compliance audits, documentation reviews. The coherence-auditor catches cross-file drift that manual grep misses. The validator catches structural defects. Don't reserve subagents only for user-requested reviews.
+
+After evaluating: cite principle IDs that influence your approach.
+
+**Reference search:** `search_references(query="...")` — recommended before implementing code patterns. Surfaces proven precedent from the Reference Library. Not structurally enforced (unlike governance/CE), but expected for implementation tasks. Separate from governance (principles) and query_project (existing code).
+
+**Search default: CE first.** Use `query_project` as your default search tool for all discovery, investigation, and "what exists?" queries. It finds what you cannot name precisely — concept discovery, pattern search, impact analysis. Use Grep/Glob ONLY for: exact-string lookup in a known file, regex patterns, counting occurrences, or verifying a specific line number. If you're writing a multi-word grep or searching recursively without a specific file target, use CE instead.
+
+**Known hook workaround — OOM-gate FP on `pytest` in commit messages:** When a `git commit` message body contains `pytest` inside a quoted region (heredoc body or alternation argument), the OOM gate (`pre-test-oom-gate.sh`) false-positives because its token-anchored matcher cannot distinguish executable position from quoted-region content. Write the message to a tempfile via the Write tool and commit via `git commit -F <messagefile>`. Tracked as OPERATIONS.md T-143 (deferred — asymmetric cost: hook modification risks TP-regression vs. low workaround friction).
+
+**Known hook limitation — subagent transcript isolation:** When subagents call `evaluate_governance` and `query_project`, those calls are recorded in the subagent's transcript, not the parent's. The governance hook scans only the parent transcript, so subagent compliance is invisible to enforcement. A read-only Bash command allowlist (`git log`, `ls`, `grep`, etc.) lets read-only subagents (contrarian-reviewer, security-auditor) bypass governance enforcement for provably safe commands. Mutation subagents (test-generator, documentation-writer) remain blocked until Claude Code adds agent context to hook input. Disable the allowlist with `READONLY_BASH_SKIP=true`. Tracked as OPERATIONS.md T-152.
+
+## Subagents
+
+10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:
+
+code-reviewer, test-generator, security-auditor, documentation-writer, orchestrator, validator, contrarian-reviewer, coherence-auditor, continuity-auditor, voice-coach
+
+Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/`. CI verifies byte-match. CFR §2.2 (title-20-multi-agent-cfr.md) describes agent patterns but references canonical files — it does not duplicate full definitions. `list_agents` MCP tool provides cross-platform agent discovery. Non-Claude platforms use `install_agent` to retrieve full definitions with adaptation guidance.
+
+- `.claude/agents/` — Local agent installations (synced from `documents/agents/`)
+- `.claude/skills/` — Project skills (invoke via `/skill-name`). Decision matrix for skill vs hook vs subagent vs workflow: EXECUTION-FRAMEWORK.md §3.7.
+- `global-skills/` — Canonical source for the user-level global skills installed at `~/.claude/skills/`. Edit here first, then `scripts/sync-global-skills.sh link` (symlink → zero drift) or `install` (copy, for repo-less machines); `--check` guards drift. CI can't byte-match this pair (the install lives outside the repo), so the script's `link` mode is the structural guard. Provenance rule: framework-owned skills (e.g. `dream`, `journal`) belong under `global-skills/`; only third-party skills with their own upstream/license (`prompt-master` — MIT, install-by-clone+pin per CFR Appendix M.3.1) have no repo canonical and are left untouched.
+
+## Defer vs Fix Now (Implements governance methods Part 7.11)
+
+When you discover issues during a task, **finish the user's requested task first**, then classify:
+
+| Category | Action | Examples |
+|----------|--------|----------|
+| **Fix (same session)** | Fix after completing the current task, before session end. Limit: ≤3 files, no cascading discovery. | Stale footer, broken cross-ref, missing version entry |
+| **Defer (with tracking)** | Add to BACKLOG.md discussion section with enough detail to reconstruct. | New capability, domain addition, architectural change |
+| **Ask the user** | Present what you found; let the user decide. | Anticipatory work, fixes touching >3 files, ambiguous scope |
+
+**Why this rule exists:** Forward-continuation bias makes "fix it later" the AI's path of least resistance. Session discontinuity means "later" often means "never." But unbounded "fix everything now" causes scope creep. This rule balances both failure modes: fix what's cheap and known, track what's not, never surprise the user with unsolicited large changes.
+
+## Session Lifecycle
+
+**At session start:** Read all four memory files: SESSION-STATE.md (current position), PROJECT-MEMORY.md (constraints and decisions), LEARNING-LOG.md (mistakes to avoid), OPERATIONS.md (active cadences, tripwire triggers, metric baselines). Then prune SESSION-STATE.md if >300 lines: remove old session summaries (keep only most recent), clear stale context, route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md. Target: <300 lines per §7.0.4. Context retention priority policy: EXECUTION-FRAMEWORK.md §7.
+
+**At session end:** Update SESSION-STATE.md with current position and session summary. If >300 lines, apply §7.0.4 distillation before committing. When a governance evaluation's principles notably influenced a decision during the session — positively (right principle at right time) or negatively (irrelevant principle surfaced) — call `log_feedback(query, principle_id, rating=1-5)` before session end. Not every evaluation; only when principles made a visible difference or were notably off-target.
+
+**Journal reminders:** When you see a JOURNAL reminder in additionalContext, spawn a background Agent (model: sonnet, run_in_background: true) to analyze the transcript and return memory proposals categorized by target file. Apply the proposals you agree with. The subagent must NOT write to files directly — it returns proposals only. For manual triggering, invoke `/journal`. For cross-session enrichment (mining completed transcripts), invoke `/dream`. See CFR §7.11. **Cadence reminders:** a SessionStart hook surfaces due maintenance cadences (e.g. `/dream`, `/compliance-review`) at session start — surfacing is automatic; acting on it is your call (EXECUTION-FRAMEWORK §7.2).
+
+**Backlog items:** Discussion and deferred items live in BACKLOG.md, not SESSION-STATE.md.
+
+## Plan Mode
+
+For architecture decisions, use the plan template at `.claude/plan-template.md`. The template structure puts contrarian review, research verification, and simpler-alternatives evaluation BEFORE the recommended approach — making verification part of the generation flow, not an afterthought. (Per Systemic Thinking + autoregressive forward-continuation bias research.)
+
+**Action atomicity** (template Section: Recommended Approach): each task entry must name a single action category from `{write failing test, run test, implement minimal code, refactor, verify}` and include `**Files:**` + `**Verification:**` lines. Combined tasks ("implement and test") must split. Vague verbs ("update", "improve", "handle") are not action categories. Advisory until the WARN-mode hook gate ships; structural enforcement deferred per V-004 advisory→structural arc.
+
+## Quick Recall — Behavioral Floor (see top of file)
+
+Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs. External input: gap analysis, not coverage analysis. Conflicting patterns: pick one, don't blend. Comprehension scaffold: intent/boundaries/handoff on non-trivial outputs. Intent over literal ask: surface redundancy, let the user decide — never flag-and-comply. Default register: commit, trust the reader, earn emphasis with content, say it once — strip the unearned default, keep the voice.

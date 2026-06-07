@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+!.claude/hooks/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Linting
+.ruff_cache/
+
+# Misc
+.Rhistory
+
+# Logs
+logs/*.jsonl
+logs/feedback_loop_analysis.json
+
+# Benchmark baselines (generated per-run, not canonical)
+tests/benchmarks/baseline_*.json
+tests/benchmarks/ce_baseline_*.json
+
+# Model cache (large, can be re-downloaded)
+.cache/
+
+# Environment
+.env
+.env.local
+private-domains/
+private-reference-library/
+
+# Claude Code session-transient working state (not canonical)
+.claude/plans/
+.claude/projects/
+.claude/scheduled_tasks.lock
+# In-repo git worktrees (session-transient; keep parent status clean + out of the CE index)
+.claude/worktrees/

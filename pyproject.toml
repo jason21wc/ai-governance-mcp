@@ -1,0 +1,86 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-governance-mcp"
+version = "2.0.0"
+description = "MCP server for AI governance document retrieval"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Jason"}
+]
+keywords = ["mcp", "ai", "governance", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "mcp==1.26.0",
+    "pydantic==2.11.9",
+    "pydantic-settings==2.11.0",
+    "sentence-transformers==5.2.0",
+    "rank-bm25==0.2.2",
+    "numpy==1.26.4",
+    "requests>=2.33.0",  # Required by sentence-transformers but not declared as of huggingface-hub>=1.0
+    "pyyaml>=6.0",  # YAML frontmatter parsing for reference library entries
+]
+
+[project.optional-dependencies]
+context-engine = [
+    "pathspec>=1.0.0,<2",
+    "watchdog>=4.0.0",
+    "tree-sitter-language-pack>=0.7.0,<1.0",
+    "pymupdf>=1.24.0",
+    "pdfplumber>=0.10.0",
+    "openpyxl>=3.1.0",
+    "Pillow>=12.1.1,<13",
+]
+knowledge-graph = [
+    "cognee>=1.0.9,<2",
+    "fastembed>=0.4.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "pip-audit>=2.7.0",
+    "bandit>=1.7.0",
+    "safety>=3.0.0",
+    "ruff==0.12.0",
+    "pre-commit>=4.0.0",
+]
+
+[project.scripts]
+ai-governance-mcp = "ai_governance_mcp.server:main"
+ai-governance-proxy = "ai_governance_mcp.enforcement:main"
+ai-governance-extract = "ai_governance_mcp.extractor:main"
+ai-context-engine = "ai_governance_mcp.context_engine.server:main"
+context-engine-watcher = "ai_governance_mcp.context_engine.watcher_daemon:main"
+context-engine-service = "ai_governance_mcp.context_engine.service:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_governance_mcp"]
+
+[tool.pytest.ini_options]
+# public-release deselect (domain-coupled tests N/A in the public repo)
+addopts = ["--deselect", "tests/test_server.py::TestUiUxDomainIntegration", "--deselect", "tests/test_server.py::TestAoSeriesProductionIndex", "--deselect", "tests/test_server_governance.py::TestAccountingDomainIntegration", "--deselect", "tests/test_scaffold_parity.py::TestScaffoldParityWithCFR152", "--deselect", "tests/test_extractor_integration.py::TestTitle10AgentOperations", "--deselect", "tests/test_extractor_integration.py::TestExtractorErrorHandling::test_extract_all_fails_fast_for_missing_documents", "--deselect", "tests/test_reference_library.py::TestGovernanceExtractorReferences", "--deselect", "tests/test_server_scaffold.py::TestCaptureReference", "--deselect", "tests/test_server_scaffold.py::TestCaptureReferenceTargetRoot", "--deselect", "tests/test_server_agents.py::TestInstallAgent::test_install_agent_non_claude_environment"]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["tests"]
+markers = [
+    "slow: marks tests as slow (require real ML models, deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "real_index: marks tests using production index",
+    "model_eval: marks model comparison tests (download models, never auto-run in CI)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:sentence_transformers",
+]

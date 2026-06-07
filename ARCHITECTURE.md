@@ -1,0 +1,717 @@
+# AI Governance MCP — Architecture
+
+**Version:** 2.0.0
+**Date:** 2026-04-12
+**Memory Type:** Structural (reference)
+
+> System design, component responsibilities, data flow.
+> For decisions/rationale → PROJECT-MEMORY.md
+> Avoid volatile metrics here (test counts, coverage %, dependency versions) — use canonical sources (`pytest`, `pytest --cov`, `pyproject.toml`).
+
+**Phase:** COMPLETE — 20 tools across 2 MCP servers
+
+---
+
+## System Structure
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  AI GOVERNANCE MCP                                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │   server    │───→│  retrieval  │───→│   models    │    │   config    │  │
+│  │             │    │             │    │             │    │             │  │
+│  │ MCP tools   │    │ Router      │    │ Pydantic    │    │ Settings    │  │
+│  │ exposed to  │    │ Hybrid      │    │ schemas     │    │ Paths       │  │
+│  │ AI clients  │    │ Reranker    │    │             │    │             │  │
+│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
+│         │                  │                                                │
+│         │                  ▼                                                │
+│         │           ┌─────────────┐                                         │
+│         │           │   index     │  (loaded at startup, auto-reloaded)     │
+│         │           │             │                                         │
+│         │           │ principles  │                                         │
+│         │           │ embeddings  │                                         │
+│         │           │ domains     │                                         │
+│         │           └─────────────┘                                         │
+│         │                  ▲                                                │
+│         │                  │ (built offline)                                │
+│         │           ┌─────────────┐                                         │
+│         │           │  extractor  │───→ Parses markdown docs                │
+│         │           └─────────────┘                                         │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌─────────────┐                                                            │
+│  │  feedback   │  (append-only log)                                         │
+│  └─────────────┘                                                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Component Responsibilities
+
+| Component | What It Does | Why Separate |
+|-----------|--------------|--------------|
+| **server/** | Exposes MCP tools, handles requests (11-module package) | Single entry point for AI clients |
+| **retrieval.py** | Domain routing, hybrid search, reranking | Core intelligence, testable in isolation |
+| **extractor.py** | Parses docs, builds index, generates embeddings | Runs offline, not at runtime |
+| **models.py** | Pydantic schemas for principles, domains, results | Type safety, validation, serialization |
+| **config.py** | Settings, paths, environment config | Centralized configuration |
+| **index/** | Pre-built JSON + embeddings | Fast startup, no runtime parsing |
+| **feedback.jsonl** | Append-only retrieval feedback log | Enables future improvement |
+
+---
+
+## Data Flow
+
+**Build Time (offline, when docs change):**
+```
+documents/*.md  →  extractor.py  →  index/global_index.json
+                                 →  index/content_embeddings.npy
+                                 →  index/domain_embeddings.npy
+```
+
+**Runtime (every query):**
+```
+AI query  →  server/  →  retrieval.py  →  index (in memory)  →  results
+```
+
+---
+
+## File Structure
+
+```
+ai-governance-mcp/
+├── src/
+│   └── ai_governance_mcp/
+│       ├── __init__.py
+│       ├── server/             # MCP server package (16 tools)
+│       │   ├── __init__.py    # Public API re-exports
+│       │   ├── _app.py        # MCP setup, list_tools, call_tool, main
+│       │   ├── _state.py      # Mutable globals, get_engine, get_metrics
+│       │   ├── _logging.py    # Audit/reasoning logs, rotation
+│       │   ├── _security.py   # Sanitization, rate limiting, instruction validation
+│       │   ├── _constants.py  # Templates, metadata, keywords
+│       │   └── handlers/      # Tool handler implementations
+│       │       ├── retrieval.py   # query_governance, get_principle, list_domains, search_references
+│       │       ├── governance.py  # evaluate_governance, verify_governance
+│       │       ├── agents.py      # install/uninstall/list agents
+│       │       ├── scaffold.py    # scaffold_project, capture_reference
+│       │       └── analysis.py    # analyze_feedback_loop
+│       ├── retrieval.py       # Search logic
+│       ├── extractor.py       # Doc parsing, index building
+│       ├── models.py          # Pydantic schemas
+│       ├── config.py          # Settings
+│       ├── config_generator.py # Multi-platform MCP configs
+│       └── validator.py       # Principle ID validation
+│
+├── Dockerfile                 # Multi-stage build for Docker distribution
+├── docker-compose.yml         # Local testing configuration
+├── .dockerignore              # Docker build exclusions
+│
+├── index/                     # Generated
+│   ├── global_index.json      # Serialized GlobalIndex
+│   ├── content_embeddings.npy # Principle/method embeddings (384-dim)
+│   └── domain_embeddings.npy  # Domain embeddings for routing (384-dim)
+│
+├── documents/                 # Source markdown docs (Constitutional naming)
+│   ├── constitution.md        # Meta-Principles (Articles I-V, Amendments)
+│   ├── rules-of-procedure.md  # Meta-Methods (governance procedures)
+│   ├── title-10-ai-coding.md  # Domain principles (Federal Statutes)
+│   ├── title-10-ai-coding-cfr.md # Domain methods (Code of Federal Regs)
+│   ├── title-15-ui-ux.md      # ... (7 domains × 2 files = 14 domain docs)
+│   ├── title-15-ui-ux-cfr.md
+│   ├── title-20-multi-agent.md
+│   ├── title-20-multi-agent-cfr.md
+│   ├── title-22-accounting.md
+│   ├── title-22-accounting-cfr.md
+│   ├── title-25-kmpd.md
+│   ├── title-25-kmpd-cfr.md
+│   ├── title-30-storytelling.md
+│   ├── title-30-storytelling-cfr.md
+│   ├── title-40-multimodal-rag.md
+│   ├── title-40-multimodal-rag-cfr.md
+│   └── domains.json           # Optional domain overrides (domains discovered from files)
+│
+├── logs/
+│   ├── feedback.jsonl         # Retrieval feedback
+│   ├── queries.jsonl          # Query audit log
+│   ├── governance_audit.jsonl # Governance evaluation audit trail
+│   └── governance_reasoning.jsonl # Per-principle reasoning traces
+│
+├── scripts/                           # Utility scripts
+│
+├── tests/
+│   ├── conftest.py                    # Shared fixtures
+│   ├── fixtures/                      # Test data files
+│   ├── benchmarks/                    # Baseline metrics (MRR, Recall)
+│   ├── test_models.py                 # Model validation
+│   ├── test_config.py                 # Config + env vars
+│   ├── test_server.py                 # Dispatcher, infrastructure, security
+│   ├── test_server_retrieval.py       # Retrieval handler tests
+│   ├── test_server_governance.py      # Governance handler tests
+│   ├── test_server_agents.py          # Agent handler tests
+│   ├── test_server_scaffold.py        # Scaffold handler tests
+│   ├── test_server_integration.py     # Dispatcher routing, end-to-end flows
+│   ├── test_extractor.py             # Parsing, embeddings, metadata
+│   ├── test_extractor_integration.py  # Full pipeline, index persistence
+│   ├── test_retrieval.py             # Hybrid search, reranking, edge cases
+│   ├── test_retrieval_integration.py  # Pipeline, utilities, performance
+│   ├── test_retrieval_quality.py     # MRR/Recall benchmarks
+│   ├── test_config_generator.py      # Platform config generation
+│   ├── test_validator.py             # Principle ID validation, fuzzy matching
+│   ├── test_hooks.py                 # Hook enforcement tests
+│   ├── test_enforcement.py          # Layer 3 enforcement proxy tests
+│   ├── test_analyze_compliance.py    # Compliance analysis tests
+│   ├── test_context_engine.py        # Full context engine coverage
+│   ├── test_context_engine_quality.py # CE MRR/Recall benchmarks
+│   ├── test_watcher_daemon.py        # Watcher daemon tests
+│   ├── test_readonly.py              # Read-only mode tests
+│   ├── test_reference_library.py     # Reference library tests
+│   └── test_service.py               # Platform service installer tests
+│
+├── .claude/hooks/                     # Pre/post tool use hooks
+│
+├── staging/                    # Temporary AI input (always present)
+├── .claude/skills/
+│   ├── completion-sequence-aigov/ # Post-change steps (invoke via /completion-sequence-aigov)
+│   ├── compliance-review/     # Periodic governance health (invoke via /compliance-review)
+│   └── test-authoring/        # Test creation protocol (invoke via /test-authoring)
+├── pyproject.toml
+└── README.md
+```
+
+---
+
+## Architecture Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **Separate extractor** | Docs change rarely; don't parse at runtime |
+| **In-memory index** | Fast queries (<100ms target); rebuild is cheap |
+| **Retrieval isolated** | Can test/tune search without MCP complexity |
+| **Pydantic models** | Validation, IDE support, clean serialization |
+| **Append-only feedback** | Simple, no DB needed, enables future learning |
+| **Dependency pinning** | Core deps exact-pinned for reproducibility; optional deps range-pinned for compatibility (see pyproject.toml) |
+
+---
+
+## Governance Enforcement Architecture
+
+Three-layer enforcement stack ensuring governance compliance:
+
+```
+AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
+    │
+    │         ┌─────────────────────────────────────────────────────┐
+    │ Layer 2 │ Claude Code hooks (.claude/hooks/) — Claude only    │
+    │         │ PreToolUse: blocks Bash|Edit|Write without gov call │
+    │         └─────────────────────────────────────────────────────┘
+    │
+    ├── ai-governance-mcp (via proxy) ◄── Layer 3 Phase 1
+    │       │
+    │       ▼
+    │   ┌─────────────────────────────────────────────────────────┐
+    │   │ ENFORCEMENT PROXY (enforcement.py)                      │
+    │   │ Intercepts JSON-RPC tools/call at stdio protocol level  │
+    │   │ Blocks action tools without evaluate_governance() call  │
+    │   │ Works with ANY AI client — Cursor, Gemini CLI, etc.     │
+    │   │ Writes shared state on governance calls ──────────┐     │
+    │   └───────────────┬───────────────────────────────────│─────┘
+    │                   ▼                                   │
+    │   ┌─────────────────────────────────────────────────────────┐
+    │   │ GOVERNANCE MCP SERVER (server/) — Layer 1 (advisory)    │
+    │   │ SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER per response   │
+    │   │ evaluate_governance(): principle retrieval + assessment  │
+    │   └─────────────────────────────────────────────────────────┘
+    │                                                       │
+    │                                  shared state file ◄──┘
+    │                              (~/.ai-governance/enforcement-state.json)
+    │                                         │
+    ├── github MCP (via proxy --govern-all) ◄─┤ Layer 3 Phase 2
+    ├── filesystem MCP (via proxy --config) ◄─┤ reads shared state
+    └── other MCP servers (via proxy)       ◄─┘
+```
+
+| Layer | Mechanism | What it enforces | Coverage |
+|-------|-----------|-----------------|----------|
+| **1: Advisory** | SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER | Asks AI to call evaluate_governance() | All clients (~13% compliance) |
+| **2: Hooks** | PreToolUse transcript scanning (.claude/hooks/) | Blocks Bash/Edit/Write without governance | Claude Code only (~100%) |
+| **3: Proxy (Phase 1)** | stdio JSON-RPC interceptor (enforcement.py) | Blocks governance server action tools without governance | All clients (~100%) |
+| **3: Proxy (Phase 2)** | Same proxy wrapping third-party servers | Blocks any MCP server's tools without governance | All clients (~100%) |
+
+**Phase 1 — Self-enforcement:** Any AI client connecting to the governance server through the proxy must call `evaluate_governance()` before using action tools (`scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`, `log_feedback`, `log_governance_reasoning`). This works regardless of which AI model or IDE is used.
+
+**Phase 2 — Cross-MCP enforcement:** The same proxy wraps third-party MCP servers (GitHub, filesystem, etc.) to enforce governance before their state-modifying tools. Uses a shared state file for cross-process coordination — the governance proxy writes timestamps when `evaluate_governance()` is called, and cross-MCP proxy instances read them. See `examples/github-governance.yaml` for config format.
+
+```bash
+# Phase 2 usage:
+ai-governance-proxy --govern-all \
+    --always-allow "get_file_contents,list_issues,search_code" \
+    -- npx @modelcontextprotocol/server-github
+```
+
+**Entry points:**
+- Direct: `ai-governance-mcp` (server only, Layer 1)
+- Enforced: `ai-governance-proxy` (proxy + server, Layers 1+3)
+- Cross-MCP: `ai-governance-proxy --govern-all -- <server-cmd>` (Phase 2)
+- Claude Code: hooks provide Layer 2 regardless of entry point
+
+**Configuration:** `GOVERNANCE_ENFORCEMENT_ENABLED`, `GOVERNANCE_ENFORCEMENT_SOFT_MODE`, `GOVERNANCE_RECENCY_WINDOW`, `GOVERNANCE_STATE_FILE`, `GOVERNANCE_STATE_TTL`
+
+---
+
+## Docker Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  DOCKER BUILD (Multi-Stage)                                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Stage 1: BUILDER                     Stage 2: RUNTIME                      │
+│  ┌─────────────────────┐              ┌─────────────────────┐               │
+│  │ python:3.11-slim    │              │ python:3.11-slim    │               │
+│  │                     │              │                     │               │
+│  │ - Install deps      │              │ - Install deps      │               │
+│  │ - Build index       │──────────────│ - Copy index/       │               │
+│  │ - Generate embeds   │  (copy)      │ - Non-root user     │               │
+│  └─────────────────────┘              │ - Health check      │               │
+│                                       └─────────────────────┘               │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Component | Purpose |
+|-----------|---------|
+| **Multi-stage build** | Separate build (gcc, index generation) from runtime |
+| **CPU-only PyTorch** | Avoids 2GB+ CUDA dependencies |
+| **Non-root user** | Security hardening (appuser) |
+| **Pre-built index** | No model loading during build; copied from builder |
+| **Health check** | Container monitoring for orchestration |
+
+**Image size:** ~1.6GB (dominated by ML dependencies)
+
+---
+
+## Security Architecture
+
+| Aspect | Approach | Rationale |
+|--------|----------|-----------|
+| **Authentication** | None (v1) | Local use; future phase adds auth |
+| **Data access** | Read-only from index; `scaffold_project` and `capture_reference` write to project directory | Source docs read-only; project scaffolding writes to caller's CWD |
+| **Feedback logging** | Append-only, local file | No sensitive data stored |
+| **Network exposure** | Local stdio only (MCP) | No HTTP server in v1 |
+| **Dependencies** | Verified packages only | Per spec §11 |
+
+**Future phase** (multi-user): Add authentication layer, user isolation. Rate limiting is implemented (token bucket algorithm).
+
+---
+
+## Integration Points
+
+| Integration | Protocol | Notes |
+|-------------|----------|-------|
+| AI Clients (Claude, etc.) | MCP (JSON-RPC over stdio) | Standard MCP interface |
+| Source Documents | File system read | Markdown files in documents/ |
+| Index | File system read | JSON + NumPy at startup |
+| Feedback Log | File system append | JSONL format |
+
+---
+
+## Test Architecture
+
+| Category | Files | Purpose |
+|----------|-------|---------|
+| **Unit** | test_models, test_config, test_validator | Isolated component validation |
+| **Server** | test_server, test_server_integration | All 13 MCP tools, dispatcher routing |
+| **Extractor** | test_extractor, test_extractor_integration | Parsing, embeddings, index build |
+| **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
+| **Quality** | test_retrieval_quality | MRR/Recall benchmarks |
+| **Config** | test_config_generator | Multi-platform MCP configurations |
+| **Hooks** | test_hooks | Hook enforcement validation |
+| **Compliance** | test_analyze_compliance | Compliance analysis |
+| **Context Engine** | test_context_engine | Full context engine coverage |
+| **CE Quality** | test_context_engine_quality | CE MRR/Recall benchmarks |
+
+### Test Markers (pyproject.toml)
+
+| Marker | Purpose |
+|--------|---------|
+| `@pytest.mark.slow` | Tests requiring actual ML models (~30s each) |
+| `@pytest.mark.integration` | End-to-end pipeline tests |
+| `@pytest.mark.real_index` | Tests using production index data |
+| `@pytest.mark.model_eval` | Model evaluation benchmarks |
+
+### Mocking Strategy
+
+ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtures:
+- Patch at `sentence_transformers.*` level (lazy-loaded imports)
+- Mock returns numpy arrays with correct shapes via `side_effect`
+- Fixed random seed for reproducible tests
+
+### Known Test Boundaries
+
+Deliberately uncovered areas (run `pytest --cov` for current percentages):
+- server/_app.py: `async run_server()` — entry point, tested via integration
+- extractor.py: CLI `main()` — invoked manually
+- retrieval.py: Rare filesystem error paths
+
+---
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| mcp | MCP Python SDK (`mcp.server.Server`) |
+| pydantic / pydantic-settings | Data models + configuration |
+| sentence-transformers | Embeddings + reranking |
+| rank-bm25 | BM25 keyword search |
+| numpy | Vector operations |
+| requests | HTTP (required by sentence-transformers) |
+| pytest / ruff | Testing + linting (dev) |
+
+See `pyproject.toml` for pinned versions.
+
+---
+
+## Context Engineering Strategy
+
+How the project's memory files implement the cognitive memory architecture (title-10-ai-coding-cfr §7.0).
+
+### Memory Types and Loading
+
+| Cognitive Type | File | Loaded When | Content |
+|----------------|------|-------------|---------|
+| **Working** | `SESSION-STATE.md` | Always at session start | Current position, active task, blockers, next actions |
+| **Semantic** | `PROJECT-MEMORY.md` | Always at session start | Decisions, constraints, gotchas, patterns |
+| **Episodic** | `LEARNING-LOG.md` | Always at session start | Lessons learned, active and graduated |
+| **Structural** | `ARCHITECTURE.md` (this file) | On demand (design questions) | System design, components, data flow |
+| **Charter** | `README.md` | On demand (scope questions) | Project purpose, public contract, scope boundaries |
+| **Procedural** | Methods documents in `documents/` | Via MCP retrieval | How to do things (governance, coding, multi-agent) |
+| **Operational** | `.claude/skills/compliance-review/` | On demand (periodic review) | Governance system health checks, verification experiments |
+| **Prospective** | `BACKLOG.md` | On demand (deferred work) | Intentions to act, deferred capabilities, future work |
+| **Reference** | Context Engine index | Via MCP query | Project content, semantically searchable |
+
+### Loading Sequence
+
+```
+Session Start:
+  1. CLAUDE.md (auto-loaded by Claude Code → points to memory files)
+  2. SESSION-STATE.md (where are we? what's next?)
+  3. PROJECT-MEMORY.md (what constraints apply?)
+  4. LEARNING-LOG.md (what mistakes to avoid?)
+
+On Demand:
+  5. ARCHITECTURE.md (how does the system work?)
+  6. README.md (does this feature fit the project scope?)
+  7. query_governance() / get_principle() (what do the methods say?)
+  8. query_project() (what code/content exists where?)
+  9. /compliance-review skill (is the governance system healthy?)
+ 10. BACKLOG.md (what's deferred? what needs discussion?)
+```
+
+### Memory Consistency Rules
+
+- **Single Source of Truth**: Each fact has exactly one canonical location. Don't duplicate across files.
+- **Platform memory is hands-off**: LLM platform memory (e.g., Claude Code's `~/.claude/.../MEMORY.md`) is the platform's concern, not ours. Framework files are authoritative. CLAUDE.md is the bridge. See Appendix G.5 in rules-of-procedure.
+- **Lifecycle alignment**: Working memory is overwritten each session. Semantic memory accumulates. Episodic memory prunes when lessons graduate to methods.
+- **Distillation triggers**: SESSION-STATE >300 lines, PROJECT-MEMORY >800 lines, LEARNING-LOG ~200 lines trigger review (not hard ceilings).
+
+---
+
+## Failure Mode Mapping
+
+Known failure modes for the multi-agent and orchestration patterns used in this project (title-20-multi-agent-cfr §3.3).
+
+### Orchestrator Failure Modes
+
+| Failure Mode | Cause | Detection | Mitigation |
+|--------------|-------|-----------|------------|
+| **Governance bypass** | Orchestrator skip-list too broad; action not evaluated | `verify_governance_compliance()` returns NON_COMPLIANT | Narrow skip-list; default to evaluate when in doubt |
+| **False ESCALATE** | S-Series keyword scan triggers on benign terms (e.g., "security fix") | Review `principles` array in assessment — keywords triggered but no real violation | CRITICAL/ADVISORY tiering filters most cases; sentence-level safe-context allowlist (per FM-S-SERIES-KEYWORD-FALSE-POSITIVE re-registered 2026-05-01) demotes envelope matches when no imperative-action verb is present; imperative verbs override demotion to defend bypass vector. Path B (semantic retrieval FP for housekeeping actions) remains tracked separately. |
+| **Stale index** | Server caches index at startup; index rebuilt but server not restarted | Queries return outdated or missing results | Auto-reload: server checks index mtime on each query and reloads when changed. No restart needed. |
+| **Context overflow** | Long conversation exceeds context window; governance instructions lost | AI stops calling `evaluate_governance()`; responses drift from framework | Per-response reminder (~30 tokens) appended to every tool response |
+
+### Subagent Failure Modes
+
+| Failure Mode | Cause | Detection | Mitigation |
+|--------------|-------|-----------|------------|
+| **Token limit exceeded** | Subagent task too broad; output exceeds max_turns | Agent returns truncated or incomplete results | Scope tasks narrowly; set appropriate max_turns |
+| **Tool unavailability** | Subagent type doesn't have required tool (e.g., documentation-writer can't run Bash) | Tool call rejected | Check agent tool list before delegating; use general-purpose if mixed tools needed |
+| **Context loss** | Custom agent files (.claude/agents/) are reference docs, not auto-loaded | Agent doesn't follow role instructions | Inline role instructions in Task prompt; or read agent file first (LEARNING-LOG lesson) |
+| **Stale delegation** | Orchestrator delegates based on outdated understanding of codebase | Subagent produces incorrect output | Load SESSION-STATE before delegating; include current context in handoff |
+
+### Circuit Breaker Scenarios
+
+| Scenario | Trigger | Recovery |
+|----------|---------|----------|
+| **Repeated validation failure** | Same gate fails 3+ times | Escalate to user — indicates systemic issue |
+| **Index corruption** | `global_index.json` malformed or embeddings shape mismatch | Re-run `python -m ai_governance_mcp.extractor` from source docs |
+| **Feedback loop** | `log_feedback()` boosts irrelevant principles, degrading future retrieval | Review feedback.jsonl; remove erroneous entries; rebalance boost/penalty weights |
+| **Memory file bloat** | SESSION-STATE >300 lines, causing slow context loading | Apply distillation triggers (§7.0.4); prune completed work |
+
+---
+
+## Proof-of-Concept Results
+
+Key technical decisions validated through prototyping and benchmarking (title-10-ai-coding-cfr §3.1.4).
+
+### Embedding Model Selection
+
+| Model | Token Limit | MRR (Methods) | Decision |
+|-------|-------------|---------------|----------|
+| `all-MiniLM-L6-v2` | 256 | 0.330 | **Rejected** — key content truncated beyond 256 tokens |
+| `BAAI/bge-small-en-v1.5` | 512 | 0.698 | **Selected** — +112% MRR improvement |
+
+**Why BGE won:** Method chunks frequently exceed 256 tokens. MiniLM truncated critical content (purpose, applies_to fields) that appeared after the token limit. BGE's 512-token window captures the full chunk content needed for accurate semantic matching. Both models produce 384-dimension embeddings, so the switch required no infrastructure changes.
+
+### Retrieval Quality Benchmarks
+
+Current metrics (see `tests/benchmarks/` for latest baseline, model: `BAAI/bge-small-en-v1.5`):
+
+| Metric | Value | Threshold | Status |
+|--------|-------|-----------|--------|
+| Method MRR | 0.694 | >= 0.60 | Pass |
+| Principle MRR | 0.688 | >= 0.50 | Pass |
+| Method Recall@10 | 0.833 | >= 0.75 | Pass |
+| Principle Recall@10 | 0.875 | >= 0.85 | Pass |
+
+**Methodology:** 13 principle + 12 method benchmark queries covering 4 of 8 domains (constitution, ai-coding, multi-agent, accounting). Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Canonical source: `tests/benchmarks/`.
+
+### Hybrid Search Validation
+
+| Approach | Miss Rate | Notes |
+|----------|-----------|-------|
+| BM25 only | ~5% | Misses semantic synonyms |
+| Semantic only | ~3% | Misses exact terminology |
+| Hybrid (60/40) | <1% | Complementary strengths |
+
+The 60% semantic / 40% keyword weight was determined empirically. Semantic search handles paraphrased queries ("how to handle incomplete specs" → specification-completeness). BM25 handles exact matches ("S-Series" → safety principles). Combined, they achieve <1% miss rate.
+
+### Latency Profile
+
+| Operation | Typical | Target | Notes |
+|-----------|---------|--------|-------|
+| Model load (first query) | ~9s | <=15s | One-time cost at startup |
+| Subsequent queries | ~50ms | <100ms | In-memory search + reranking |
+| Index rebuild | ~30s | N/A | Offline operation |
+
+### Storage Architecture Decision
+
+| Option | Pros | Cons | Decision |
+|--------|------|------|----------|
+| In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
+| Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
+
+**Rationale:** With ~780 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
+
+---
+
+## Context Engine MCP Server
+
+A second MCP server providing semantic search across project content. Complements the governance MCP server (principles/methods) with project-specific content awareness.
+
+### System Structure
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  CONTEXT ENGINE MCP                                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                     │
+│  │   server    │───→│  project    │───→│   indexer   │                     │
+│  │             │    │  manager    │    │             │                     │
+│  │ 4 MCP tools │    │             │    │ Embedding   │                     │
+│  │ Validation  │    │ Multi-proj  │    │ BM25 build  │                     │
+│  │ Rate limit  │    │ Hybrid QRY  │    │ Connectors  │                     │
+│  │ Sanitize    │    │ RLock sync  │    │             │                     │
+│  └─────────────┘    └─────────────┘    └─────────────┘                     │
+│                            │                  │                             │
+│                            ▼                  ▼                             │
+│                     ┌─────────────┐    ┌─────────────┐                     │
+│                     │   watcher   │    │ connectors  │                     │
+│                     │             │    │             │                     │
+│                     │ watchdog    │    │ code        │                     │
+│                     │ debounce 2s │    │ document    │                     │
+│                     │ cooldown 5s │    │ PDF         │                     │
+│                     │ circuit brk │    │ spreadsheet │                     │
+│                     └─────────────┘    │ image       │                     │
+│                            │           └─────────────┘                     │
+│                            ▼                                               │
+│                     ┌─────────────┐                                         │
+│                     │  storage    │  (~/.context-engine/indexes/{id}/)      │
+│                     │             │                                         │
+│                     │ filesystem  │  content_embeddings.npy,               │
+│                     │ JSON-based  │  bm25_index.json, metadata.json,       │
+│                     │             │  chunks.json, file_manifest.json       │
+│                     └─────────────┘                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Component Responsibilities
+
+| Component | What It Does | Why Separate |
+|-----------|--------------|--------------|
+| **server.py** | 4 MCP tools, input validation, rate limiting, error sanitization | Entry point, security boundary |
+| **project_manager.py** | Multi-project lifecycle, hybrid search (semantic + BM25), score fusion, cross-encoder reranking, MMR diversity, per-file dedup | Core query logic, thread-safe |
+| **indexer.py** | File discovery, connector orchestration, embedding generation, BM25 build | Indexing pipeline, heavy compute |
+| **watcher.py** | File system monitoring, debounced change callbacks (2s), post-index cooldown (5s), circuit breaker (3 failures) | Real-time updates, decoupled |
+| **connectors/** | Content-type-specific parsing (code, doc, PDF, spreadsheet, image) | Pluggable, independently testable |
+| **storage/** | Index persistence (filesystem-backed, JSON + NumPy) | Swappable backends |
+| **models.py** | Pydantic schemas (ContentChunk, ProjectIndex, QueryResult, etc.) | Type safety, validation |
+
+### Data Flow
+
+**Index Time (per project):**
+```
+project files  →  indexer._discover_files()  →  connectors.parse()  →  ContentChunks
+                                                                            │
+                   storage.save_*()  ←  BM25 index + embeddings  ←─────────┘
+```
+
+**Query Time (per request):**
+```
+AI query  →  server.py (validate)  →  project_manager.query_project()
+                                            │
+                 ┌──────────────────────────┤
+                 ▼                          ▼
+          semantic_search()          bm25_search()
+          (cosine similarity)        (keyword matching)
+                 │                          │
+                 └──────────┬───────────────┘
+                            ▼
+                     _fuse_scores()  (linear or RRF fusion + metadata bonuses)
+                            ▼
+                     _rerank_results()  (cross-encoder via IPC, graceful fallback)
+                            ▼
+                     _apply_mmr()  (adaptive diversity, threshold 0.85)
+                            ▼
+                     _deduplicate_per_file()  →  ranked QueryResult[]
+```
+
+**Real-time Update (file watcher — opt-in via `AI_CONTEXT_ENGINE_INDEX_MODE=realtime`):**
+```
+file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
+                                                              │
+                                                     reuse unchanged embeddings
+                                                     generate only for changed files
+                                                              │
+                                                     reload search indexes
+                                                              │
+                                                     cooldown (5s) before next re-index
+```
+
+**Self-Restart Lifecycle (Phase 0 — plan jiggly-honking-cascade.md):**
+```
+daemon start  →  heartbeat loop (60s ticks)  →  uptime check each tick
+                                                        │
+               ┌────────── elapsed < target ────────────┤ → continue (no-op)
+               │                                        │
+               │   elapsed ≥ target AND idle ≥ 5min  ──→ stop_event.set()  →  clean exit (0)
+               │                                        │
+               │   elapsed ≥ target × 1.5 (hard cap) ──→ stop_event.set()  →  clean exit (0)
+               │                                        │
+               └────────────────────────────────────────┘
+                                                        │
+         launchd KeepAlive=true  →  respawn (ThrottleInterval 30s)  →  fresh process
+```
+
+The self-restart mechanism flushes the PyTorch CPU allocator cache, which accumulates monotonically in long-running processes (sentence-transformers issues #1795, #487). Default: 12h target with ±10% jitter, 1h floor, 5-min idle gate / 1.5× hard cap. During the ~30s respawn window, file changes are not watched but are caught on next heartbeat via mtime replay. File deletions during the window are not recovered until the next full reindex — a documented accepted trade-off.
+
+### Security Features
+
+| Feature | Implementation | Location |
+|---------|---------------|----------|
+| **Input validation** | Type checks, length limits, bounds clamping | server.py |
+| **Rate limiting** | Token bucket (5 req/min) for index_project | server.py |
+| **Error sanitization** | Strip paths, line numbers, memory addresses, module paths | server.py |
+| **Path traversal prevention** | Hex-only project IDs, resolve + is_relative_to containment | storage/filesystem.py |
+| **Pickle deserialization** | allow_pickle=False on all np.load calls | storage/filesystem.py |
+| **JSON serialization** | BM25 index stored as JSON, not pickle | storage/filesystem.py |
+| **Symlink filtering** | Skip symlinks during file discovery, list_projects, delete_project | indexer.py, storage/filesystem.py |
+| **File size limits** | 10MB max per file during indexing | indexer.py |
+| **File count limits** | 10,000 max files per project | indexer.py |
+| **Thread safety** | RLock protecting shared index state; Lock guarding rate limiters (both servers) | project_manager.py, server.py |
+| **Decompression bomb guard** | PIL MAX_IMAGE_PIXELS limit set at connector init | connectors/image.py |
+| **Relative paths in output** | source_path computed relative to project root, not absolute | connectors/*.py |
+| **Log sanitization** | Truncate content before logging | server.py |
+| **Env var robustness** | try/except with fallback defaults for all env config | server.py |
+| **.env* filtering** | .env and all variants (.env.local, etc.) excluded by default | indexer.py |
+| **Atomic writes** | JSON: tmp + fsync + rename. NumPy: tmp + rename. Orphaned .tmp cleanup on init | storage/filesystem.py |
+| **Corrupt file recovery** | All load methods: try/except → log warning → delete corrupt file → return None | storage/filesystem.py |
+| **BM25 empty corpus guard** | Check `any(len(doc) > 0 for doc in corpus)` before BM25Okapi construction | project_manager.py |
+| **Column/row limits** | CSV/Excel: 500 columns max, 11 rows max (header + 10 sample) | connectors/spreadsheet.py |
+| **Chunk force-splitting** | Markdown and plain text force-split at 200 lines | connectors/document.py |
+| **Timer lifecycle** | Daemon threads for debounce/cooldown timers, cancel on stop(), running guard | watcher.py |
+| **Circuit breaker** | 3 consecutive watcher failures stops watcher, marks project circuit_broken | project_manager.py |
+| **LRU eviction** | Max 10 loaded projects, least-recently-used evicted | project_manager.py |
+| **JSON file size limits** | 100MB max for BM25 index, metadata, file manifest files | storage/filesystem.py |
+| **Watcher debounce + cooldown** | 2s debounce batches rapid changes; 5s cooldown prevents re-index storms | watcher.py |
+| **Watcher force-flush** | 10,000 pending changes triggers immediate flush (prevents unbounded memory) | watcher.py |
+| **Watcher change re-queue** | Failed callback changes re-added to pending set for retry | watcher.py |
+| **Daemon timer threads** | All Timer threads marked daemon (prevents blocking process exit) | watcher.py |
+| **Corrupt metadata recovery** | Pydantic validation failure → fallback to minimal empty ProjectIndex | project_manager.py |
+| **Orphan tmp cleanup** | On startup, removes .tmp files left by crashed atomic writes | storage/filesystem.py |
+| **Embedding model mismatch** | Warn on load if stored model differs from configured model | project_manager.py |
+| **Embedding model allowlist** | 8 vetted models; custom requires `AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true` | indexer.py |
+| **Chunk limits** | MAX_TOTAL_CHUNKS (100K), MAX_CHUNK_CONTENT_CHARS (10K), EMBEDDING_BATCH_SIZE (1K) | indexer.py |
+| **Cosine similarity clamping** | `np.clip(..., 0.0, 1.0)` prevents float32 overflow past Pydantic bounds | project_manager.py |
+
+### Context Engine File Structure
+
+```
+src/ai_governance_mcp/context_engine/
+├── __init__.py
+├── server.py            # MCP server (4 tools, validation, rate limiting)
+├── project_manager.py   # Multi-project management, hybrid query
+├── indexer.py           # Core indexing pipeline
+├── watcher.py           # File system watcher (watchdog)
+├── watcher_daemon.py    # Standalone watcher daemon (CLI)
+├── service.py           # Platform service installer (launchd/systemd/schtasks)
+├── models.py            # Pydantic data models
+├── connectors/
+│   ├── __init__.py
+│   ├── base.py          # BaseConnector interface
+│   ├── code.py          # Code parsing (keyword-based, tree-sitter prepared)
+│   ├── document.py      # Markdown/text parsing
+│   ├── pdf.py           # PDF extraction
+│   ├── spreadsheet.py   # CSV/Excel parsing
+│   └── image.py         # Image metadata extraction
+└── storage/
+    ├── __init__.py
+    ├── base.py          # BaseStorage interface
+    └── filesystem.py    # Local filesystem storage
+```
+
+### Context Engine Test Coverage
+
+All context engine tests are in `test_context_engine.py`. Run `pytest tests/test_context_engine.py -v` for current counts.
+
+| Category | Coverage Areas |
+|----------|---------------|
+| **Models** | ContentChunk, FileMetadata, ProjectIndex, QueryResult validation and constraints |
+| **Storage** | Filesystem round-trips, security (path traversal, symlinks), directory permissions, JSON size limits |
+| **Connectors** | Code/document/PDF/spreadsheet/image parsing, relative paths, resource cleanup |
+| **Indexer** | File discovery, ignore patterns (.contextignore, .env*), symlink filtering, file count limits, BM25 tokenization |
+| **Project Manager** | Score fusion, BM25 query, RLock thread safety, lifecycle (create/load/reindex/list/status/delete) |
+| **Server** | Error sanitization, rate limiting, input validation, env var parsing, handler routing |
+| **Watcher** | Start/stop, debounce, cooldown, force-flush, ignore spec passthrough, circuit breaker, daemon timers, status reporting |
+| **Integration** | Full index-query pipeline, .contextignore respect |
+
+### Context Engine Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| sentence-transformers / rank-bm25 / numpy | Shared with governance server (embeddings, BM25, vectors) |
+| watchdog | File system monitoring for real-time indexing |
+| tree-sitter | Language-aware code parsing |
+| pymupdf / pdfplumber | PDF content extraction (primary / fallback) |
+| openpyxl | Excel file parsing |
+| Pillow | Image metadata extraction |
+| pathspec | Gitignore-style pattern matching for .contextignore |
+
+See `pyproject.toml [project.optional-dependencies]` for versions.

@@ -1,0 +1,71 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+.tox
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+dist/
+build/
+*.whl
+
+# Project files not needed in container
+tests/
+logs/
+*.log
+
+# Markdown files except README (needed for pyproject.toml)
+ARCHITECTURE.md
+CLAUDE.md
+SESSION-STATE.md
+PROJECT-MEMORY.md
+LEARNING-LOG.md
+
+# Pre-built index (we rebuild in container)
+index/
+
+# Development files
+.pre-commit-config.yaml
+.ruff_cache/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# CI/CD
+.github/
+
+# Claude Code specific (not needed in container)
+.claude/
+SESSION-STATE.md
+PROJECT-MEMORY.md
+LEARNING-LOG.md
+CLAUDE.md
+
+# macOS
+.DS_Store
