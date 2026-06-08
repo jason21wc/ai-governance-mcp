@@ -1,0 +1,577 @@
+{
+  "description": "Pre-enforcement compliance baseline across all project transcripts",
+  "date": "2026-02-28",
+  "enforcement_mode": "pre-enforcement (soft-mode hooks, advisory instructions)",
+  "notes": "Captured before hard-mode hooks deployed. Current session (2c229518) is the first with hard-mode enforcement.",
+  "aggregate": {
+    "total_sessions": 69,
+    "compliant": 10,
+    "partial": 40,
+    "non_compliant": 19,
+    "compliance_rate": 0.1449,
+    "active_sessions": 67,
+    "active_compliant": 8,
+    "active_partial": 40,
+    "active_non_compliant": 19,
+    "active_compliance_rate": 0.1194,
+    "total_gov_calls": 108,
+    "total_ce_calls": 40,
+    "total_file_mod_calls": 3727,
+    "total_gaps": 3622,
+    "gap_rate": 0.9718
+  },
+  "sessions": [
+    {
+      "session": "04de22f0-3d6b-4767-941e-deb8410bce18",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 32,
+      "gap_count": 32
+    },
+    {
+      "session": "079255b3-6eb7-4dba-b203-64126c7ec464",
+      "classification": "PARTIAL",
+      "gov_calls": 0,
+      "ce_calls": 1,
+      "file_mod_calls": 5,
+      "gap_count": 5
+    },
+    {
+      "session": "0ad5df44-a150-445f-b87b-920d6c6bb6df",
+      "classification": "COMPLIANT",
+      "gov_calls": 1,
+      "ce_calls": 5,
+      "file_mod_calls": 27,
+      "gap_count": 23
+    },
+    {
+      "session": "0e8528c6-818b-48ff-96db-3abac80cbf32",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 50,
+      "gap_count": 50
+    },
+    {
+      "session": "1eea3edf-616e-4cf9-92c5-4261d591e7c0",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 39,
+      "gap_count": 39
+    },
+    {
+      "session": "247f9254-0518-4cf0-bd30-dbf968bbeb12",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 31,
+      "gap_count": 31
+    },
+    {
+      "session": "259462dd-b205-4f8d-b090-d779eefc5e2d",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 76,
+      "gap_count": 76
+    },
+    {
+      "session": "2a281903-d231-4657-964f-f329363911ac",
+      "classification": "COMPLIANT",
+      "gov_calls": 1,
+      "ce_calls": 1,
+      "file_mod_calls": 11,
+      "gap_count": 11
+    },
+    {
+      "session": "2b1151e8-abe1-4afa-9fab-00d2325a9976",
+      "classification": "COMPLIANT",
+      "gov_calls": 2,
+      "ce_calls": 4,
+      "file_mod_calls": 80,
+      "gap_count": 80
+    },
+    {
+      "session": "2c229518-90aa-4c78-9bfa-b720e7a9efec",
+      "classification": "COMPLIANT",
+      "gov_calls": 9,
+      "ce_calls": 8,
+      "file_mod_calls": 85,
+      "gap_count": 8
+    },
+    {
+      "session": "2ea0cde6-af91-4a45-8b82-3d3a40d729a9",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 21,
+      "gap_count": 21
+    },
+    {
+      "session": "3130c082-5bde-4f5a-939f-85626d115e23",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 35,
+      "gap_count": 35
+    },
+    {
+      "session": "35396047-1864-4428-b0f8-c16cc4b4964a",
+      "classification": "COMPLIANT",
+      "gov_calls": 1,
+      "ce_calls": 1,
+      "file_mod_calls": 71,
+      "gap_count": 65
+    },
+    {
+      "session": "3e9b9f24-a40e-4bb6-91d1-20b2e0374545",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 49,
+      "gap_count": 49
+    },
+    {
+      "session": "4121b427-54eb-4dc5-9693-12a35b78f0b7",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 72,
+      "gap_count": 72
+    },
+    {
+      "session": "43867e6e-1796-400d-b5f1-ce3c1c12e229",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 34,
+      "gap_count": 34
+    },
+    {
+      "session": "459f48fb-b41b-488f-a34c-ffd20144dcea",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 109,
+      "gap_count": 109
+    },
+    {
+      "session": "51ba2f23-895e-4cdf-8ed7-7100519d548f",
+      "classification": "PARTIAL",
+      "gov_calls": 3,
+      "ce_calls": 0,
+      "file_mod_calls": 58,
+      "gap_count": 58
+    },
+    {
+      "session": "59ccff18-848f-4e05-b0d0-ab031148512f",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 7,
+      "gap_count": 7
+    },
+    {
+      "session": "60dc5004-49c2-484b-a957-7f6fe5f25bcf",
+      "classification": "COMPLIANT",
+      "gov_calls": 1,
+      "ce_calls": 2,
+      "file_mod_calls": 106,
+      "gap_count": 106
+    },
+    {
+      "session": "6b53016c-22ac-4b32-9f79-71497cf99f7f",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 58,
+      "gap_count": 58
+    },
+    {
+      "session": "6f0adea1-5030-4220-bf9b-a877d9862a1c",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 19,
+      "gap_count": 19
+    },
+    {
+      "session": "707ffeab-f569-41c1-baec-e420e7fb8088",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 45,
+      "gap_count": 45
+    },
+    {
+      "session": "71d3964b-0027-4f33-8486-0dfae94e68af",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 98,
+      "gap_count": 98
+    },
+    {
+      "session": "752b560c-c813-433b-a041-b1afd2ec86cb",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 74,
+      "gap_count": 74
+    },
+    {
+      "session": "777a007d-9e65-44ca-8cbd-7608695bb586",
+      "classification": "PARTIAL",
+      "gov_calls": 3,
+      "ce_calls": 0,
+      "file_mod_calls": 49,
+      "gap_count": 49
+    },
+    {
+      "session": "7fa2e5f9-e6a3-4f1a-84f2-cd0ed937f38c",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 88,
+      "gap_count": 88
+    },
+    {
+      "session": "7fc6a089-8b0c-4e7f-8157-77cb0048648b",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 1,
+      "gap_count": 1
+    },
+    {
+      "session": "8897de9f-1139-4198-95fc-d401203c2646",
+      "classification": "COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 0,
+      "gap_count": 0
+    },
+    {
+      "session": "89a45688-c2c4-4254-bf65-a87d8ce45867",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 6,
+      "gap_count": 6
+    },
+    {
+      "session": "8c95ca96-ab0d-4cf1-ae38-ed2ce7bcb763",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 8,
+      "gap_count": 8
+    },
+    {
+      "session": "91982d25-7881-4575-849c-5b5ec8d90350",
+      "classification": "PARTIAL",
+      "gov_calls": 0,
+      "ce_calls": 9,
+      "file_mod_calls": 26,
+      "gap_count": 26
+    },
+    {
+      "session": "933fb056-42f5-4c10-b57c-b14c469b6cad",
+      "classification": "PARTIAL",
+      "gov_calls": 17,
+      "ce_calls": 0,
+      "file_mod_calls": 493,
+      "gap_count": 493
+    },
+    {
+      "session": "9870ba1f-ff06-42fb-a506-77e1e71770ef",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 69,
+      "gap_count": 69
+    },
+    {
+      "session": "99806f3c-38aa-44e8-96a0-cfc1c169ceb0",
+      "classification": "PARTIAL",
+      "gov_calls": 3,
+      "ce_calls": 0,
+      "file_mod_calls": 42,
+      "gap_count": 42
+    },
+    {
+      "session": "9a0f9d1f-78c9-4b4f-8fae-46feece6a32f",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 2,
+      "gap_count": 2
+    },
+    {
+      "session": "9a48e6b5-2e03-4cdc-a3d2-f447483fd916",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 1,
+      "gap_count": 1
+    },
+    {
+      "session": "9d32fa50-5725-42d0-9d20-6f8ca11124b6",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 35,
+      "gap_count": 35
+    },
+    {
+      "session": "a4929b20-1fc8-4f58-bc6e-afff4481cfb6",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 44,
+      "gap_count": 44
+    },
+    {
+      "session": "a796482e-b928-4237-83af-ff407d05376e",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 5,
+      "gap_count": 5
+    },
+    {
+      "session": "a9fc69d9-c9bd-417a-824c-a8485d1e1a1e",
+      "classification": "COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 0,
+      "gap_count": 0
+    },
+    {
+      "session": "aee9b38a-fae0-4f87-8a00-cae7171202e9",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 47,
+      "gap_count": 47
+    },
+    {
+      "session": "b02d1981-0345-4106-91e3-eb28aa3ac292",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 66,
+      "gap_count": 66
+    },
+    {
+      "session": "b2210048-aad5-4beb-aa31-047fea0941d3",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 1,
+      "gap_count": 1
+    },
+    {
+      "session": "b235ce0e-d65b-431e-81aa-84ed6075f5ac",
+      "classification": "COMPLIANT",
+      "gov_calls": 2,
+      "ce_calls": 2,
+      "file_mod_calls": 2,
+      "gap_count": 2
+    },
+    {
+      "session": "b4606d2e-b5da-4cd5-a9b3-897112b21c63",
+      "classification": "PARTIAL",
+      "gov_calls": 9,
+      "ce_calls": 0,
+      "file_mod_calls": 231,
+      "gap_count": 231
+    },
+    {
+      "session": "b529c121-c6d0-42de-b8c5-44638f9ee1a8",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 56,
+      "gap_count": 56
+    },
+    {
+      "session": "b64ec107-abe9-40b6-8bac-39b2368f7362",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 19,
+      "gap_count": 19
+    },
+    {
+      "session": "b8f3e470-bea6-4e05-991a-6f3a27af9ffb",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 85,
+      "gap_count": 85
+    },
+    {
+      "session": "bd3fab5e-0911-4b48-9e86-447a6cd84d23",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 31,
+      "gap_count": 31
+    },
+    {
+      "session": "be6ce384-10f7-404f-bfc6-6a8bfd58081b",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 30,
+      "gap_count": 30
+    },
+    {
+      "session": "beac63fb-5425-4837-bee3-6e8c3ca5a775",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 15,
+      "gap_count": 15
+    },
+    {
+      "session": "c3a11ade-b3ba-4943-87cf-6bbae956d1e1",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 26,
+      "gap_count": 26
+    },
+    {
+      "session": "c8bb152f-2f72-4fbf-962b-c40f818c1a07",
+      "classification": "PARTIAL",
+      "gov_calls": 2,
+      "ce_calls": 0,
+      "file_mod_calls": 91,
+      "gap_count": 91
+    },
+    {
+      "session": "ca025ea1-c9c3-4db0-8687-f8961c42bcaf",
+      "classification": "COMPLIANT",
+      "gov_calls": 1,
+      "ce_calls": 7,
+      "file_mod_calls": 18,
+      "gap_count": 0
+    },
+    {
+      "session": "ccfb4bef-7a43-4d4b-9d89-5213917e9c0f",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 23,
+      "gap_count": 23
+    },
+    {
+      "session": "cd533af0-5ef1-4fbb-a694-dd946e44f2c2",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 3,
+      "gap_count": 3
+    },
+    {
+      "session": "cf238261-eec2-4a81-a472-38684a1aae0c",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 2,
+      "gap_count": 2
+    },
+    {
+      "session": "d3f0ca42-0fd3-47b5-99d7-7e5b3f4d6221",
+      "classification": "PARTIAL",
+      "gov_calls": 9,
+      "ce_calls": 0,
+      "file_mod_calls": 268,
+      "gap_count": 268
+    },
+    {
+      "session": "e2bdf092-39f2-4428-8c39-45a8d17405ee",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 39,
+      "gap_count": 39
+    },
+    {
+      "session": "e622c1f2-4999-48e3-a759-5245ad2b184a",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 46,
+      "gap_count": 46
+    },
+    {
+      "session": "e880e49d-8728-466c-85df-e287798d3a45",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 30,
+      "gap_count": 30
+    },
+    {
+      "session": "eb04618f-b528-4371-b3ff-453a07ffb3cf",
+      "classification": "PARTIAL",
+      "gov_calls": 4,
+      "ce_calls": 0,
+      "file_mod_calls": 192,
+      "gap_count": 192
+    },
+    {
+      "session": "ec1e2a55-120a-4296-a51d-622a9a1067a0",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 17,
+      "gap_count": 17
+    },
+    {
+      "session": "f10a2633-c12c-4146-8ea8-400895b282bb",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 13,
+      "gap_count": 13
+    },
+    {
+      "session": "f8898595-5119-43d7-886c-5b3eff904c9d",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 73,
+      "gap_count": 73
+    },
+    {
+      "session": "fd7ed4ed-7bb2-4ea3-acec-188e6e6a43b3",
+      "classification": "PARTIAL",
+      "gov_calls": 1,
+      "ce_calls": 0,
+      "file_mod_calls": 41,
+      "gap_count": 41
+    },
+    {
+      "session": "fe14c508-b05f-4e4d-ae00-9e3bae41a717",
+      "classification": "NON_COMPLIANT",
+      "gov_calls": 0,
+      "ce_calls": 0,
+      "file_mod_calls": 54,
+      "gap_count": 54
+    },
+    {
+      "session": "ff23fab8-95cf-4c3b-9020-f1745d821134",
+      "classification": "PARTIAL",
+      "gov_calls": 4,
+      "ce_calls": 0,
+      "file_mod_calls": 47,
+      "gap_count": 47
+    }
+  ]
+}

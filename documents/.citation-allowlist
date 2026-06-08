@@ -1,0 +1,13 @@
+# documents/.citation-allowlist
+#
+# Citations exempt from the §9.8.9 Citation Discipline forbid-bare-line rule
+# enforced by `scripts/check-citations.py`. Use sparingly — every entry here
+# is a citation that the script will allow despite being in `<file>.md:<line>`
+# form. Prefer migrating to §-anchor form (per §9.8.9) over allowlisting.
+#
+# Format: <citation> | <reason> | <session>
+# Example: constitution.md:99 | spans non-section-bounded content | session-138
+#
+# Comments (#) and blank lines are ignored.
+#
+# Filed: BACKLOG #144 (closed session-138).
