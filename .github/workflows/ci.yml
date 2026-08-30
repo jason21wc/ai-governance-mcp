@@ -1,0 +1,473 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    # Cost control (private-repo Actions quota): skip the whole workflow on
+    # direct pushes that touch ONLY working-memory files — they change no
+    # tested code, content, or index. Citation form on these files is covered
+    # locally (coding-method-local-ci-validation-parity). NOTE: paths-ignore is
+    # on PUSH ONLY — pull_request runs are never path-filtered, so branch-
+    # protection required status checks always run (no skipped-check deadlock).
+    paths-ignore:
+      - '_ai-context/SESSION-STATE.md'
+      - '_ai-context/PROJECT-MEMORY.md'
+      - '_ai-context/LEARNING-LOG.md'
+      - '_ai-context/OPERATIONS.md'
+      # _ai-context/BACKLOG.md deliberately NOT ignored: the backlog-hygiene job
+      # must run on backlog-only pushes.
+  pull_request:
+    branches: [main]
+
+# Least-privilege: no permissions by default; grant per-job
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false  # Don't cancel other versions if one fails
+      matrix:
+        # Cost control: full version matrix on PRs (the pre-merge gate); single
+        # version on direct pushes to main to conserve the private-repo Actions
+        # quota. Version-specific regressions are caught at PR time; run the full
+        # matrix locally before a version-sensitive direct push. 3.11 = the
+        # coverage version, so the coverage step still runs on push.
+        python-version: ${{ github.event_name == 'pull_request' && fromJSON('["3.10", "3.11", "3.12"]') || fromJSON('["3.11"]') }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Full history required for TestDemotionRationale (walks git log
+          # of documents/failure-mode-registry.md). Shallow clone would let
+          # the demotion gate silently pass — see BACKLOG #124 + contrarian
+          # audit a51939a6fa61a7dad (session-123 planning).
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install CPU-only PyTorch first to avoid huge CUDA downloads
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+
+      # Cache the bge-small model across runs. The non-slow suite (e.g.
+      # test_context_engine, test_readonly) downloads it from HuggingFace;
+      # with 4+ jobs pulling it concurrently, HF intermittently 429s a runner.
+      # Caching ~/.cache/huggingface eliminates the repeated 130MB downloads
+      # and the 429-flake class (cold-misses on the first run only).
+      - name: Cache HuggingFace model (bge-small)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.5 (node24)
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-en-v1.5
+
+
+      # BUILD THE INDEX. It became a build artifact in session-268 and nothing in
+      # CI built it, so every check needing a real index failed — 13 in
+      # test_gen_quick_reference.py, one in test_server_governance.py, and
+      # check.sh's derived-counts check. Fifteen failures, one cause, invisible
+      # for as long as the billing block killed each job in 2-3 seconds.
+      #
+      # Written to the repo-local `index/` (gitignored) because that is where
+      # gen_quick_reference.py falls back when AI_GOVERNANCE_INDEX_PATH is unset,
+      # and the suite's isolate_home fixture redirects $HOME away from the user
+      # default. One location both consumers agree on.
+      - name: Build the governance index
+        # Post-condition asserted, matching the index-behavior job's step: a
+        # build that "succeeds" having written nothing is the exact failure class
+        # this repo keeps finding (BACKLOG #298 and three siblings). An exit code
+        # is not evidence that an artifact exists.
+        run: |
+          python -m ai_governance_mcp.extractor
+          test -f index/global_index.json || { echo "index build produced nothing"; exit 1; }
+        env:
+          AI_GOVERNANCE_INDEX_PATH: ${{ github.workspace }}/index
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short -m "not slow"
+
+      - name: Run tests with coverage
+        if: matrix.python-version == '3.11'
+        run: |
+          pytest tests/ --cov=ai_governance_mcp --cov-report=xml --cov-report=term -m "not slow"
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  # Behavioral retrieval guard. The main `test` job runs `-m "not slow"`, which
+  # deselects the real_index tests that exercise actual semantic retrieval against
+  # the committed index. That gap let a wrong-model index/content_embeddings.npy
+  # ship undetected (session-205 -> 208): all artifact checks (dtype/shape/count/
+  # model-label/nonzero) passed while semantic search silently ran BM25-only.
+  # These MRR/Recall threshold tests drive to ~0 on a mismatched index, so they
+  # catch the failure class that artifact integrity checks cannot. Always-on (not
+  # path-filtered): the index can break from an index rebuild, an extractor/
+  # retrieval code change, or a documents/ change shipped without a rebuild.
+  index-behavior:
+    name: Index Retrieval Behavior
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install CPU-only PyTorch first to avoid huge CUDA downloads
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+
+      - name: Cache HuggingFace model (bge-small)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.5 (node24)
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-en-v1.5
+
+      # BUILD THE INDEX — it is no longer committed (session-268: it is derived from
+      # documents/ + the reference library, so it is user-specific by construction).
+      # Without this step a clean checkout has no index, the real_index fixture skips
+      # every test, and this job exits GREEN having asserted nothing — re-opening the
+      # exact hole it was created to close (a wrong-model content_embeddings.npy
+      # shipping undetected). A gate that skips itself when its input is missing is not
+      # a gate. `could not run` is not a pass.
+      - name: Build the index (no longer committed)
+        env:
+          # The default index location is now a USER-DATA path, so pin it back into the
+          # checkout for CI — that is where the real_index fixture looks.
+          AI_GOVERNANCE_INDEX_PATH: ${{ github.workspace }}/index
+        run: |
+          python -m ai_governance_mcp.extractor
+          test -f index/global_index.json || { echo "index build produced nothing"; exit 1; }
+
+      - name: Run real_index retrieval behavior gate
+        run: |
+          # NOT -k narrowed. It used to select only the four *_threshold tests, and
+          # the sweep below then excluded this file by path — so 10 of its 14
+          # real_index tests ran in NO job. Verified: `-m real_index` collects 14
+          # here, the old `-k` collected 4, and all 10 of the difference pass
+          # (~47s). The `--ignore` below is now purely a double-run guard over a
+          # file this line covers in full, which is the shape scripts/check.sh
+          # already had.
+          pytest tests/test_retrieval_quality.py -v --tb=short -m "real_index"
+          # Every OTHER index-dependent test, discovered rather than enumerated.
+          # Untracking the index moved these out of the default suite (they are `slow`,
+          # so the `-m "not slow"` matrix deselects them), and this line is the only
+          # thing that gates them.
+          #
+          # This used to name files individually — test_server_governance.py, then
+          # test_doc_pointer_resolution.py added later by hand. Each addition was
+          # correct and each left the NEXT one ungated: session-305 shipped
+          # tests/test_behavioral_floor_section.py, the only check proving the
+          # behavioral floor actually reaches the index, and it ran nowhere. Third
+          # instance. A hand-maintained list of what to gate fails the same way a
+          # hand-maintained list of anything else does.
+          pytest tests/ -v --tb=short -m "real_index" --ignore=tests/test_retrieval_quality.py
+
+  public-release-build:
+    name: Public Release Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # PATH-FILTERED ON PURPOSE (OPERATIONS T-169 — Actions minutes are billable on this
+    # private repo). This job only runs when a change can actually break the public build.
+    #
+    # Why it exists: the public release build is EVENT-triggered (at re-sync), not
+    # per-commit — so a break is invisible until the next release attempt. On 2026-07-13
+    # a new test (the #193 pin-block guard) turned it red by asserting that every pinned
+    # document exists: true in this private repo, false in the public tree, which strips
+    # every documents/title-*.md. It was caught only because an unrelated merge happened
+    # to run the build by luck. The class it closes is precise: a test that reads private
+    # content and therefore cannot run in the public tree — which means the private-ID
+    # LEAK GUARD, a security control, silently cannot run its own gate.
+    #
+    # Cost, measured: the build is ~95s locally (~120s on a runner) against a ~583s full
+    # CI run. The path check below keeps it off doc-only and memory-only commits.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check whether public-build-relevant paths changed
+        id: changed
+        run: |
+          # Compare against the previous commit (push) or the merge base (PR).
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          # A first push / force-push may leave no usable base — run the build then.
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "No usable base commit — running the build."
+            exit 0
+          fi
+          # These are the ONLY surfaces that can break the public build:
+          #   tests/**                        a new test that reads private content
+          #   scripts/dedomain-public.py      the staging/removal lists themselves
+          #   scripts/check-public-release.py the leak guard
+          #   scripts/copy_allowlisted.py     what gets copied
+          #   documents/.public-allowlist     what is public
+          #   documents/*.md, domains.json    corpus the staged tree is built from
+          #   pyproject.toml                  the staged pytest config
+          if git diff --name-only "$base" HEAD | grep -qE \
+              '^(tests/|scripts/(dedomain-public|check-public-release|copy_allowlisted)\.py|documents/(\.public-allowlist|domains\.json|[^/]+\.md)|pyproject\.toml)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Public-build-relevant paths changed — running the build."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No public-build-relevant paths changed — skipping (saves Actions minutes)."
+          fi
+
+      - name: Set up Python
+        if: steps.changed.outputs.run == 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+
+      - name: Cache HuggingFace model (bge-small)
+        if: steps.changed.outputs.run == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.5 (node24)
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-en-v1.5
+
+      - name: Build the public release tree (copy -> de-domain -> leak guard -> pytest)
+        if: steps.changed.outputs.run == 'true'
+        run: |
+          bash scripts/build-public-release.sh
+          echo "Public release build GREEN — the private-ID leak guard ran its own gate."
+
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install CPU-only PyTorch first to avoid huge CUDA downloads
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+
+      - name: Run pip-audit (dependency vulnerabilities)
+        run: |
+          # Scope to project deps only, not entire conda/system environment
+          pip freeze --exclude-editable | pip-audit --desc on -r /dev/stdin
+        continue-on-error: true  # Advisory: surface CVEs without blocking PRs
+
+      - name: Run bandit (source code security)
+        run: |
+          bandit -r src/ -f txt
+
+      - name: Run safety check
+        run: |
+          safety check
+        continue-on-error: true  # Safety may have rate limits on free tier
+
+  local-parity:
+    name: Local Check Parity
+    runs-on: ubuntu-latest
+    # Required: the workflow sets `permissions: {}` (zero scope), so a job that
+    # does not declare its own gets a token that cannot clone. Every sibling job
+    # declares `contents: read`; this one did not, which would have made it fail
+    # for an environmental reason — the second such defect found in this job, and
+    # both were invisible because CI is dark on the billing block.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install
+        # No `|| pip install -e .` fallback: a failed dev-extra would leave the
+        # tools absent, every check would SKIP, and skips do not affect the exit
+        # code — the job would go green having run almost nothing.
+        run: |
+          python -m pip install --upgrade pip
+          # CPU-only torch first, matching the test job — the extractor computes
+          # embeddings, and `derived counts` reads the index it produces. Adding
+          # the context-engine extra costs runtime on a job that exists to be a
+          # cheap mirror; the alternative is a check that can never run, and
+          # `coding-method-local-ci-validation-parity` says the point of this job
+          # is to run the SAME definition CI and local both use.
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+      # SSOT: the structural checks are DEFINED ONCE, in scripts/check.sh, and CI
+      # runs that definition. Previously citation-check, backlog-hygiene and
+      # content-security re-implemented their greps inline here — which is exactly
+      # how the content-security advisory arm silently became a constant (`grep |
+      # head` always exits 0) and stayed that way for months. One definition, two
+      # runners: local is primary (T-169 — Actions minutes are exhausted), CI is
+      # redundant confirmation.
+      - name: Cache HuggingFace model (bge-small)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.5 (node24)
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-en-v1.5
+
+      - name: Build the governance index
+        # Post-condition asserted, matching the index-behavior job's step: a
+        # build that "succeeds" having written nothing is the exact failure class
+        # this repo keeps finding (BACKLOG #298 and three siblings). An exit code
+        # is not evidence that an artifact exists.
+        run: |
+          python -m ai_governance_mcp.extractor
+          test -f index/global_index.json || { echo "index build produced nothing"; exit 1; }
+        env:
+          AI_GOVERNANCE_INDEX_PATH: ${{ github.workspace }}/index
+
+      - name: Run the local check suite
+        run: bash scripts/check.sh --structural
+      - name: Assert nothing was silently skipped
+        # A skip does not fail check.sh — by design, so a missing local tool does
+        # not block a human. In CI the toolchain is fixed, so an unexpected
+        # could-not-run means the job did less than it claims.
+        run: |
+          python3 - <<'EOF'
+          import json, sys
+          rec = json.loads(open("logs/check-runs.jsonl").read().strip().splitlines()[-1])
+          expected = {"codex hook mirror", "ruff", "bandit", "pip-audit", "pytest",
+                      "retrieval quality", "public release build",
+                      # Verifies the symlinks under ~/.claude/hooks and
+                      # ~/.codex/hooks. A runner has no hook install, so this can
+                      # NEVER run in CI — a permanent, legitimate skip that the
+                      # allowlist simply never listed. It went unnoticed for as
+                      # long as the billing block killed this job before it got
+                      # far enough to skip anything.
+                      "installed hook links",
+                      # The search index is a build artifact at ~/.ai-governance/index/,
+                      # not committed to the repo. CI has no built index to check.
+                      "index freshness"}
+          unexpected = [c["check"] for c in rec["checks"]
+                        if c["status"] == "could_not_run" and c["check"] not in expected]
+          if unexpected:
+              print(f"::error::checks could not run in CI: {unexpected}")
+              sys.exit(1)
+          print(f"structural checks: {rec['pass']} passed, {rec['fail']} failed")
+          EOF
+
+  ai-review:
+    name: AI Code Review (Advisory)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: AI review (advisory, non-blocking)
+        if: env.CLAUDE_API_KEY != ''
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: |
+          # Install Claude Code CLI
+          npm install -g @anthropic-ai/claude-code 2>/dev/null || true
+
+          # Get the diff for this PR
+          DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..HEAD)
+
+          # Run headless review with scoped read-only tools
+          claude -p "Review this diff for bugs, security issues, and governance compliance. Be concise — report only CRITICAL and HIGH findings. Diff: $DIFF" \
+            --allowedTools Read,Grep,Glob \
+            --output-format json \
+            --max-turns 5 \
+            2>/dev/null || echo '{"result": "review could not run"}'
+
+          echo "::notice::AI review complete (advisory — does not block merge)"
+
+      - name: Skip notice (no API key)
+        if: env.CLAUDE_API_KEY == ''
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: echo "::notice::AI review skipped — CLAUDE_API_KEY secret not configured"
+
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.12.0
+
+      - name: Run ruff linter
+        run: |
+          ruff check src/ tests/
+
+      - name: Run ruff formatter check
+        run: |
+          ruff format --check src/ tests/
+
+  public-release-guard:
+    name: Public Release Leak Guard
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: "3.11"
+      - name: Run public-release leak guard
+        run: python3 scripts/check-public-release.py --root .

@@ -1,0 +1,135 @@
+# `pre-push` is here because a guard only one host can trigger is not a guard on
+# the repository. Git fires its own hooks for ANY push — Claude, Codex, or a bare
+# shell — so this is the seam every host honours. BACKLOG #348.
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.0
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        args: [src/, tests/]
+      - id: ruff
+        name: ruff check
+        args: [--fix, src/, tests/]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+        name: merge-conflict markers
+        # --assume-in-merge is load-bearing. By default this hook only inspects
+        # files while .git/MERGE_MSG exists, i.e. during the conflict-resolution
+        # commit itself. The session-301 incident shows why that is not enough:
+        # the markers survived that commit and then rode along in five ORDINARY
+        # commits that each touched the file, every one of which would have been
+        # waved through by the default behaviour. BACKLOG: see pre-push Check 13
+        # for the tree-scan half of this guard (this hook is staged-files only).
+        args: [--assume-in-merge]
+  - repo: local
+    hooks:
+      - id: regen-test-failure-mode-map
+        name: regen test-failure-mode map
+        # Triggers when the registry OR any test file OR the generator itself
+        # changes. Regenerates the derived map; fails if committed file differs
+        # (author must re-stage). Closes BACKLOG #123 — plan v3 called the map
+        # "rot-immune" but regeneration was manual; this gate makes the claim true.
+        entry: bash -c 'python3 scripts/generate-test-failure-map.py && git diff --exit-code documents/test-failure-mode-map.md'
+        language: system
+        files: '^(documents/failure-mode-registry\.md|tests/.*\.py|scripts/generate-test-failure-map\.py)$'
+        pass_filenames: false
+      - id: volatile-pin-check
+        name: volatile pin check (§10.1.4)
+        # WARNS on newly-ADDED hard-coded vendor facts (model generations,
+        # prices, context sizes). Diff-scoped so existing rot is grandfathered
+        # and no allowlist is needed. Advisory per the V-004 arc: the residual
+        # false positives land on correct de-pinning work, and a gate that
+        # fires on correct work trains its own bypass. BACKLOG #253.
+        entry: python3 scripts/check-volatile-pins.py
+        language: system
+        pass_filenames: false
+      - id: commit-promise-check
+        name: unkept promise check
+        # Blocks a commit message that claims a filing which does not exist.
+        # Session-306: a message said findings were "reported separately"; they
+        # were reported in chat and filed nowhere, and the commit was the durable
+        # artifact. Runs at commit-msg stage because that is when the promise is
+        # made — closed items are DELETED here, so checking #N against history
+        # would fire on every legitimate reference to a since-closed item.
+        # Matches filing verbs only, never a bare `#N`.
+        stages: [commit-msg]
+        entry: python3 scripts/check-commit-promises.py
+        language: system
+      - id: citation-form-check
+        name: citation form check (§9.8.9)
+        # Rejects bare `<file>.md:<line-number>` citations per §9.8.9 Citation
+        # Discipline. Closes BACKLOG #144 — structural prevention of the
+        # line-citation drift class that hit BACKLOG #100 arc twice.
+        entry: python3 scripts/check-citations.py
+        language: system
+        pass_filenames: false
+      - id: pipefail-early-consumers
+        name: pipefail early-consumer guard
+        # A quiet/preview consumer can exit successfully before its producer has
+        # finished. Under pipefail the producer then reports SIGPIPE and a safety
+        # hook can disappear without asserting its deny. Scan the whole hook
+        # corpus so a fix at one call site cannot leave or reintroduce the class.
+        entry: python3 scripts/check_pipefail_early_consumers.py
+        language: system
+        pass_filenames: false
+      - id: skill-preamble-check
+        name: executable skill preamble guard
+        # Skill-load-time shell is all-or-nothing, version-sensitive in Claude,
+        # and rendered literally by Codex. The repository-owned portable rule is
+        # therefore zero executable preambles, not a guessed safe-shell subset.
+        entry: python3 scripts/check-skill-preambles.py
+        language: system
+        files: '^(\.claude/skills/[^/]+/SKILL\.md|global-skills/[^/]+/SKILL\.md|scripts/check-skill-preambles\.py|tests/test_check_skill_preambles\.py)$'
+        pass_filenames: false
+      - id: memory-size-guard
+        name: memory file size guard
+        # HOST-AGNOSTIC SEAM for a guard that was Claude-only (BACKLOG #348).
+        # `.claude/hooks/pre-commit-memory-size-guard.sh` is a PreToolUse hook: it
+        # keys on Claude's Bash tool call carrying `git commit` and refuses via
+        # {"decision":"block"} on stdout. No other host speaks that protocol, so a
+        # Codex session committing in-session skipped the guard entirely — and #348's
+        # `--add-dir` work exists to let Codex commit in-session, which would have
+        # opened an ungated commit path into the memory files.
+        #
+        # `--direct` is the SAME script and the same thresholds with a plain-text,
+        # non-zero-exit emission. Not a reimplementation: duplicated safety logic
+        # drifts, which is the defect class repo_hygiene/cleanup.sh hit the same week.
+        # Only the LEARNING-LOG arm blocks; BACKLOG count and SESSION-STATE size stay
+        # advisory, per the session-305/-306 decisions recorded in the script.
+        entry: bash .claude/hooks/pre-commit-memory-size-guard.sh --direct
+        language: system
+        pass_filenames: false
+        # verbose so the ADVISORY arms are actually seen. pre-commit swallows a
+        # passing hook's stdout by default, so the backlog-count and SESSION-STATE
+        # notices — which exist to be read by a human — reached nobody through this
+        # seam. The blocking arm was always fine; only the reporting half was mute.
+        verbose: true
+      - id: backlog-resurrection
+        name: backlog resurrection (union merge)
+        # RUNS AT PUSH, FOR EVERY HOST. `merge=union` can silently undo a backlog
+        # closure when one session closes an item and another edits it; union resolves,
+        # so no conflict marker is written and the tree-scan guards are blind.
+        #
+        # This was first wired only into .claude/hooks/pre-push-quality-gate.sh — a
+        # Claude PreToolUse hook — so a Codex or ordinary-shell push bypassed it
+        # entirely. That is the same host-coupling defect as the memory guard above,
+        # committed in the same change that fixed it. The git pre-push stage fires
+        # regardless of who pushes.
+        #
+        # --from-pre-commit reads PRE_COMMIT_FROM_REF/PRE_COMMIT_TO_REF, which is the
+        # range ACTUALLY being published. Do not infer it from `@{push}`: a branch
+        # already pushed to its own upstream has an empty @{push}..HEAD while
+        # publication to the default branch is exactly what needs scanning.
+        #
+        # rc 1 = resurrection found; rc 3 = could-not-run and also blocks, because a
+        # comparison that did not happen is not a pass. Bypass: SKIP=backlog-resurrection.
+        stages: [pre-push]
+        entry: python3 scripts/check_backlog_resurrection.py --from-pre-commit
+        language: system
+        pass_filenames: false
+        verbose: true
