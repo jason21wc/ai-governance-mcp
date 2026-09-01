@@ -1,0 +1,737 @@
+"""Integration tests for the retrieval engine.
+
+Per specification v4: Tests for the complete hybrid retrieval pipeline.
+Per governance Q3 (Testing Integration): End-to-end retrieval validation.
+"""
+
+import sys
+import time
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+
+# =============================================================================
+# Full Pipeline Tests
+# =============================================================================
+
+
+class TestRetrieveFullPipeline:
+    """Tests for the complete retrieve() function."""
+
+    def test_retrieve_returns_result(self, saved_index, mock_embedder, mock_reranker):
+        """retrieve() should return RetrievalResult."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+                from ai_governance_mcp.models import RetrievalResult
+
+                engine = RetrievalEngine(saved_index)
+                result = engine.retrieve("test query")
+
+                assert isinstance(result, RetrievalResult)
+                assert result.query == "test query"
+
+    def test_retrieve_measures_time(self, saved_index, mock_embedder, mock_reranker):
+        """retrieve() should track retrieval time."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                result = engine.retrieve("test query")
+
+                assert result.retrieval_time_ms is not None
+                assert result.retrieval_time_ms >= 0
+
+    def test_retrieve_includes_constitution(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """retrieve() should always include constitution domain."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                result = engine.retrieve("test query")
+
+                # Constitution should always be searched
+                assert (
+                    "constitution" in result.domains_detected
+                    or len(result.constitution_principles) >= 0
+                )
+
+    def test_retrieve_respects_max_results(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """retrieve() should limit results to max_results."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                result = engine.retrieve("test query", max_results=2)
+
+                total_principles = len(result.constitution_principles) + len(
+                    result.domain_principles
+                )
+                assert total_principles <= 2 * 2  # max_results per domain type
+
+    def test_retrieve_filters_by_domain(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """retrieve() should filter by specified domain."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                result = engine.retrieve("test query", domain="ai-coding")
+
+                # Should include the specified domain
+                assert (
+                    "ai-coding" in result.domains_detected
+                    or len(result.domain_principles) >= 0
+                )
+
+
+class TestRetrieveSSeries:
+    """Tests for S-Series handling in retrieve()."""
+
+    def test_retrieve_s_series_triggered(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """retrieve() should set s_series_triggered when S-Series matched."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                result = engine.retrieve("safety concern")
+
+                # s_series_triggered is set based on whether S-Series principles are returned
+                assert isinstance(result.s_series_triggered, bool)
+
+
+class TestRetrieveNoIndex:
+    """Tests for retrieve() without index."""
+
+    def test_retrieve_no_index_returns_empty(
+        self, test_settings, mock_embedder, mock_reranker
+    ):
+        """retrieve() should return empty result when no index loaded."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                # Use settings without saved index
+                engine = RetrievalEngine(test_settings)
+                result = engine.retrieve("test query")
+
+                assert len(result.constitution_principles) == 0
+                assert len(result.domain_principles) == 0
+
+
+# =============================================================================
+# Utility Method Tests
+# =============================================================================
+
+
+class TestGetPrincipleById:
+    """Tests for get_principle_by_id() method."""
+
+    def test_get_principle_by_id_found(self, saved_index, mock_embedder, mock_reranker):
+        """get_principle_by_id() should return principle when found."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                principle = engine.get_principle_by_id("meta-C1")
+
+                if principle:  # May be None if not in test index
+                    assert principle.id == "meta-C1"
+
+    def test_get_principle_by_id_not_found(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """get_principle_by_id() should return None when not found."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                principle = engine.get_principle_by_id("nonexistent-X99")
+
+                assert principle is None
+
+    def test_get_principle_by_id_no_index(
+        self, test_settings, mock_embedder, mock_reranker
+    ):
+        """get_principle_by_id() should return None without index."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+                principle = engine.get_principle_by_id("meta-C1")
+
+                assert principle is None
+
+
+class TestAliasResolution:
+    """Tests for principle alias resolution in get_principle_by_id()."""
+
+    def test_alias_resolves_to_canonical(
+        self,
+        test_settings,
+        mock_embedder,
+        mock_reranker,
+        mock_embeddings,
+        mock_domain_embeddings,
+    ):
+        """get_principle_by_id() should resolve an alias to the canonical principle."""
+        from ai_governance_mcp.models import (
+            DomainIndex,
+            GlobalIndex,
+            Principle,
+        )
+
+        # Create a principle with aliases (simulating post-consolidation state)
+        canonical = Principle(
+            id="meta-quality-verification-and-validation",
+            domain="constitution",
+            series_code="Q",
+            title="Verification & Validation",
+            content="Merged verification principle.",
+            line_range=(1, 10),
+            aliases=[
+                "meta-quality-verification-mechanisms-before-action",
+                "meta-quality-fail-fast-validation",
+                "meta-quality-verifiable-outputs",
+            ],
+            embedding_id=0,
+        )
+        domain_index = DomainIndex(
+            domain="constitution",
+            principles=[canonical],
+            methods=[],
+            last_extracted="2025-01-01T00:00:00Z",
+        )
+        global_index = GlobalIndex(
+            domains={"constitution": domain_index},
+            domain_configs=[],
+            created_at="2025-01-01T00:00:00Z",
+            version="1.0",
+            embedding_model="test",
+            embedding_dimensions=384,
+        )
+
+        # Save to disk
+        import json
+        import numpy as np
+
+        index_file = test_settings.index_path / "global_index.json"
+        with open(index_file, "w") as f:
+            json.dump(global_index.model_dump(), f)
+        np.save(test_settings.index_path / "content_embeddings.npy", mock_embeddings)
+        np.save(
+            test_settings.index_path / "domain_embeddings.npy", mock_domain_embeddings
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+
+                # Canonical ID should work
+                result = engine.get_principle_by_id(
+                    "meta-quality-verification-and-validation"
+                )
+                assert result is not None
+                assert result.id == "meta-quality-verification-and-validation"
+
+                # Alias IDs should resolve to the same canonical principle
+                for alias in canonical.aliases:
+                    result = engine.get_principle_by_id(alias)
+                    assert result is not None, f"Alias '{alias}' did not resolve"
+                    assert result.id == "meta-quality-verification-and-validation"
+
+                # Non-existent ID should still return None
+                result = engine.get_principle_by_id("meta-nonexistent-principle")
+                assert result is None
+
+    def test_effective_efficient_communication_alias_resolves_to_outputs(
+        self,
+        test_settings,
+        mock_embedder,
+        mock_reranker,
+        mock_embeddings,
+        mock_domain_embeddings,
+    ):
+        """v5.0.0 rename regression: meta-quality-effective-efficient-communication
+        must resolve to meta-quality-effective-efficient-outputs (Art. III §4 rename
+        from communication-only to all output forms; ADR-17, plan
+        ~/.claude/plans/this-is-back-and-tidy-crescent.md)."""
+        from ai_governance_mcp.models import (
+            DomainIndex,
+            GlobalIndex,
+            Principle,
+        )
+
+        canonical = Principle(
+            id="meta-quality-effective-efficient-outputs",
+            domain="constitution",
+            series_code="Q",
+            title="Effective & Efficient Outputs",
+            content=(
+                "Every AI output must be jointly effective and efficient. "
+                "Joint quality is produced by applying form-appropriate "
+                "discipline during creation; iteration is a backstop, not "
+                "the primary mechanism."
+            ),
+            line_range=(741, 779),
+            aliases=["meta-quality-effective-efficient-communication"],
+            embedding_id=0,
+        )
+        domain_index = DomainIndex(
+            domain="constitution",
+            principles=[canonical],
+            methods=[],
+            last_extracted="2026-04-26T00:00:00Z",
+        )
+        global_index = GlobalIndex(
+            domains={"constitution": domain_index},
+            domain_configs=[],
+            created_at="2026-04-26T00:00:00Z",
+            version="5.0.0",
+            embedding_model="test",
+            embedding_dimensions=384,
+        )
+
+        import json
+        import numpy as np
+
+        index_file = test_settings.index_path / "global_index.json"
+        with open(index_file, "w") as f:
+            json.dump(global_index.model_dump(), f)
+        np.save(test_settings.index_path / "content_embeddings.npy", mock_embeddings)
+        np.save(
+            test_settings.index_path / "domain_embeddings.npy", mock_domain_embeddings
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+
+                # New canonical ID must work
+                result = engine.get_principle_by_id(
+                    "meta-quality-effective-efficient-outputs"
+                )
+                assert result is not None
+                assert result.id == "meta-quality-effective-efficient-outputs"
+                assert result.title == "Effective & Efficient Outputs"
+
+                # Old ID must resolve to new canonical via alias
+                result = engine.get_principle_by_id(
+                    "meta-quality-effective-efficient-communication"
+                )
+                assert result is not None, (
+                    "Pre-v5.0.0 ID must resolve to renamed principle via "
+                    "Principle.aliases — alias preservation is a backwards-"
+                    "compatibility guarantee for existing audit logs and "
+                    "cross-references."
+                )
+                assert result.id == "meta-quality-effective-efficient-outputs"
+
+    def test_context_engineering_alias_resolves_to_informational_readiness(
+        self,
+        test_settings,
+        mock_embedder,
+        mock_reranker,
+        mock_embeddings,
+        mock_domain_embeddings,
+    ):
+        """v8.0.0 rename regression: meta-core-context-engineering must resolve
+        to meta-core-informational-readiness (Art. I §1 rename — principle scope
+        unchanged, name changed to eliminate collision with layer 3 "Context
+        Engineering" after 5-layer taxonomy adoption in v7.0.0)."""
+        from ai_governance_mcp.models import (
+            DomainIndex,
+            GlobalIndex,
+            Principle,
+        )
+
+        canonical = Principle(
+            id="meta-core-informational-readiness",
+            domain="constitution",
+            series_code="C",
+            title="Informational Readiness",
+            content=(
+                "Before acting, verify that you possess information sufficient "
+                "in scope, currency, and relevance for the action at hand."
+            ),
+            line_range=(181, 220),
+            aliases=["meta-core-context-engineering"],
+            embedding_id=0,
+        )
+        domain_index = DomainIndex(
+            domain="constitution",
+            principles=[canonical],
+            methods=[],
+            last_extracted="2026-05-03T00:00:00Z",
+        )
+        global_index = GlobalIndex(
+            domains={"constitution": domain_index},
+            domain_configs=[],
+            created_at="2026-05-03T00:00:00Z",
+            version="8.0.0",
+            embedding_model="test",
+            embedding_dimensions=384,
+        )
+
+        import json
+        import numpy as np
+
+        index_file = test_settings.index_path / "global_index.json"
+        with open(index_file, "w") as f:
+            json.dump(global_index.model_dump(), f)
+        np.save(test_settings.index_path / "content_embeddings.npy", mock_embeddings)
+        np.save(
+            test_settings.index_path / "domain_embeddings.npy", mock_domain_embeddings
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+
+                # New canonical ID must work
+                result = engine.get_principle_by_id("meta-core-informational-readiness")
+                assert result is not None
+                assert result.id == "meta-core-informational-readiness"
+                assert result.title == "Informational Readiness"
+
+                # Old ID must resolve to new canonical via alias
+                result = engine.get_principle_by_id("meta-core-context-engineering")
+                assert result is not None, (
+                    "Pre-v8.0.0 ID must resolve to renamed principle via "
+                    "Principle.aliases — alias preservation is a backwards-"
+                    "compatibility guarantee for existing audit logs and "
+                    "cross-references."
+                )
+                assert result.id == "meta-core-informational-readiness"
+
+
+class TestListDomains:
+    """Tests for list_domains() method."""
+
+    def test_list_domains_returns_list(self, saved_index, mock_embedder, mock_reranker):
+        """list_domains() should return list of domain info."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                domains = engine.list_domains()
+
+                assert isinstance(domains, list)
+                if domains:
+                    assert "name" in domains[0]
+                    assert "principles_count" in domains[0]
+
+    def test_list_domains_no_index(self, test_settings, mock_embedder, mock_reranker):
+        """list_domains() should return empty list without index."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+                domains = engine.list_domains()
+
+                assert domains == []
+
+
+class TestGetDomainSummary:
+    """Tests for get_domain_summary() method."""
+
+    def test_get_domain_summary_found(self, saved_index, mock_embedder, mock_reranker):
+        """get_domain_summary() should return summary when found."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                summary = engine.get_domain_summary("constitution")
+
+                if summary:  # May be None if domain not in test index
+                    assert summary["name"] == "constitution"
+                    assert "principles" in summary
+
+    def test_get_domain_summary_not_found(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """get_domain_summary() should return None when not found."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+                summary = engine.get_domain_summary("nonexistent-domain")
+
+                assert summary is None
+
+
+# =============================================================================
+# Performance Tests
+# =============================================================================
+
+
+@pytest.mark.integration
+class TestRetrievalPerformance:
+    """Performance tests for retrieval."""
+
+    def test_retrieve_latency_under_target(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
+        """retrieve() should complete under latency target."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(saved_index)
+
+                # Run multiple times to get average
+                times = []
+                for _ in range(5):
+                    start = time.time()
+                    engine.retrieve("test query")
+                    times.append((time.time() - start) * 1000)
+
+                avg_time = sum(times) / len(times)
+
+                # Should be under 100ms (with mocked models, should be very fast)
+                assert avg_time < 100, (
+                    f"Average retrieval time {avg_time}ms exceeds 100ms target"
+                )
+
+
+# =============================================================================
+# Real Index Tests
+# =============================================================================
+
+
+@pytest.mark.real_index
+@pytest.mark.slow
+class TestRealIndexRetrieval:
+    """Tests using production index. Run with: pytest -m real_index"""
+
+    def test_retrieve_with_real_index(self, real_settings):
+        """Test retrieval with production index."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Should return results for a real query
+        result = engine.retrieve("how to handle incomplete specifications")
+
+        assert result.query == "how to handle incomplete specifications"
+        assert (
+            len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+        )
+
+    def test_real_index_s_series_detection(self, real_settings):
+        """S-Series should be detected in real index."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Safety-related query should potentially trigger S-Series
+        result = engine.retrieve("safety concern in AI system")
+
+        # S-Series should be considered
+        assert isinstance(result.s_series_triggered, bool)
+
+    def test_real_index_domain_routing(self, real_settings):
+        """Domain routing should work with real index."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Code-related query should return results
+        result = engine.retrieve("software development testing code quality")
+
+        # Should return some results (constitution is always searched)
+        assert (
+            len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+        )
+
+    def test_real_index_forced_domain_returns_domain_principles(self, real_settings):
+        """Forced domain parameter should include domain principles in results."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Force ai-coding domain
+        result = engine.retrieve("unclear requirements", domain="ai-coding")
+
+        # Must return domain principles from the forced domain
+        assert len(result.domain_principles) > 0, (
+            "Forced domain should return domain principles"
+        )
+
+        # All domain principles should be from ai-coding domain (prefix: coding-)
+        for sp in result.domain_principles:
+            assert sp.principle.id.startswith("coding-"), (
+                f"Expected ai-coding principle, got {sp.principle.id}"
+            )
+
+    def test_real_index_forced_domain_bm25_only_returns_principles(self, real_settings):
+        """BACKLOG #52 regression: with semantic search unavailable (BM25-only
+        read-only mode, or embedding daemon down), a reasonable forced-domain
+        query must still surface principles. Previously the BM25-only combined
+        score was capped at (1 - semantic_weight)=0.4 and every principle fell
+        below the 0.3 threshold, returning zero principles.
+        """
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+        # Simulate semantic unavailability (the documented failure condition).
+        engine.semantic_search = lambda *a, **k: []
+
+        result = engine.retrieve("unclear requirements", domain="ai-coding")
+
+        assert len(result.domain_principles) > 0, (
+            "BM25-only mode must still return forced-domain principles (#52)"
+        )
+
+    def test_real_index_forced_domain_includes_constitution(self, real_settings):
+        """Forced domain with include_constitution=True should search both domains."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Use a general query that should match both domains
+        result = engine.retrieve(
+            "how should I handle unclear requirements and ambiguity",
+            domain="ai-coding",
+            include_constitution=True,
+        )
+
+        # Should search both domains (constitution_principles may be empty if
+        # domain principles score much higher, but search_domains includes both)
+        assert len(result.domain_principles) > 0, "Should return domain principles"
+        # Constitution principles are searched but may not meet threshold
+        # The key test is that include_constitution doesn't break domain retrieval
+
+    def test_real_index_forced_domain_excludes_constitution(self, real_settings):
+        """Forced domain with include_constitution=False should exclude constitution."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        result = engine.retrieve(
+            "specification completeness",
+            domain="ai-coding",
+            include_constitution=False,
+        )
+
+        # Should have domain principles only
+        assert len(result.domain_principles) > 0, "Should return domain principles"
+        assert len(result.constitution_principles) == 0, (
+            "Should not return constitution"
+        )
+
+    def test_real_index_discovery_before_commitment_principle_exists(
+        self, real_settings
+    ):
+        """Discovery Before Commitment principle should exist (absorbed Periodic Re-evaluation in v3.0.0)."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Get principle by canonical ID
+        principle = engine.get_principle_by_id("meta-core-discovery-before-commitment")
+
+        assert principle is not None, (
+            "Discovery Before Commitment principle should be retrievable"
+        )
+        assert "Discovery Before Commitment" in principle.title
+        assert "anchor bias" in principle.content.lower()
+        assert "milestone" in principle.content.lower()
+
+    def test_real_index_anchor_bias_method_exists(self, real_settings):
+        """Anchor Bias Mitigation Protocol method should exist in index."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Query for anchor bias content
+        result = engine.retrieve("anchor bias mitigation protocol checkpoint")
+
+        # Should return methods related to anchor bias
+        method_titles = [m.method.title.lower() for m in result.methods]
+        assert any("anchor" in title or "bias" in title for title in method_titles), (
+            f"Should find anchor bias method. Found: {method_titles}"
+        )

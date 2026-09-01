@@ -1,0 +1,212 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Least-privilege: no permissions by default; grant per-job
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false  # Don't cancel other versions if one fails
+      matrix:
+        # Cost control: full version matrix on PRs (the pre-merge gate); single
+        # version on direct pushes to main to conserve the private-repo Actions
+        # quota. Version-specific regressions are caught at PR time; run the full
+        # matrix locally before a version-sensitive direct push. 3.11 = the
+        # coverage version, so the coverage step still runs on push.
+        python-version: ${{ github.event_name == 'pull_request' && fromJSON('["3.10", "3.11", "3.12"]') || fromJSON('["3.11"]') }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Full history required for TestDemotionRationale (walks git log
+          # of documents/failure-mode-registry.md). Shallow clone would let
+          # the demotion gate silently pass — see BACKLOG #124 + contrarian
+          # audit a51939a6fa61a7dad (session-123 planning).
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install CPU-only PyTorch first to avoid huge CUDA downloads
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+
+      # Cache the bge-small model across runs. The non-slow suite (e.g.
+      # test_context_engine, test_readonly) downloads it from HuggingFace;
+      # with 4+ jobs pulling it concurrently, HF intermittently 429s a runner.
+      # Caching ~/.cache/huggingface eliminates the repeated 130MB downloads
+      # and the 429-flake class (cold-misses on the first run only).
+      - name: Cache HuggingFace model (bge-small)
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.0.5 (node24)
+        with:
+          path: ~/.cache/huggingface
+          key: hf-bge-small-en-v1.5
+
+
+      # BUILD THE INDEX. It became a build artifact in session-268 and nothing in
+      # CI built it, so every check needing a real index failed — 13 in
+      # test_gen_quick_reference.py, one in test_server_governance.py, and
+      # check.sh's derived-counts check. Fifteen failures, one cause, invisible
+      # for as long as the billing block killed each job in 2-3 seconds.
+      #
+      # Written to the repo-local `index/` (gitignored) because that is where
+      # gen_quick_reference.py falls back when AI_GOVERNANCE_INDEX_PATH is unset,
+      # and the suite's isolate_home fixture redirects $HOME away from the user
+      # default. One location both consumers agree on.
+      - name: Build the governance index
+        # Post-condition asserted, matching the index-behavior job's step: a
+        # build that "succeeds" having written nothing is the exact failure class
+        # this repo keeps finding (BACKLOG #298 and three siblings). An exit code
+        # is not evidence that an artifact exists.
+        run: |
+          python -m ai_governance_mcp.extractor
+          test -f index/global_index.json || { echo "index build produced nothing"; exit 1; }
+        env:
+          AI_GOVERNANCE_INDEX_PATH: ${{ github.workspace }}/index
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short -m "not slow"
+
+      - name: Run tests with coverage
+        if: matrix.python-version == '3.11'
+        run: |
+          pytest tests/ --cov=ai_governance_mcp --cov-report=xml --cov-report=term -m "not slow"
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install CPU-only PyTorch first to avoid huge CUDA downloads
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev,context-engine]"
+
+      - name: Run pip-audit (dependency vulnerabilities)
+        run: |
+          # Scope to project deps only, not entire conda/system environment
+          pip freeze --exclude-editable | pip-audit --desc on -r /dev/stdin
+        continue-on-error: true  # Advisory: surface CVEs without blocking PRs
+
+      - name: Run bandit (source code security)
+        run: |
+          bandit -r src/ -f txt
+
+      - name: Run safety check
+        run: |
+          safety check
+        continue-on-error: true  # Safety may have rate limits on free tier
+  ai-review:
+    name: AI Code Review (Advisory)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: AI review (advisory, non-blocking)
+        if: env.CLAUDE_API_KEY != ''
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: |
+          # Install Claude Code CLI
+          npm install -g @anthropic-ai/claude-code 2>/dev/null || true
+
+          # Get the diff for this PR
+          DIFF=$(git diff ${{ github.event.pull_request.base.sha }}..HEAD)
+
+          # Run headless review with scoped read-only tools
+          claude -p "Review this diff for bugs, security issues, and governance compliance. Be concise — report only CRITICAL and HIGH findings. Diff: $DIFF" \
+            --allowedTools Read,Grep,Glob \
+            --output-format json \
+            --max-turns 5 \
+            2>/dev/null || echo '{"result": "review could not run"}'
+
+          echo "::notice::AI review complete (advisory — does not block merge)"
+
+      - name: Skip notice (no API key)
+        if: env.CLAUDE_API_KEY == ''
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: echo "::notice::AI review skipped — CLAUDE_API_KEY secret not configured"
+
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.12.0
+
+      - name: Run ruff linter
+        run: |
+          ruff check src/ tests/
+
+      - name: Run ruff formatter check
+        run: |
+          ruff format --check src/ tests/
+
+  public-release-guard:
+    name: Public Release Leak Guard
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Run public-release leak guard
+        run: python3 scripts/check-public-release.py --root .

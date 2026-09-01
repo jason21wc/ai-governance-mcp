@@ -1,0 +1,88 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+!.claude/hooks/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Linting
+.ruff_cache/
+
+# Misc
+.Rhistory
+
+# Logs — all generated/regenerable analysis output (jsonl streams + json baselines)
+logs/*.jsonl
+logs/*.json
+
+# Benchmark baselines (generated per-run, not canonical)
+tests/benchmarks/baseline_*.json
+tests/benchmarks/ce_baseline_*.json
+
+# Model cache (large, can be re-downloaded)
+.cache/
+
+# Environment
+.env
+.env.local
+private-domains/
+private-reference-library/
+
+# Claude Code session-transient working state (not canonical)
+.claude/plans/
+.claude/projects/
+.claude/scheduled_tasks.lock
+# In-repo git worktrees (session-transient) — keep the parent repo's git status clean.
+# CE-index exclusion is handled by the indexer's DEFAULT_IGNORE_PATTERNS: this .gitignore
+# is NOT consulted for indexing when a .contextignore exists (indexer.py:load_ignore_patterns).
+.claude/worktrees/
+.pytest-home/
+
+# --- Data that lives outside the checkout (session-268) ---
+# index/ is DERIVED from documents/ + the reference library, so it is user-specific
+# by construction: two people with this same repo legitimately hold different
+# indexes. The public repo already treats it as a build artifact. Rebuild with
+# `python -m ai_governance_mcp.extractor`. 309 of 1359 commits used to touch it.
+index/
+# reference-library/ is USER DATA written at runtime by capture_reference and
+# accumulating one person's lessons across ALL their projects. Kept in-repo, a
+# capture made while working in an unrelated project dirtied this tree — and a
+# dirty checkout blocks a concurrent session's fast-forward merge. Configure with
+# AI_GOVERNANCE_REFERENCE_LIBRARY_PATH; default is ~/.ai-governance/.
+reference-library/
+logs/check-failures/
