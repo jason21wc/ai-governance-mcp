@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # GitHub Actions — keep SHA-pinned actions current
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      # Monthly (was weekly, 2026-07-05): each dependabot PR triggers the full
+      # 3-version CI matrix on the metered private-repo Actions quota (T-169);
+      # the scan itself is unbilled — the PR-triggered CI is the cost. Grouped
+      # single-PR + monthly = ~12 CI-triggering PRs/year instead of ~52.
+      interval: "monthly"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
