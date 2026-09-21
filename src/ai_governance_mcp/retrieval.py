@@ -121,15 +121,16 @@ class RetrievalEngine:
 
         Phase 2: tries EmbeddingClient (daemon socket) first. Falls back to
         local SentenceTransformer only if AI_CONTEXT_ENGINE_EMBED_SOCKET=none
-        (Docker/CI) or the import fails. The default path preserves the memory
-        guarantee: MCP servers never load torch when the daemon is available.
+        (standalone/CI). A missing service never authorizes local loading.
         """
         if self._embedder is None:
             with self._model_lock:
                 if self._embedder is None:  # Double-checked locking
                     if self._try_embedding_client():
                         return self._embedder
-                    # Fallback: local model (Docker, CI, daemon unavailable)
+                    from .model_runtime import require_local_opt_in
+
+                    require_local_opt_in()
                     from sentence_transformers import SentenceTransformer
 
                     model_name = self.settings.embedding_model
@@ -158,7 +159,9 @@ class RetrievalEngine:
                 if self._reranker is None:  # Double-checked locking
                     if self._try_reranker_client():
                         return self._reranker
-                    # Fallback: local model
+                    from .model_runtime import require_local_opt_in
+
+                    require_local_opt_in()
                     from sentence_transformers import CrossEncoder
 
                     model_name = self.settings.rerank_model

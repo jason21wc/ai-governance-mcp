@@ -140,6 +140,42 @@ class Principle(BaseModel):
     embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
 
 
+class GovernanceReference(BaseModel):
+    """An explicit source reference; resolution is evidence, not inference."""
+
+    text: str
+    status: Literal["resolved", "unresolved"] = "unresolved"
+    principle_id: Optional[str] = None
+    reason: Optional[str] = None
+
+
+class GovernanceDeclaration(BaseModel):
+    """A labeled declaration with its original location and wording."""
+
+    label: Literal["Implements", "Constitutional Basis"]
+    raw: str
+    line_range: tuple[int, int]
+    origin: Literal["method", "ancestor"]
+    heading: str
+    references: list[GovernanceReference] = Field(default_factory=list)
+
+
+class GovernanceHeading(BaseModel):
+    title: str
+    line: int
+
+
+class MethodGovernanceContext(BaseModel):
+    """Normative document relationships, never a claim of host enforcement."""
+
+    source_document: str
+    section: str
+    enclosing_headings: list[GovernanceHeading] = Field(default_factory=list)
+    framework_layer: Literal["rules_of_procedure", "federal_regulations", "unknown"]
+    authority: Literal["normative_not_enforcement"] = "normative_not_enforcement"
+    declarations: list[GovernanceDeclaration] = Field(default_factory=list)
+
+
 class Method(BaseModel):
     """A procedural method from domain methods document."""
 
@@ -160,6 +196,10 @@ class Method(BaseModel):
         default_factory=list,
         description="Former method IDs that redirect to this method "
         "(for backward compatibility after a rename)",
+    )
+    governance_context: Optional[MethodGovernanceContext] = Field(
+        None,
+        description="Explicit document relationships; null means unavailable in this index",
     )
     embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
 
@@ -540,6 +580,9 @@ class RelevantMethod(BaseModel):
     score: float = Field(..., ge=0.0, le=1.0, description="Retrieval relevance score")
     confidence: Literal["high", "medium", "low"] = Field(
         ..., description="Confidence level"
+    )
+    governance_context: dict = Field(
+        default_factory=lambda: {"availability": "unavailable"}
     )
 
 

@@ -110,6 +110,8 @@ class ProjectManager:
         readonly: bool = False,
         reranking: bool = True,
         fusion_method: Literal["linear", "rrf"] = "linear",
+        max_loaded_projects: int | None = None,
+        refresh_from_storage: bool = False,
     ) -> None:
         self.storage = storage or FilesystemStorage()
         self.embedding_model_name = embedding_model
@@ -119,6 +121,12 @@ class ProjectManager:
         self.readonly = readonly
         self.reranking = reranking
         self.fusion_method = fusion_method
+        self.max_loaded_projects = (
+            MAX_LOADED_PROJECTS if max_loaded_projects is None else max_loaded_projects
+        )
+        if self.max_loaded_projects < 1:
+            raise ValueError("max_loaded_projects must be at least one")
+        self.refresh_from_storage = refresh_from_storage
 
         self._indexer = Indexer(
             storage=self.storage,
@@ -138,6 +146,9 @@ class ProjectManager:
         # RLock protects shared index state from watcher callback mutations.
         # Reentrant because query_project may call get_or_create_index internally.
         self._index_lock = threading.RLock()
+        # Eviction cannot cancel a callback already doing I/O. Allow only one
+        # such update per manager; other watchers coalesce/retry their hints.
+        self._watcher_update_lock = threading.Lock()
 
         # Track consecutive watcher failures per project for circuit breaker
         self._watcher_failures: dict[str, int] = {}
@@ -163,6 +174,7 @@ class ProjectManager:
         """
         with self._index_lock:
             project_id = FilesystemStorage.project_id_from_path(project_path)
+            self._refresh_cached_project(project_id)
 
             # Check if already loaded in memory
             if project_id in self._loaded_indexes:
@@ -180,7 +192,7 @@ class ProjectManager:
                 self._touch_project(project_id)
                 if index_mode == "realtime":
                     self._ensure_watcher(project_path, project_id)
-                return index
+                return self._loaded_indexes.get(project_id, index)
 
             # Create new index
             index = self._indexer.index_project(project_path, project_id, index_mode)
@@ -194,7 +206,7 @@ class ProjectManager:
             if index_mode == "realtime":
                 self._ensure_watcher(project_path, project_id)
 
-            return index
+            return self._loaded_indexes.get(project_id, index)
 
     def query_project(
         self,
@@ -234,23 +246,11 @@ class ProjectManager:
         # Acquire lock to prevent watcher mutations during read phase.
         # RLock allows re-entry if get_or_create_index calls _load_search_indexes.
         with self._index_lock:
+            self._refresh_cached_project(project_id)
             # Ensure project is indexed
             if project_id not in self._loaded_indexes:
                 if self.storage.project_exists(project_id):
                     self._load_project(project_id)
-                    # Start watcher if project was indexed as realtime (skip in readonly)
-                    if not self.readonly:
-                        metadata = self.storage.load_metadata(project_id)
-                        stored_mode = (metadata or {}).get("index_mode", "ondemand")
-                        if stored_mode == "realtime":
-                            try:
-                                self._ensure_watcher(project_path, project_id)
-                            except Exception as e:
-                                logger.warning(
-                                    "Failed to start watcher for %s: %s",
-                                    project_id,
-                                    e,
-                                )
                 elif self.readonly:
                     # Read-only mode: can't auto-index missing projects
                     return ProjectQueryResult(
@@ -271,6 +271,13 @@ class ProjectManager:
 
             self._touch_project(project_id)
             index = self._loaded_indexes.get(project_id)
+            if (
+                index is not None
+                and index.index_mode == "realtime"
+                and not self.readonly
+            ):
+                self._ensure_watcher(project_path, project_id)
+                index = self._loaded_indexes.get(project_id)
             if index is None or not index.chunks:
                 return ProjectQueryResult(
                     query=query,
@@ -354,12 +361,21 @@ class ProjectManager:
         project_id = FilesystemStorage.project_id_from_path(project_path)
 
         with self._index_lock:
+            self._refresh_cached_project(project_id)
             if project_id not in self._loaded_indexes:
                 if self.storage.project_exists(project_id):
                     self._load_project(project_id)
                 else:
                     return {"symbol": symbol, "callers": [], "callees": [], "total": 0}
 
+            self._touch_project(project_id)
+            index = self._loaded_indexes.get(project_id)
+            if (
+                index is not None
+                and index.index_mode == "realtime"
+                and not self.readonly
+            ):
+                self._ensure_watcher(project_path, project_id)
             edges = self._loaded_code_edges.get(project_id, [])
 
         callers = []
@@ -421,6 +437,7 @@ class ProjectManager:
             self._loaded_embeddings.pop(project_id, None)
             self._loaded_bm25.pop(project_id, None)
             self._loaded_code_edges.pop(project_id, None)
+            self._evict_if_needed()
 
             # Re-index — use default_index_mode (from env var) rather than only
             # stored metadata, so env var changes take effect on reindex
@@ -438,7 +455,7 @@ class ProjectManager:
             if index_mode == "realtime":
                 self._start_watcher(project_path, project_id)
 
-            return index
+            return self._loaded_indexes.get(project_id, index)
 
     async def build_knowledge_graph(self, project_path: Path) -> dict:
         if self.readonly:
@@ -600,10 +617,10 @@ class ProjectManager:
         for project_id in self.storage.list_projects():
             # Soft LRU check — get_or_create_index enforces the hard limit
             # under _index_lock via _evict_if_needed. Racing here is benign.
-            if len(self._loaded_indexes) >= MAX_LOADED_PROJECTS:
+            if len(self._loaded_indexes) >= self.max_loaded_projects:
                 logger.info(
                     "LRU limit reached (%d), skipping remaining projects",
-                    MAX_LOADED_PROJECTS,
+                    self.max_loaded_projects,
                 )
                 break
             try:
@@ -693,20 +710,42 @@ class ProjectManager:
         plus existing ones never exceed MAX_LOADED_PROJECTS.
         Must be called with _index_lock held.
         """
-        while len(self._loaded_indexes) >= MAX_LOADED_PROJECTS and self._access_order:
-            evict_id = self._access_order.pop(0)
-            if evict_id not in self._loaded_indexes:
-                continue
-            # Stop watcher for evicted project
-            watcher = self._watchers.pop(evict_id, None)
-            if watcher is not None:
-                watcher.stop()
-            # Unload from memory
-            self._loaded_indexes.pop(evict_id, None)
-            self._loaded_embeddings.pop(evict_id, None)
-            self._loaded_bm25.pop(evict_id, None)
-            self._loaded_code_edges.pop(evict_id, None)
+        while len(self._loaded_indexes) >= self.max_loaded_projects:
+            evict_id = (
+                self._access_order[0]
+                if self._access_order
+                else next(iter(self._loaded_indexes))
+            )
+            self._unload_project(evict_id)
             logger.info("Evicted project %s from memory (LRU)", evict_id)
+
+    def _unload_project(self, project_id: str) -> None:
+        """Drop a complete cache entry; an old callback cannot repopulate it."""
+        watcher = self._watchers.pop(project_id, None)
+        if watcher is not None:
+            watcher.stop()
+        self._loaded_indexes.pop(project_id, None)
+        self._loaded_embeddings.pop(project_id, None)
+        self._loaded_bm25.pop(project_id, None)
+        self._loaded_code_edges.pop(project_id, None)
+        if project_id in self._access_order:
+            self._access_order.remove(project_id)
+
+    def _refresh_cached_project(self, project_id: str) -> None:
+        """Invalidate data committed by another process before serving a read.
+
+        Metadata timestamps detect completed external updates; they do not turn
+        the existing multi-file storage format into a transactional snapshot.
+        """
+        if not self.refresh_from_storage or project_id not in self._loaded_indexes:
+            return
+        metadata = self.storage.load_metadata(project_id)
+        index = self._loaded_indexes[project_id]
+        if (
+            metadata is None
+            or metadata.get("updated_at", "unknown") != index.updated_at
+        ):
+            self._unload_project(project_id)
 
     def _load_project(self, project_id: str) -> ProjectIndex:
         """Load a project index from storage.
@@ -721,6 +760,12 @@ class ProjectManager:
         metadata = self.storage.load_metadata(project_id)
         if metadata is None:
             raise ValueError(f"Project {project_id} not found in storage")
+
+        # All storage-load callers, including queries and reference lookups,
+        # share admission control. Drop stale search arrays before replacement.
+        if project_id in self._loaded_indexes:
+            self._unload_project(project_id)
+        self._evict_if_needed()
 
         # Load chunks from dedicated file (new format)
         chunks_data = self.storage.load_chunks(project_id)
@@ -767,6 +812,7 @@ class ProjectManager:
         # reloaded anyway — the warning's "BM25-only" claim was a no-op
         # (pre-#59 bug, fixed with the canary-gate port).
         self._load_search_indexes(project_id, skip_embeddings=model_mismatch)
+        self._touch_project(project_id)
         return index
 
     def _load_search_indexes(
@@ -1350,10 +1396,18 @@ class ProjectManager:
 
     def _start_watcher(self, project_path: Path, project_id: str) -> None:
         """Start a file watcher for a project."""
-        if project_id in self._watchers:
+        if self.readonly or project_id in self._watchers:
             return
 
         def on_change(changed_files: list[Path]) -> None:
+            if not self._watcher_update_lock.acquire(blocking=False):
+                raise RuntimeError("Another project update is still in progress")
+            try:
+                update(changed_files)
+            finally:
+                self._watcher_update_lock.release()
+
+        def update(changed_files: list[Path]) -> None:
             # Perform expensive I/O work OUTSIDE the lock so queries aren't blocked.
             # Only acquire the lock briefly to swap in-memory data structures.
             try:
@@ -1361,6 +1415,8 @@ class ProjectManager:
                 # runs concurrently, it increments the generation and we'll detect
                 # the mismatch before committing stale results.
                 with self._index_lock:
+                    if self._watchers.get(project_id) is not watcher:
+                        return
                     gen = self._index_generations.get(project_id, 0)
 
                 new_index = self._indexer.incremental_update(
@@ -1380,7 +1436,10 @@ class ProjectManager:
                 with self._index_lock:
                     # Check generation — discard if a manual reindex ran while
                     # we were doing expensive work outside the lock
-                    if self._index_generations.get(project_id, 0) != gen:
+                    if (
+                        self._watchers.get(project_id) is not watcher
+                        or self._index_generations.get(project_id, 0) != gen
+                    ):
                         logger.info(
                             "Discarding stale watcher result for %s "
                             "(generation changed during re-index)",
@@ -1424,6 +1483,8 @@ class ProjectManager:
             except Exception as e:
                 watcher_to_stop = None
                 with self._index_lock:
+                    if self._watchers.get(project_id) is not watcher:
+                        return
                     failures = self._watcher_failures.get(project_id, 0) + 1
                     self._watcher_failures[project_id] = failures
                     if failures >= 3:
@@ -1439,15 +1500,28 @@ class ProjectManager:
                         failures,
                     )
                     watcher_to_stop.stop()
+                # Let FileWatcher retry failed events/reconciliation. The
+                # stopped circuit-breaker path must not schedule more work.
+                raise
 
         ignore_spec = self._indexer.load_ignore_patterns(project_path)
         watcher = FileWatcher(
             project_path=project_path,
             on_change=on_change,
             ignore_spec=ignore_spec,
+            ownership_path=(
+                self.storage.get_index_path(project_id).parent
+                / ".watcher-locks"
+                / f"{project_id}.lock"
+            ),
         )
         watcher.start()
-        self._watchers[project_id] = watcher
+        if watcher.is_running:
+            self._watchers[project_id] = watcher
+            # An owner may have exited/evicted this project while files changed.
+            # Incremental indexing reconciles the manifest, including deletions;
+            # future filesystem events alone cannot recover that gap.
+            watcher.reconcile()
 
     def _ensure_watcher(self, project_path: Path, project_id: str) -> None:
         """Ensure a file watcher is running for a realtime project.
@@ -1456,7 +1530,7 @@ class ProjectManager:
         watchers (in dict but not running). Respects circuit breaker.
         Must be called under _index_lock.
         """
-        if project_id in self._circuit_broken:
+        if self.readonly or project_id in self._circuit_broken:
             return
         existing = self._watchers.get(project_id)
         if existing is not None and existing.is_running:
@@ -1469,4 +1543,10 @@ class ProjectManager:
             )
             existing.stop()  # Ensure clean shutdown before restart
             self._watchers.pop(project_id, None)
-        self._start_watcher(project_path, project_id)
+        try:
+            self._start_watcher(project_path, project_id)
+        except Exception as exc:
+            # A stored index remains queryable even if the observer cannot be
+            # scheduled (permissions, disappearing paths, resource limits).
+            # Status remains stopped and the next request retries ownership.
+            logger.warning("Failed to start watcher for %s: %s", project_id, exc)

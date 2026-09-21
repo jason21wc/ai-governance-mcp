@@ -27,6 +27,7 @@ from .config import (
 # safe_load only, never yaml.load
 import yaml  # nosec B506
 
+from .governance_context import attach_context, resolve_context
 from .models import (
     DomainConfig,
     DomainIndex,
@@ -1180,6 +1181,13 @@ class DocumentExtractor:
                 text = self._get_reference_embedding_text(ref)
                 all_texts.append(text)
                 text_mapping.append((domain_config.name, "reference", i))
+
+        # Relationships are resolved only after every domain is known. They do
+        # not enter embedding or keyword inputs.
+        resolve_context(
+            [m for index in domain_indexes.values() for m in index.methods],
+            [p for index in domain_indexes.values() for p in index.principles],
+        )
 
         # Generate embeddings for all content
         logger.info(f"Generating embeddings for {len(all_texts)} items...")
@@ -2496,6 +2504,7 @@ class DocumentExtractor:
                 domain_config.methods_file,
             )
 
+        attach_context(methods, content, "documents/" + domain_config.methods_file)
         logger.info(f"Extracted {len(methods)} methods from {domain_config.name}")
         return methods
 

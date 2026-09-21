@@ -92,18 +92,23 @@ class TestContextEngineRetrievalQuality:
         )
         manager = ProjectManager(storage=storage)
 
-        manager.get_or_create_index(project_root)
-        benchmark = load_benchmark_cases()
-        # Run each semantic query once. ProjectManager._fuse_scores uses the same
-        # 50-result candidate pool for max_results=5 and 10, then slices only at
-        # return, so Recall@5 is exactly the first five results cached here.
-        results = {}
-        for case in benchmark["test_cases"]:
-            results[case["id"]] = manager.query_project(
-                query=case["query"],
-                project_path=project_root,
-                max_results=10,
-            )
+        # Class setup precedes the function-scoped IPC isolation fixture. Opt in
+        # here as well, keeping this benchmark independent of a running watcher
+        # and restoring the caller's environment even if setup raises.
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setenv("AI_CONTEXT_ENGINE_EMBED_SOCKET", "none")
+            manager.get_or_create_index(project_root)
+            benchmark = load_benchmark_cases()
+            # Run each semantic query once. ProjectManager._fuse_scores uses the
+            # same 50-result candidate pool for max_results=5 and 10, then slices
+            # only at return, so Recall@5 is the first five cached results.
+            results = {}
+            for case in benchmark["test_cases"]:
+                results[case["id"]] = manager.query_project(
+                    query=case["query"],
+                    project_path=project_root,
+                    max_results=10,
+                )
 
         request.cls.benchmark = benchmark
         request.cls.results = results

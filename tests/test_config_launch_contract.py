@@ -140,6 +140,86 @@ def test_seed_copies_only_model_artifacts_and_dereferences_links(tmp_path):
     assert not (destination / "unrelated-account-data").exists()
 
 
+def _shared_source(tmp_path):
+    source, snapshot = _fake_source(tmp_path)
+    digest = "ab" * 32
+    blob = source / "blobs" / digest[:2] / digest
+    blob.parent.mkdir(parents=True)
+    (source / "blobs" / ".huggingface-shared-blobs").write_text("1\n")
+    blob.write_bytes(b"shared weights")
+    local_blob = snapshot.parent.parent / "blobs" / "weights"
+    local_blob.unlink()
+    local_blob.symlink_to(Path("../../blobs") / digest[:2] / digest)
+    return source, snapshot, blob
+
+
+def test_seed_accepts_shared_hub_blobs_without_copying_the_pool(tmp_path):
+    source, snapshot, blob = _shared_source(tmp_path)
+    (blob.parent / ("cd" * 32)).write_bytes(b"unrelated weights")
+    destination = tmp_path / "disposable"
+    conftest._seed_launch_cache(source, destination, "BAAI/bge-small-en-v1.5")
+    copied = destination / snapshot.relative_to(source) / "model.safetensors"
+    assert copied.read_bytes() == b"shared weights"
+    assert not copied.is_symlink()
+    copied.write_bytes(b"test mutation")
+    assert blob.read_bytes() == b"shared weights"
+    assert not (destination / "blobs").exists()
+
+
+@pytest.mark.parametrize(
+    "defect",
+    [
+        "cache_root_file",
+        "sibling_model",
+        "bad_hash",
+        "bad_prefix",
+        "missing_marker",
+        "invalid_marker",
+        "marker_link",
+        "root_link",
+        "prefix_link",
+        "payload_link",
+    ],
+)
+def test_shared_blob_copy_rejects_untrusted_locations(tmp_path, defect):
+    source, snapshot, blob = _shared_source(tmp_path)
+    store = source / "blobs"
+    marker = store / ".huggingface-shared-blobs"
+    local_blob = snapshot.parent.parent / "blobs" / "weights"
+    if defect in {"cache_root_file", "sibling_model", "bad_hash", "bad_prefix"}:
+        targets = {
+            "cache_root_file": source / "account-data",
+            "sibling_model": source / "models--other" / "blobs" / "weights",
+            "bad_hash": blob.parent / "not-a-hash",
+            "bad_prefix": store / "cd" / blob.name,
+        }
+        target = targets[defect]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"must not copy")
+        local_blob.unlink()
+        local_blob.symlink_to(target)
+    elif defect == "missing_marker":
+        marker.unlink()
+    elif defect == "invalid_marker":
+        marker.write_text("unrecognized layout\n")
+    else:
+        path = {
+            "marker_link": marker,
+            "root_link": store,
+            "prefix_link": blob.parent,
+            "payload_link": blob,
+        }[defect]
+        moved = tmp_path / "outside"
+        path.rename(moved)
+        path.symlink_to(moved, target_is_directory=moved.is_dir())
+    destination = tmp_path / "disposable"
+    with pytest.raises(
+        RuntimeError, match="Launch-test model prerequisite unavailable"
+    ):
+        conftest._seed_launch_cache(source, destination, "BAAI/bge-small-en-v1.5")
+    assert not destination.exists()
+
+
 @pytest.mark.parametrize(
     "defect",
     ["missing", "incomplete", "escaping_link", "escaping_ref", "directory_link"],

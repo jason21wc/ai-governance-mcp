@@ -188,7 +188,9 @@ def test_the_guard_is_wired_into_a_host_agnostic_seam():
     )
 
 
-def test_the_advisory_arms_actually_REACH_a_human_through_pre_commit(tmp_path):
+def test_the_advisory_arms_actually_REACH_a_human_through_pre_commit(
+    tmp_path, monkeypatch
+):
     """`verbose: true`, without which the advisory arms are mute at this seam.
 
     pre-commit swallows a passing hook's stdout by default. All three advisory
@@ -209,6 +211,7 @@ def test_the_advisory_arms_actually_REACH_a_human_through_pre_commit(tmp_path):
     is missing, that is a genuine environment gap and the test FAILS rather than
     skipping — the whole point is that this claim gets checked or the run goes red.
     """
+    _installed_hook(tmp_path, monkeypatch)
     cfg = (REPO / ".pre-commit-config.yaml").read_text(encoding="utf-8")
     block = cfg.split("id: memory-size-guard", 1)[1].split("- id:", 1)[0]
     assert "verbose: true" in block, (
@@ -222,6 +225,8 @@ def test_the_advisory_arms_actually_REACH_a_human_through_pre_commit(tmp_path):
         session_state_lines=301,
         learning_log_lines=201,
     )
+    ll = root / "_ai-context/LEARNING-LOG.md"
+    ll.write_text(ll.read_text().replace("lesson 0\n", "### Delivered lesson\n", 1))
     subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True)
     (root / ".pre-commit-config.yaml").write_text(
         "repos:\n"
@@ -252,7 +257,13 @@ def test_the_advisory_arms_actually_REACH_a_human_through_pre_commit(tmp_path):
         + result.stderr
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    for expected in ("BACKLOG is at 65", "SESSION-STATE is at", "201 total lines"):
+    for expected in (
+        "BACKLOG is at 65",
+        "SESSION-STATE is at",
+        "201 total lines",
+        "Largest Learning Log entries",
+        "Delivered lesson",
+    ):
         assert expected in result.stdout, result.stdout
 
 
@@ -361,3 +372,370 @@ def test_skip_is_still_audit_logged(tmp_path, direct):
         "pre-commit-memory-size-guard MEMORY_SIZE_SKIP=1 advisory-skip"
         in audit.read_text()
     )
+
+
+# Entry reports describe length; they never establish a pruning threshold.
+REPORTER = HOOK.parent / "lib" / "memory-entry-size.py"
+
+
+def _git(root, *args):
+    return subprocess.run(
+        ["git", "-C", str(root), *args], check=True, capture_output=True, text=True
+    )
+
+
+def _lesson_root(tmp_path, text, *, tracked=False):
+    root = _context(tmp_path, backlog_items=0, session_state_lines=1)
+    (root / "_ai-context/LEARNING-LOG.md").write_text(text, encoding="utf-8")
+    _git(root, "init", "-q")
+    if tracked:
+        _git(root, "add", "_ai-context")
+        _git(
+            root,
+            "-c",
+            "user.name=Fixture",
+            "-c",
+            "user.email=fixture@example.test",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "commit",
+            "-qm",
+            "fixture",
+        )
+    return root
+
+
+def _notice(root, direct, env=None):
+    if direct:
+        result = _run_direct(root, env)
+        assert result.returncode == 0, result.stderr
+        return result.stdout
+    out = _run(root, env_extra=env)
+    assert out is None or "decision" not in out
+    return out["hookSpecificOutput"]["additionalContext"] if out else ""
+
+
+def _report(path):
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, str(REPORTER), str(path)],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+    return result.stdout
+
+
+@pytest.mark.parametrize("direct", [False, True])
+@pytest.mark.parametrize("change", ["untracked", "staged", "unstaged"])
+def test_below_trigger_changed_log_reports_largest_entries(tmp_path, direct, change):
+    root = _lesson_root(tmp_path, "### Old\nold\n", tracked=change != "untracked")
+    ll = root / "_ai-context/LEARNING-LOG.md"
+    ll.write_text("### Changed below trigger\nA useful rule.\n", encoding="utf-8")
+    if change == "staged":
+        _git(root, "add", str(ll))
+    before = ll.read_bytes()
+    status = _git(root, "status", "--porcelain").stdout
+    notice = _notice(root, direct)
+    assert "Largest Learning Log entries" in notice
+    assert "Changed below trigger" in notice
+    assert "14 characters" in notice
+    assert "total lines" not in notice
+    assert ll.read_bytes() == before
+    assert _git(root, "status", "--porcelain").stdout == status
+
+
+@pytest.mark.parametrize("direct", [False, True])
+def test_unchanged_below_trigger_log_is_silent(tmp_path, direct):
+    root = _lesson_root(tmp_path, "### Existing\nA useful rule.\n", tracked=True)
+    assert _notice(root, direct) == ""
+
+
+@pytest.mark.parametrize("direct", [False, True])
+def test_unchanged_over_trigger_log_still_reports_entries(tmp_path, direct):
+    root = _lesson_root(
+        tmp_path, "### Existing\nA useful rule.\n" + "\n" * 200, tracked=True
+    )
+    notice = _notice(root, direct)
+    assert "total lines" in notice
+    assert "Existing" in notice
+
+
+def test_unconditional_helper_normalizes_wrapping_and_ranks_top_three_with_stable_ties(
+    tmp_path,
+):
+    ll = tmp_path / "LEARNING-LOG.md"
+    ll.write_text(
+        "### First\n alpha  beta\n gamma\n### Second\nalpha beta gamma\n"
+        "### Short\nx\n### Largest\n" + "z" * 40 + "\n",
+        encoding="utf-8",
+    )
+    notice = _report(ll)
+    assert (
+        notice.index("Largest —") < notice.index("First —") < notice.index("Second —")
+    )
+    assert notice.count("16 characters") == 2
+    assert "Short" not in notice
+    assert "line 1: First" in notice
+
+
+def test_closing_hashes_and_long_internal_whitespace(tmp_path):
+    ll = tmp_path / "LEARNING-LOG.md"
+    ll.write_text(
+        "### Closed \t### \t\nbody\n### Literal###\nbody\n"
+        + "### Long"
+        + " " * 100_000
+        + "tail\nbody\n",
+        encoding="utf-8",
+    )
+    notice = _report(ll)
+    assert "Closed — 4 characters" in notice
+    assert "Literal### — 4 characters" in notice
+    assert "line 5: Long" in notice
+
+
+def test_heading_boundaries_fences_and_misplaced_entries(tmp_path):
+    ll = tmp_path / "LEARNING-LOG.md"
+    ll.write_text(
+        "### Before active\nbody\n## Active Lessons\n### Main\nx\n#### Subheading\ny\n"
+        "~~~markdown\n### Fake\n~~~~\n## Graduated Patterns\n| row | ignored |\n"
+        "### Misplaced\nkept\n# End\nexcluded trailing prose\n### Empty\n\n",
+        encoding="utf-8",
+    )
+    notice = _report(ll)
+    assert "Before active — 4 characters" in notice
+    assert "Misplaced — 4 characters" in notice
+    assert "Main —" in notice
+    assert ": Fake" not in notice
+    assert "Empty" not in notice
+    assert "ignored" not in notice
+
+
+@pytest.mark.parametrize("direct", [False, True])
+def test_dynamic_headings_are_safe_bounded_and_preserve_unicode(tmp_path, direct):
+    heading = 'Café "quoted" \\n literal\x1b[31m\x07\t\u202e ' + "x" * 180
+    root = _lesson_root(tmp_path, "### " + heading + "\nbody\n")
+    notice = _notice(root, direct)
+    assert 'Café "quoted" \\n literal' in notice
+    assert "\\x1b[31m\\x07\\x09\\u202e" in notice
+    assert "x" * 101 not in notice
+    assert "\x1b" not in notice and "\x07" not in notice and "\u202e" not in notice
+
+
+@pytest.mark.parametrize(
+    "text", ["", "# Log\n## Graduated Patterns\n| row | body |\n", "### Empty\n\n"]
+)
+def test_empty_logs_and_table_only_logs_are_quiet(tmp_path, text):
+    root = _lesson_root(tmp_path, text)
+    assert _notice(root, True) == ""
+    assert _report(root / "_ai-context/LEARNING-LOG.md") == ""
+
+
+def test_direct_outside_git_reports_but_claude_below_trigger_does_not(tmp_path):
+    root = _context(tmp_path, backlog_items=0, session_state_lines=1)
+    (root / "_ai-context/LEARNING-LOG.md").write_text("### Audit\nbody\n")
+    assert "Audit" in _notice(root, True)
+    assert _notice(root, False) == ""
+
+
+def _installed_hook(tmp_path, monkeypatch):
+    """Exercise the installed shape, not a helper from the source checkout."""
+    import shutil
+
+    installed = tmp_path / "hooks"
+    shutil.copytree(HOOK.parent / "lib", installed / "lib")
+    shutil.copy2(HOOK, installed / HOOK.name)
+    monkeypatch.setitem(globals(), "HOOK", installed / HOOK.name)
+    return installed
+
+
+@pytest.mark.parametrize("direct", [False, True])
+@pytest.mark.parametrize("failure", ["missing_helper", "read_error"])
+def test_entry_report_failure_preserves_available_notices(
+    tmp_path, monkeypatch, direct, failure
+):
+    installed = _installed_hook(tmp_path, monkeypatch)
+    root = _lesson_root(tmp_path / "project", "### Rule\nbody\n" + "\n" * 201)
+    if failure == "missing_helper":
+        (installed / "lib/memory-entry-size.py").unlink(missing_ok=True)
+    else:
+        (root / "_ai-context/LEARNING-LOG.md").write_bytes(
+            b"### Rule\n\xff\n" + b"\n" * 201
+        )
+    notice = _notice(root, direct)
+    assert "entry report unavailable" in notice
+    assert "total lines" in notice
+
+
+def _shim(tmp_path, name, content):
+    directory = tmp_path / "bin"
+    directory.mkdir(exist_ok=True)
+    script = directory / name
+    script.write_text("#!/bin/bash\n" + content, encoding="utf-8")
+    script.chmod(0o755)
+    return {"PATH": str(directory) + os.pathsep + os.environ["PATH"]}
+
+
+@pytest.mark.parametrize("direct", [False, True])
+def test_git_status_failure_is_unknown_and_runs_ranking(tmp_path, direct):
+    import shlex
+    import shutil
+
+    root = _lesson_root(
+        tmp_path / "project", "### Must still inspect\nbody\n", tracked=True
+    )
+    git = shlex.quote(shutil.which("git"))
+    env = _shim(
+        tmp_path,
+        "git",
+        f'for arg; do if [[ "$arg" == status ]]; then exit 42; fi; done\nexec {git} "$@"\n',
+    )
+    notice = _notice(root, direct, env)
+    assert "Git status unavailable" in notice
+    assert "Must still inspect" in notice
+
+
+def test_claude_without_python_never_measures_process_checkout(tmp_path):
+    import shutil
+
+    root = _lesson_root(tmp_path / "payload-root", "### Payload\nbody\n")
+    directory = tmp_path / "no-python"
+    directory.mkdir()
+    for command in ("bash", "cat", "dirname", "jq", "git", "wc", "tr", "grep"):
+        (directory / command).symlink_to(shutil.which(command))
+    out = _run(root, env_extra={"PATH": str(directory)})
+    notice = out["hookSpecificOutput"]["additionalContext"]
+    assert "root inspection unavailable" in notice
+    assert "total lines" not in notice
+    assert "BACKLOG is at" not in notice
+
+
+def test_neither_command_decoder_claims_no_commit_recognition(tmp_path):
+    import shutil
+
+    directory = tmp_path / "no-decoders"
+    directory.mkdir()
+    for command in ("bash", "cat", "dirname"):
+        (directory / command).symlink_to(shutil.which(command))
+    out = _run(tmp_path, env_extra={"PATH": str(directory)})
+    assert (
+        "command/root inspection unavailable"
+        in out["hookSpecificOutput"]["additionalContext"]
+    )
+
+
+def test_failed_json_serializer_returns_fixed_valid_diagnostic(tmp_path):
+    import shlex
+    import shutil
+
+    root = _lesson_root(tmp_path / "project", '### "Unsafe"\\n\nbody\n')
+    python = shlex.quote(shutil.which("python3"))
+    env = _shim(
+        tmp_path,
+        "python3",
+        f'if [[ "${{2:-}}" == *json.dumps* ]]; then printf "partial unsafe output"; exit 42; fi\nexec {python} "$@"\n',
+    )
+    out = _run(root, env_extra=env)
+    notice = out["hookSpecificOutput"]["additionalContext"]
+    assert "output unavailable" in notice
+    assert "Unsafe" not in notice
+    assert "partial" not in notice
+
+
+@pytest.mark.parametrize(
+    "opening,wrong_close,closing",
+    [
+        ("````python", "```", "`````"),
+        ("~~~", "```", "~~~"),
+        ("   ```", "``` trailing", "   ```"),
+    ],
+)
+def test_fences_cannot_manufacture_entries_or_end_on_wrong_marker(
+    tmp_path, opening, wrong_close, closing
+):
+    ll = tmp_path / "LEARNING-LOG.md"
+    ll.write_text(
+        f"{opening}\n### Fake one\nbody\n{wrong_close}\n### Fake two\nbody\n"
+        f"{closing}\n### Real\nbody\n"
+    )
+    notice = _report(ll)
+    assert "Real — 4 characters" in notice
+    assert "Fake" not in notice
+
+
+def test_markdown_body_syntax_urls_and_subheadings_count_as_text(tmp_path):
+    ll = tmp_path / "LEARNING-LOG.md"
+    ll.write_text("### Rule\n**bold**\nhttps://example.test\n#### Detail\n")
+    notice = _report(ll)
+    assert "41 characters" in notice
+
+
+def test_missing_log_is_quiet_for_helper_and_both_transports(tmp_path):
+    root = _context(tmp_path, backlog_items=0, session_state_lines=1)
+    ll = root / "_ai-context/LEARNING-LOG.md"
+    ll.unlink()
+    assert _report(ll) == ""
+    assert _notice(root, True) == ""
+    assert _notice(root, False) == ""
+
+
+def test_direct_without_python_retains_counts_and_reports_unavailable_ranking(tmp_path):
+    import shutil
+
+    root = _lesson_root(tmp_path / "root", "### Entry\nbody\n" + "\n" * 201)
+    directory = tmp_path / "no-python"
+    directory.mkdir()
+    for command in ("bash", "cat", "dirname", "git", "wc", "tr", "grep"):
+        (directory / command).symlink_to(shutil.which(command))
+    notice = _notice(root, True, {"PATH": str(directory)})
+    assert "203 total lines" in notice
+    assert "entry report unavailable" in notice
+
+
+def test_claude_python_command_decoder_fallback(tmp_path):
+    root = _lesson_root(tmp_path / "root", "### Decoder fallback\nbody\n")
+    env = _shim(tmp_path, "jq", "exit 42\n")
+    assert "Decoder fallback" in _notice(root, False, env)
+
+
+@pytest.mark.parametrize("direct", [False, True])
+def test_git_repository_inspection_failure_is_not_outside_git(tmp_path, direct):
+    root = _lesson_root(
+        tmp_path / "root", "### Inspect despite unknown\nbody\n", tracked=True
+    )
+    env = _shim(tmp_path, "git", "echo 'unexpected failure' >&2; exit 42\n")
+    notice = _notice(root, direct, env)
+    assert "Git status unavailable" in notice
+    assert "Inspect despite unknown" in notice
+
+
+def test_embedded_line_controls_do_not_manufacture_headings(tmp_path):
+    ll = tmp_path / "LEARNING-LOG.md"
+    ll.write_bytes(
+        b"### Real\r### Injected\v### Also fake\x85literal\nbody\n".replace(
+            b"\x85", "\u0085".encode()
+        )
+    )
+    notice = _report(ll)
+    assert "line 1: Real\\x0d### Injected\\x0b### Also fake\\x85literal" in notice
+    assert notice.count("characters\n") == 1
+
+
+def test_helper_reports_read_failure_as_unavailable(tmp_path):
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, str(REPORTER), str(tmp_path)], capture_output=True, text=True
+    )
+    assert result.returncode != 0
+    assert not result.stdout
+    assert "entry report unavailable" in result.stderr
+
+
+def test_direct_subdirectory_resolves_the_acting_worktree(tmp_path):
+    root = _lesson_root(tmp_path, "### Worktree root\nbody\n")
+    nested = root / "nested"
+    nested.mkdir()
+    assert "Worktree root" in _notice(nested, True)

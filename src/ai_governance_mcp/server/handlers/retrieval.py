@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 from mcp.types import TextContent
 
+from ...governance_context import compact_context, full_context
 from ...models import (
     ConfidenceLevel,
     ErrorResponse,
@@ -394,6 +395,7 @@ def _format_retrieval_result(result) -> str:
         for sm in result.methods:
             m = sm.method
             lines.append(f"- **{m.id}:** {m.title} (confidence: {sm.confidence.value})")
+            lines.append("  Governance context: " + json.dumps(compact_context(m)))
         lines.append("")
         lines.append(_METHOD_FETCH_HINT)
         lines.append("")
@@ -478,7 +480,9 @@ def _compact_retrieval_result(result, bodies: dict[int, str | None], limit: int)
             (
                 False,
                 sm.combined_score,
-                f"- Method `{m.id}`: {_clip(m.title, 160)} ({sm.confidence.value})",
+                f"- Method `{m.id}`: {_clip(m.title, 160)} ({sm.confidence.value})"
+                + "\nGovernance context: "
+                + json.dumps(compact_context(m)),
                 "",
                 "",
             )
@@ -573,6 +577,7 @@ async def _handle_get_principle(
             "content": method.content,
             "line_range": method.line_range,
             "keywords": method.keywords,
+            "governance_context": full_context(method),
         }
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 

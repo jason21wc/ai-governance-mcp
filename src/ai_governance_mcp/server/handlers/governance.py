@@ -12,6 +12,7 @@ import time
 
 from mcp.types import TextContent
 
+from ...governance_context import compact_context
 from ...models import (
     AssessmentStatus,
     ConfidenceLevel,
@@ -227,6 +228,7 @@ async def _handle_evaluate_governance(
                 domain=m.domain,
                 score=sm.combined_score,
                 confidence=sm.confidence.value,
+                governance_context=compact_context(m),
             )
         )
 

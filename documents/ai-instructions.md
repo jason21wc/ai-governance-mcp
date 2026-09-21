@@ -1,16 +1,16 @@
 ---
-version: "4.61.0"
+version: "4.62.0"
 status: "active"
-effective_date: "2026-09-18"
+effective_date: "2026-09-20"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 4.61.0
+**Version:** 4.62.0
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-09-18
+**Updated:** 2026-09-20
 
 ---
 
@@ -185,8 +185,8 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- constitution.md v8.3.0+
-- rules-of-procedure.md v3.57.0+
+- constitution.md v8.4.0+
+- rules-of-procedure.md v3.58.0+
 - title-10-ai-coding.md v2.11.1+
 - title-10-ai-coding-cfr.md v2.80.0+
 - title-20-multi-agent.md v2.7.6+
@@ -213,6 +213,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.62.0 | 2026-09-20 | MINOR: propagate Constitution v8.4.0 and Rules of Procedure v3.58.0 evidence-sufficiency and investigative-autonomy amendments. MINOR-on-MINOR; no new principles or changes to host permissions. Governance: `gov-7d2e635f9b52`. |
 | 4.61.0 | 2026-09-18 | MINOR: propagate Rules of Procedure v3.57.0 and Title 10 CFR v2.80.0 checkpoint/continuation distinction; retain quality and authority gates. Governance: `gov-ac3263445f20`. |
 | 4.60.0 | 2026-09-18 | MINOR: integrate Rules of Procedure v3.56.0 scoped guidance with main's Title 10 CFR v2.79.0 memory merging. Controlled host comparisons were canceled by the user; retain software validation and normal-use feedback. Governance: `gov-ac3263445f20`. |
 | 4.59.0 | 2026-09-16 | MINOR: propagate Title 10 CFR v2.79.0 ordinary text merging for framework memory (#367). Governance: `gov-89f848be7d90`. |

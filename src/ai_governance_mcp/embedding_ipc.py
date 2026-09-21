@@ -29,7 +29,10 @@ import socket
 import struct
 import threading
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
+
+from .model_runtime import INFERENCE_LOCK
 
 import numpy as np
 
@@ -45,6 +48,9 @@ MAX_PAIRS_PER_REQUEST = 1000
 
 HEADER_SIZE = 4  # uint32 big-endian
 SOCKET_BACKLOG = 16
+MAX_CONNECTIONS = 16
+MAX_PENDING_REQUESTS = 8
+MAX_PENDING_BYTES = 16 * 1024 * 1024
 CONNECTION_TIMEOUT = 30.0
 CLIENT_RETRY_ATTEMPTS = 5
 CLIENT_RETRY_INITIAL_DELAY = 0.2
@@ -166,6 +172,16 @@ def _validate_predict_request(data: dict) -> None:
 # =============================================================================
 
 
+@dataclass
+class _WorkItem:
+    request: dict
+    size: int
+    deadline: float
+    result: dict = field(default_factory=dict)
+    done: threading.Event = field(default_factory=threading.Event)
+    cancelled: threading.Event = field(default_factory=threading.Event)
+
+
 class EmbeddingServer:
     """Unix socket server for shared embedding inference.
 
@@ -190,7 +206,9 @@ class EmbeddingServer:
         self._encode_fn = encode_fn
         self._predict_fn = predict_fn
         self._socket_path = _resolve_socket_path(socket_path)
-        self._work_queue: queue.Queue = queue.Queue()
+        self._work_queue: queue.Queue = queue.Queue(maxsize=MAX_PENDING_REQUESTS)
+        self._pending_bytes = 0
+        self._admission_lock = threading.Lock()
         self._server_socket: socket.socket | None = None
         self._accept_thread: threading.Thread | None = None
         self._worker_thread: threading.Thread | None = None
@@ -208,6 +226,19 @@ class EmbeddingServer:
     @property
     def socket_path(self) -> Path:
         return self._socket_path
+
+    def diagnostic_snapshot(self) -> dict:
+        """Approximate instantaneous counts; never include request contents."""
+        with self._admission_lock:
+            pending_bytes = self._pending_bytes
+            queued = self._work_queue.qsize()
+        with self._conns_lock:
+            connections = len(self._active_conns)
+        return {
+            "ipc_pending_bytes": pending_bytes,
+            "ipc_queued_requests": queued,
+            "ipc_connections": connections,
+        }
 
     def start(self) -> None:
         """Start the server: bind socket, start worker + accept threads."""
@@ -264,8 +295,9 @@ class EmbeddingServer:
         if self._accept_thread and self._accept_thread.is_alive():
             self._accept_thread.join(timeout=5.0)
         if self._worker_thread and self._worker_thread.is_alive():
-            self._work_queue.put(None)  # sentinel
             self._worker_thread.join(timeout=5.0)
+
+        self._discard_pending()
 
         # Clean up socket file
         try:
@@ -297,6 +329,9 @@ class EmbeddingServer:
                         except OSError:
                             pass
                         break
+                    if len(self._active_conns) >= MAX_CONNECTIONS:
+                        conn.close()
+                        continue
                     self._active_conns.add(conn)
                 handler = threading.Thread(
                     target=self._handle_connection,
@@ -339,18 +374,22 @@ class EmbeddingServer:
                 if self._stop_event.is_set():
                     break
 
-                result_event = threading.Event()
-                result_holder: dict = {}
-
-                self._work_queue.put((request, result_holder, result_event))
-                result_event.wait(timeout=CONNECTION_TIMEOUT)
-
-                if not result_event.is_set():
-                    response = {"ok": False, "error": "Worker timeout"}
+                try:
+                    item = self._admit(request)
+                except (ValueError, queue.Full) as e:
+                    response = {
+                        "ok": False,
+                        "error": str(e) or "Embedding service busy",
+                    }
                 else:
-                    response = result_holder.get(
-                        "response", {"ok": False, "error": "No response"}
-                    )
+                    item.done.wait(timeout=CONNECTION_TIMEOUT)
+                    if not item.done.is_set():
+                        item.cancelled.set()
+                        response = {"ok": False, "error": "Worker timeout"}
+                    else:
+                        response = item.result.get(
+                            "response", {"ok": False, "error": "No response"}
+                        )
 
                 try:
                     conn.sendall(_encode_message(response))
@@ -364,25 +403,76 @@ class EmbeddingServer:
             except OSError:
                 pass
 
+    def _admit(self, request: dict) -> _WorkItem:
+        """Validate before reserving bounded queue storage, including active work."""
+        if not isinstance(request, dict):
+            raise ValueError("Request must be an object")
+        op = request.get("op")
+        if op == "encode":
+            _validate_encode_request(request)
+        elif op == "predict":
+            _validate_predict_request(request)
+        elif op not in ("health", "dimension"):
+            raise ValueError(f"Unknown operation: {op}")
+        size = len(json.dumps(request, ensure_ascii=False).encode("utf-8"))
+        item = _WorkItem(request, size, time.monotonic() + CONNECTION_TIMEOUT)
+        with self._admission_lock:
+            if (
+                self._stop_event.is_set()
+                or self._pending_bytes + size > MAX_PENDING_BYTES
+            ):
+                raise queue.Full("Embedding service busy")
+            self._work_queue.put_nowait(item)
+            self._pending_bytes += size
+        return item
+
+    def _release(self, item: _WorkItem) -> None:
+        with self._admission_lock:
+            self._pending_bytes -= item.size
+        item.request = {}  # release input even if a timed-out handler retains the item
+        item.done.set()
+
+    def _discard_pending(self) -> None:
+        while True:
+            try:
+                item = self._work_queue.get_nowait()
+            except queue.Empty:
+                return
+            item.cancelled.set()
+            self._release(item)
+
     def _worker_loop(self) -> None:
-        """Single worker thread that owns all model access. Serializes encode/predict."""
+        """Serialize IPC with direct indexing; expired work never starts inference."""
         while not self._stop_event.is_set():
             try:
-                item = self._work_queue.get(timeout=1.0)
+                item = self._work_queue.get(timeout=0.1)
             except queue.Empty:
                 continue
-
-            if item is None:  # shutdown sentinel
-                break
-
-            request, result_holder, result_event = item
             try:
-                response = self._dispatch(request)
+                # Acquisition is interruptible, and the deadline is checked AFTER
+                # acquisition too: indexing may hold the shared lock for a batch.
+                while not self._stop_event.is_set() and not item.cancelled.is_set():
+                    if time.monotonic() >= item.deadline:
+                        break
+                    if not INFERENCE_LOCK.acquire(timeout=0.1):
+                        continue
+                    try:
+                        if (
+                            not self._stop_event.is_set()
+                            and not item.cancelled.is_set()
+                            and time.monotonic() < item.deadline
+                        ):
+                            item.result["response"] = self._dispatch(item.request)
+                    finally:
+                        INFERENCE_LOCK.release()
+                    break
             except Exception as e:
                 logger.error("Worker error: %s", e)
-                response = {"ok": False, "error": str(e)}
-            result_holder["response"] = response
-            result_event.set()
+                item.result["response"] = {"ok": False, "error": str(e)}
+            finally:
+                if "response" not in item.result:
+                    item.result["response"] = {"ok": False, "error": "Worker timeout"}
+                self._release(item)
 
     def _dispatch(self, request: dict) -> dict:
         """Route a request to the appropriate handler."""

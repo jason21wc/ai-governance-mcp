@@ -98,6 +98,21 @@ documents/*.md  →  extractor.py  →  index/global_index.json
 AI query  →  server/  →  retrieval.py  →  index (in memory)  →  results
 ```
 
+**Method governance context:** Extraction retains source document, section and
+enclosing headings alongside explicitly labeled `Implements` / `Constitutional
+Basis` declarations. Direct and ancestor declarations retain separate origins.
+A second pass resolves unique exact principle IDs, explicit aliases and scoped
+titles; missing, ambiguous or non-principle references remain unresolved. This
+metadata does not change method IDs, body boundaries, embedding inputs or ranking.
+It describes normative authority, not host enforcement or compliance.
+
+`query_governance` and `evaluate_governance` expose a compact projection capped at
+512 serialized characters per method, with omission counts and a `get_principle`
+detail route. The query's complete-response limit remains 32,000 characters.
+`get_principle` returns the source and declaration evidence. Older indexes load
+with context unavailable; the server does not invent links from current documents
+or treat missing metadata as proof that no governing principles apply.
+
 **Index load (startup + auto-reload on `global_index.json` mtime change):** `retrieval.py:_load_index` validates before swapping the in-memory index, using temp-and-swap with a rollback guard so a bad index never displaces a working one:
 1. **Model-label** — stored `embedding_model` vs configured.
 2. **Row-count** — embedding rows == index item count.
@@ -733,7 +748,26 @@ file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
                                                      cooldown (5s) before next re-index
 ```
 
-**Self-Restart Lifecycle (Phase 0 — plan jiggly-honking-cascade.md):**
+**Memory containment and maintenance restart:**
+
+On Darwin and Linux, the watcher CLI starts a lightweight supervisor before model
+initialization. It checks the worker every 2 seconds against an 8 GiB tripwire:
+physical footprint on Darwin, RSS plus swap on Linux. Darwin also checks critical
+memory pressure. Windows retains the legacy uptime-only path. It terminates only its owned process group,
+escalates from TERM to KILL after 2 seconds, and waits at least 60 seconds and
+for normal pressure before replacement. A failed metric stops the worker. The
+namespace lock prevents duplicate supervised owners. The private maintenance
+checkout records deployment-specific limits and activation in
+`docs/oom-containment.md`; that operational runbook is excluded from the public extract.
+
+The worker also records bounded, content-free memory diagnostics in
+`watcher-memory.jsonl`: inference/indexing boundaries and periodic queue/corpus
+counts, process footprint, Python block counts and already-loaded MPS counters.
+A bounded nonblocking queue isolates diagnostic file writes from inference and
+heartbeat execution. These measurements distinguish workload growth from retained
+runtime memory; they do not themselves prove the cause of an OOM.
+
+The older uptime policy remains a maintenance trigger inside the worker:
 ```
 daemon start  →  heartbeat loop (60s ticks)  →  uptime check each tick
                                                         │
@@ -745,10 +779,20 @@ daemon start  →  heartbeat loop (60s ticks)  →  uptime check each tick
                │                                        │
                └────────────────────────────────────────┘
                                                         │
-         launchd KeepAlive=true  →  respawn (ThrottleInterval 30s)  →  fresh process
+         supervisor  →  wait at least 60s and normal pressure  →  fresh worker
 ```
 
-The self-restart mechanism flushes the PyTorch CPU allocator cache, which accumulates monotonically in long-running processes (sentence-transformers issues #1795, #487). Default: 12h target with ±10% jitter, 1h floor, 5-min idle gate / 1.5× hard cap. During the ~30s respawn window, file changes are not watched but are caught on next heartbeat via mtime replay. File deletions during the window are not recovered until the next full reindex — a documented accepted trade-off.
+The uptime restart releases process-owned allocations; it does not identify their
+cause or enforce a memory ceiling. Default: 12h target with ±10% jitter, 1h floor,
+5-min idle gate / 1.5× hard cap. Changes during the restart window are replayed
+from mtimes after startup. File deletions during the window require a full reindex.
+
+Default retrieval/indexing clients use the shared service or report semantic
+unavailability; they never silently load local models. Explicit
+`AI_CONTEXT_ENGINE_EMBED_SOCKET=none` retains standalone use, outside supervisor
+protection. IPC admits at most 16 connections, 8 queued requests and 16 MiB of
+serialized pending/active request payload. Timed-out queued work is cancelled.
+Local indexer inference and IPC share one reentrant lock, including model loading.
 
 ### Security Features
 
@@ -776,7 +820,7 @@ The self-restart mechanism flushes the PyTorch CPU allocator cache, which accumu
 | **Chunk force-splitting** | Markdown and plain text force-split at 200 lines | connectors/document.py |
 | **Timer lifecycle** | Daemon threads for debounce/cooldown timers, cancel on stop(), running guard | watcher.py |
 | **Circuit breaker** | 3 consecutive watcher failures stops watcher, marks project circuit_broken | project_manager.py |
-| **LRU eviction** | Max 10 loaded projects, least-recently-used evicted | project_manager.py |
+| **LRU eviction** | Stdio clients retain at most 1 loaded project; other managers default to 10. All admission paths evict the least-recently-used project at the configured limit | project_manager.py, server.py |
 | **JSON file size limits** | 100MB max for BM25 index, metadata, file manifest files | storage/filesystem.py |
 | **Watcher debounce + cooldown** | 2s debounce batches rapid changes; 5s cooldown prevents re-index storms | watcher.py |
 | **Watcher force-flush** | 10,000 pending changes triggers immediate flush (prevents unbounded memory) | watcher.py |

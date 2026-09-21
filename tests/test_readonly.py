@@ -289,6 +289,13 @@ class TestProjectManagerReadonly:
         # Build index using writable storage
         writable_storage = FilesystemStorage(base_path=base)
         writable_manager = self._make_manager(writable_storage, readonly=False)
+        # This tests storage/query behavior, not model loading or downloads.
+        encoder = Mock()
+        encoder.encode.side_effect = lambda texts, **kw: np.ones(
+            (len(texts), 384), dtype=np.float32
+        )
+        encoder.get_sentence_embedding_dimension.return_value = 384
+        writable_manager._indexer._embedding_model = encoder
 
         # Create a simple project to index
         project_dir = tmp_path / "test_project"

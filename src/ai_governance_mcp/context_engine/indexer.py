@@ -7,12 +7,13 @@ generates embeddings, and builds the hybrid search index (BM25 + semantic).
 import hashlib
 import logging
 import re
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pathspec
+
+from ..model_runtime import observe_indexing
 
 from .connectors.base import BaseConnector
 from .connectors.code import CodeConnector
@@ -120,7 +121,11 @@ class Indexer:
         self.embedding_dimensions = embedding_dimensions
         self.readonly = readonly
         self._embedding_model = None
-        self._model_lock = threading.Lock()  # Thread-safe lazy model loading
+        from ..model_runtime import INFERENCE_LOCK
+
+        self._model_lock = (
+            INFERENCE_LOCK  # one lock order for construction and inference
+        )
 
         # Initialize connectors in priority order
         self.connectors: list[BaseConnector] = [
@@ -136,7 +141,7 @@ class Indexer:
         """Lazy-load the embedding model with safety enforcement.
 
         Phase 2: tries EmbeddingClient (daemon socket) first. Falls back to
-        local SentenceTransformer when socket absent. The daemon itself sets
+        local SentenceTransformer only with explicit socket=none. The daemon itself sets
         AI_CONTEXT_ENGINE_EMBED_SOCKET=none to prevent infinite self-loop.
 
         Thread-safe: uses a lock to prevent duplicate model loading when
@@ -173,7 +178,13 @@ class Indexer:
                 except Exception as e:
                     logger.debug("Indexer IPC client not available: %s", e)
 
-            # Fallback: local model
+            from ..model_runtime import (
+                INFERENCE_LOCK,
+                SerializedModel,
+                require_local_opt_in,
+            )
+
+            require_local_opt_in()
             try:
                 from sentence_transformers import SentenceTransformer
             except ImportError:
@@ -209,14 +220,18 @@ class Indexer:
                 "Loading embedding model locally: %s (this may take a moment on first use)",
                 self.embedding_model_name,
             )
-            self._embedding_model = SentenceTransformer(
-                self.embedding_model_name,
-                trust_remote_code=False,
-                model_kwargs={"use_safetensors": True},
-            )
+            with INFERENCE_LOCK:
+                self._embedding_model = SerializedModel(
+                    SentenceTransformer(
+                        self.embedding_model_name,
+                        trust_remote_code=False,
+                        model_kwargs={"use_safetensors": True},
+                    )
+                )
             logger.info("Embedding model loaded successfully")
         return self._embedding_model
 
+    @observe_indexing
     def index_project(
         self,
         project_path: Path,
@@ -352,6 +367,7 @@ class Indexer:
         )
         return project_index
 
+    @observe_indexing
     def incremental_update(
         self,
         project_path: Path,

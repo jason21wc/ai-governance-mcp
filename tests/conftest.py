@@ -6,7 +6,9 @@ and reproducibility across unit, integration, and behavior tests.
 
 import json
 import os
+import re
 import shutil
+import stat
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -90,6 +92,35 @@ def _validate_launch_cache_policy(environ, source):
             return
 
 
+def _is_shared_launch_blob(source, target):
+    """Accept only Hub's marked, hash-addressed shared payload store.
+
+    Snapshot links may traverse model/blobs before reaching cache-root/blobs.
+    Keep this anchor lexical beneath the canonical cache: resolving a redirected
+    store first would turn an external directory into an accepted boundary.
+    """
+    store = source.resolve() / "blobs"
+    try:
+        parts = target.relative_to(store).parts
+        if (
+            len(parts) != 2
+            or re.fullmatch(r"[0-9a-f]{64}", parts[1]) is None
+            or parts[0] != parts[1][:2]
+        ):
+            return False
+        marker = store / ".huggingface-shared-blobs"
+        if not all(
+            stat.S_ISDIR(path.lstat().st_mode) for path in (store, target.parent)
+        ):
+            return False
+        if not all(stat.S_ISREG(path.lstat().st_mode) for path in (marker, target)):
+            return False
+        with marker.open("rb") as stream:
+            return stream.read(3) == b"1\n"
+    except (OSError, ValueError):
+        return False
+
+
 def _seed_launch_cache(source, destination, model):
     """Copy only one model's main snapshot; never link writable shared state.
 
@@ -108,12 +139,18 @@ def _seed_launch_cache(source, destination, model):
         if not revision or not all(c in "0123456789abcdef" for c in revision):
             raise ValueError("invalid cached main revision")
         snapshot = origin / "snapshots" / revision
-        # Only dereference links to artifacts inside THIS model cache.
+        # Dereference this model's artifacts, including the Hub shared-blob layout.
+        # Arbitrary files elsewhere in the cache are still outside the boundary.
         for item in [snapshot, *snapshot.rglob("*")]:
             if item.is_symlink() and item.is_dir():
                 raise ValueError("model snapshot directory links are not supported")
-            if not item.resolve().is_relative_to(origin.resolve()):
-                raise ValueError("model snapshot link escapes its cache")
+            target = item.resolve()
+            if not target.is_relative_to(origin.resolve()) and not (
+                item.is_file() and _is_shared_launch_blob(source, target)
+            ):
+                raise ValueError(
+                    f"model snapshot link escapes allowed artifacts: {item} -> {target}"
+                )
         for required in ("modules.json", "config.json"):
             if not (snapshot / required).is_file():
                 raise ValueError(f"incomplete model snapshot: missing {required}")

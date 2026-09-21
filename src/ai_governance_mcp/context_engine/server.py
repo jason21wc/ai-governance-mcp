@@ -392,6 +392,8 @@ def _create_project_manager() -> ProjectManager:
         semantic_weight=semantic_weight,
         default_index_mode=default_index_mode,
         readonly=readonly,
+        max_loaded_projects=1,
+        refresh_from_storage=True,
     )
 
 
@@ -1357,18 +1359,9 @@ def main() -> None:
     try:
         server, manager = create_server()
 
-        # Eagerly start watchers for realtime projects in a background thread.
-        # Runs between create_server() and asyncio.run() so watchers begin
-        # loading while the MCP server starts accepting connections.
-        # daemon=True so the process can exit without joining this thread.
-        # Skip entirely in read-only mode (no watchers needed).
-        if not manager.readonly:
-            startup_thread = threading.Thread(
-                target=manager.startup_watchers,
-                name="watcher-startup",
-                daemon=True,
-            )
-            startup_thread.start()
+        # Stdio hosts create a process per session. Never preload the shared
+        # project registry here: that replicates every corpus and watcher per
+        # client. Projects are admitted lazily when a tool actually uses them.
 
         async def _run() -> None:
             try:

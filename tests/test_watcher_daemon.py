@@ -172,6 +172,60 @@ class TestHeartbeatAndPID:
         assert data["projects_watched"] == 3
         assert "alive_at" in data
 
+    @pytest.mark.parametrize("fail_write", [False, True])
+    def test_heartbeat_readers_keep_previous_json_during_write(
+        self, tmp_path, monkeypatch, caplog, fail_write
+    ):
+        """Opening a heartbeat update must never expose a truncated live file."""
+        import builtins
+        import io
+
+        # Load the existing storage implementation before intercepting opens;
+        # the observation concerns heartbeat writes, not module loading.
+        from ai_governance_mcp.context_engine.storage import filesystem  # noqa: F401
+
+        base = tmp_path / "indexes"
+        base.mkdir()
+        heartbeat_path = base.parent / "watcher-heartbeat.json"
+        previous = {"pid": 123, "projects_watched": 1, "alive_at": "previous"}
+        heartbeat_path.write_text(json.dumps(previous))
+        previous_bytes = heartbeat_path.read_bytes()
+        original_open = builtins.open
+        observed = []
+
+        def observe_write_open(open_file):
+            def wrapped(file, mode="r", *args, **kwargs):
+                stream = open_file(file, mode, *args, **kwargs)
+                if "w" in mode and Path(file).parent == heartbeat_path.parent:
+                    # Read at the exact moment after a write-open: in-place
+                    # writing has already truncated; staging leaves valid JSON.
+                    with original_open(heartbeat_path, "rb") as reader:
+                        observed.append(reader.read())
+                    if fail_write:
+                        stream.close()
+                        raise OSError("injected heartbeat write failure")
+                return stream
+
+            return wrapped
+
+        with monkeypatch.context() as patcher:
+            patcher.setattr(builtins, "open", observe_write_open(original_open))
+            patcher.setattr(io, "open", observe_write_open(io.open))
+            _write_heartbeat(base, projects_watched=3, embed_socket="/tmp/embed.sock")
+
+        assert observed, "the regression must inspect the file during a write"
+        assert all(value == previous_bytes for value in observed), (
+            "heartbeat readers observed an incomplete live JSON update"
+        )
+        result = json.loads(heartbeat_path.read_text())
+        if fail_write:
+            assert result == previous
+            assert "Failed to write heartbeat" in caplog.text
+        else:
+            assert result["projects_watched"] == 3
+            assert result["embed_socket"] == "/tmp/embed.sock"
+            assert result["pid"] == os.getpid()
+
     def test_remove_heartbeat(self, tmp_path):
         base = tmp_path / "indexes"
         base.mkdir()
@@ -681,14 +735,26 @@ class TestHeartbeatLoopSelfExit:
             args=(base, manager, stop_event, 0.1, time.time(), None),
             daemon=True,
         )
-        thread.start()
-        time.sleep(0.3)  # at least 2 ticks
-        heartbeat_path = base.parent / "watcher-heartbeat.json"
-        assert heartbeat_path.exists()
-        data = json.loads(heartbeat_path.read_text())
-        assert data["projects_watched"] == 3
-        stop_event.set()
-        thread.join(timeout=1.0)
+        written = threading.Event()
+
+        def write_and_signal(*args, **kwargs):
+            _write_heartbeat(*args, **kwargs)
+            written.set()
+
+        with patch(
+            "ai_governance_mcp.context_engine.watcher_daemon._write_heartbeat",
+            side_effect=write_and_signal,
+        ):
+            thread.start()
+            try:
+                assert written.wait(timeout=1.0), "heartbeat loop did not write"
+                heartbeat_path = base.parent / "watcher-heartbeat.json"
+                data = json.loads(heartbeat_path.read_text())
+                assert data["projects_watched"] == 3
+            finally:
+                stop_event.set()
+                thread.join(timeout=1.0)
+        assert not thread.is_alive()
 
     def test_floor_warning_logged_for_low_uptime(self, caplog, tmp_path):
         """Providing max_uptime below floor should log a WARN."""

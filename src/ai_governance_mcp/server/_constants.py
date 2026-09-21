@@ -196,7 +196,7 @@ SCAFFOLD_SESSION_STATE = """# Session State
 
 **Last Updated:** {date}
 **Memory Type:** Working (transient)
-**Lifecycle:** Overwritten each session; route content out per §7.0.4
+**Lifecycle:** Overwritten each session; retain no session-history stack. Route content out per §7.0.4
 
 > This file tracks CURRENT work state only.
 > Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
@@ -227,7 +227,7 @@ SCAFFOLD_SESSION_STATE = """# Session State
 SCAFFOLD_PROJECT_MEMORY = """# Project Memory
 
 **Memory Type:** Semantic (accumulates)
-**Lifecycle:** Grows with project per §7.0.4
+**Lifecycle:** Preserve decisions; condense supporting detail at §7.0.4 review. Mark superseded decisions with date and replacement link; never delete the decision record.
 **Project:** {project_name}
 **Created:** {date}
 
@@ -273,7 +273,7 @@ SCAFFOLD_PROJECT_MEMORY = """# Project Memory
 SCAFFOLD_LEARNING_LOG = """# Learning Log
 
 **Memory Type:** Episodic (experiences)
-**Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
+**Lifecycle:** Graduate to methods when patterns emerge per §7.0.4. Remove lessons only per §7.3.4; never prune for size alone.
 
 > **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
 > Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
@@ -503,7 +503,7 @@ SCAFFOLD_SESSION_STATE_DOC = """# Session State
 
 **Last Updated:** {date}
 **Memory Type:** Working (transient)
-**Lifecycle:** Overwritten each session; route content out
+**Lifecycle:** Overwritten each session; retain no session-history stack. Route content out.
 
 > This file tracks CURRENT work state only.
 > Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
@@ -532,7 +532,7 @@ SCAFFOLD_SESSION_STATE_DOC = """# Session State
 SCAFFOLD_PROJECT_MEMORY_DOC = """# Project Memory
 
 **Memory Type:** Semantic (accumulates)
-**Lifecycle:** Grows with project
+**Lifecycle:** Preserve decisions; condense supporting detail. Mark superseded decisions with date and replacement link; never delete the decision record.
 **Project:** {project_name}
 **Created:** {date}
 
@@ -566,7 +566,7 @@ the work must respect.*
 SCAFFOLD_LEARNING_LOG_DOC = """# Learning Log
 
 **Memory Type:** Episodic (experiences)
-**Lifecycle:** Distill recurring lessons into standing guidance
+**Lifecycle:** Distill recurring lessons into standing guidance. Remove lessons only per §7.3.4; never prune for size alone.
 
 > **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
 > Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
@@ -847,7 +847,7 @@ SCAFFOLD_SAAS_OPS_EXTRAS = {
 # project's file against today's template.
 #
 # Why not: these files are SUPPOSED to diverge. They accumulate real project
-# content, get distilled at 300 lines per §7.0.4, outgrow starter sections, and
+# content, receive policy-specific review per §7.0.4, outgrow starter sections, and
 # rename headings as the project matures. A structural diff against the current
 # template was prototyped and measured against this repo's own memory files:
 # 23 "drift" findings, ZERO true positives — and it was blind to the very change
@@ -867,7 +867,7 @@ SCAFFOLD_SAAS_OPS_EXTRAS = {
 # changes without a new entry (per the LEARNING-LOG lesson that a hand-synced
 # list plus a "keep this updated" comment is not an enforcement mechanism).
 
-SCAFFOLD_TEMPLATE_VERSION = "2.69.0"
+SCAFFOLD_TEMPLATE_VERSION = "2.70.0"
 
 # Stamp written as the first line of every scaffolded file. HTML comment —
 # invisible in rendered markdown, cheap to parse, survives content edits.
@@ -1095,6 +1095,31 @@ SCAFFOLD_TEMPLATE_CHANGELOG = [
             "write memory, and publish with retry on a concurrent fast-forward race. "
             "Use a lifecycle helper that records ownership before mutation and refreshes "
             "remote refs before destructive cleanup."
+        ),
+    },
+    {
+        "version": "2.70.0",
+        "date": "2026-09-20",
+        "applies_to": ["code", "document"],
+        "files": [
+            "_ai-context/SESSION-STATE.md",
+            "_ai-context/PROJECT-MEMORY.md",
+            "_ai-context/LEARNING-LOG.md",
+        ],
+        "change": (
+            "Lifecycle declarations now explicitly reject session-history stacks, "
+            "preserve decisions while condensing supporting detail, date and link "
+            "supersession, and restrict lesson removal to §7.3.4 without size-only pruning."
+        ),
+        "why": (
+            "A valid type name or nonempty lifecycle can still contradict policy. "
+            "These declarations expose the obligations from CFR §7.0.4 and §§7.1–7.3 "
+            "to readers using the files without framework tooling."
+        ),
+        "action": (
+            "Review the three lifecycle fields against current policy and update "
+            "their declarations while preserving project-specific routing and content. "
+            "Scaffold sync reports this change but does not rewrite existing files."
         ),
     },
 ]

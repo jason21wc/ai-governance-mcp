@@ -9,9 +9,9 @@ project's file against today's rendered template and report structural differenc
 was prototyped and measured against this repo's own memory files: **23 "drift" findings,
 zero true positives**, and it was blind to the change that motivated the item (the
 §7.0.4 lifecycle citation lives in the *value* of `**Lifecycle:**`, not the key; the
-repo's own PROJECT-MEMORY legitimately says "Prune when decisions superseded" where the
-template says "Grows with project"). These files are *designed* to diverge — they hold
-real content, get distilled at 300 lines per §7.0.4, and outgrow starter sections. A
+project-specific gloss and routing can differ while preserving the same lifecycle
+obligations). These files are *designed* to diverge — they hold real content,
+receive policy-specific quality review per §7.0.4, and outgrow starter sections. A
 file that diverges by design cannot be its own drift baseline.
 
 Sync instead stamps each file at birth with its template version and reports the
@@ -217,6 +217,7 @@ async def test_reports_template_changes_the_project_predates(tmp_path, monkeypat
         "2.66.0",
         "2.67.0",
         "2.68.0",
+        "2.70.0",
     ]
     # Each entry must carry intent and an action, not just a diff.
     for entry in report["pending_template_changes"]:
@@ -429,13 +430,13 @@ TEMPLATE_FINGERPRINTS = {
     "SCAFFOLD_CLAUDE_MD": "174aa71852e63bc4a885274f1d8386353c6fc428c4f791db65396213519735ed",
     "SCAFFOLD_GEMINI_MD": "59293aad647cd5561e298a4b984edd0ae0dfa62a89c1f54d5479dd2f793a7c46",
     "SCAFFOLD_COMPLETION_CHECKLIST": "0194b7c17038fb4a385aee771b1b5a454a8b634f13216d6c2b21c8a4f9324a21",
-    "SCAFFOLD_LEARNING_LOG": "8f773d0b222b809cfc32fda125be3814bd430c84f3d113cbd44f3303049ab5ba",
-    "SCAFFOLD_LEARNING_LOG_DOC": "52f3cd334109c6317b4dee1ebe39db87338bf32d7602734c988b882e3d8e25df",
-    "SCAFFOLD_PROJECT_MEMORY": "8dbaaecf94894a95dacc32ff958ab751db9b4112dde7069490ea61e028368fb0",
-    "SCAFFOLD_PROJECT_MEMORY_DOC": "3269eb6a211abb4a376d03803b505b77887e082c438440f1641f6fe01fdb0702",
+    "SCAFFOLD_LEARNING_LOG": "5804375f0ba18c4479133653294e81269e31e76de40c5eb45abcca0c193ef228",
+    "SCAFFOLD_LEARNING_LOG_DOC": "01072c9c8eb991125386bea4987d38a4e237857970035a21508733106d90b0e3",
+    "SCAFFOLD_PROJECT_MEMORY": "145b84e4329785dcb7bd7e367e8e8507af9d18c6243a6c091e1fdd93090b4038",
+    "SCAFFOLD_PROJECT_MEMORY_DOC": "5e8cddf17d70e9146bd12d2ccda1c629ae9ec5473c571b2b419eeaa896106066",
     "SCAFFOLD_SAAS_OPS_SOP": "eb9811d0aa99ca13b5480435644beb7909a91d52cb0cd7679f79665c518f23fe",
-    "SCAFFOLD_SESSION_STATE": "713c5fae87f51ed42cd4d1c7f1740bd533b04947bdbf8abeab5d423851b51798",
-    "SCAFFOLD_SESSION_STATE_DOC": "822b923c6e3aa812111e43a4eb83217929dfaae20539709e97738de5a5c5abb9",
+    "SCAFFOLD_SESSION_STATE": "722ed42e8a20272d3d8d699ce5ff52a1f33cba38edc924d44cb70f202f50f6d3",
+    "SCAFFOLD_SESSION_STATE_DOC": "18d368339c4cc3a0ca4ed273bcf124c5e6ce3be7220795170be0429b56492829",
     "SCAFFOLD_SPECIFICATION": "76ba184035dc42cca4173aeb27164f72a8f0169f74195a4ee67eb0ab2df4ec80",
 }
 

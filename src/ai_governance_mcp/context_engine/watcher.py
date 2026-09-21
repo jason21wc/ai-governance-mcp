@@ -11,6 +11,7 @@ Smart re-indexing strategy:
 """
 
 import logging
+import os
 import threading
 import time
 from pathlib import Path
@@ -30,6 +31,20 @@ DEFAULT_DEBOUNCE_SECONDS = 2.0
 DEFAULT_COOLDOWN_SECONDS = 5.0
 
 
+def _lock_ownership_file(stream, windows: bool = os.name == "nt") -> None:
+    """Nonblocking OS ownership; descriptor close releases either backend."""
+    if windows:
+        import msvcrt
+
+        stream.seek(0)
+        # Windows permits locking a region beyond EOF, including an empty file.
+        msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
 class FileWatcher:
     """Watches project files for changes and triggers re-indexing.
 
@@ -46,6 +61,7 @@ class FileWatcher:
         ignore_spec: pathspec.GitIgnoreSpec | None = None,
         debounce_seconds: float = DEFAULT_DEBOUNCE_SECONDS,
         cooldown_seconds: float = DEFAULT_COOLDOWN_SECONDS,
+        ownership_path: Path | None = None,
     ) -> None:
         """Initialize the file watcher.
 
@@ -61,6 +77,8 @@ class FileWatcher:
         self.ignore_spec = ignore_spec
         self.debounce_seconds = debounce_seconds
         self.cooldown_seconds = cooldown_seconds
+        self.ownership_path = ownership_path
+        self._ownership_file = None
 
         self._observer = None
         self._pending_changes: set[Path] = set()
@@ -75,6 +93,8 @@ class FileWatcher:
 
     def start(self) -> None:
         """Start watching for file changes."""
+        if self._running.is_set() or self._ownership_file is not None:
+            return
         try:
             from watchdog.events import FileSystemEventHandler
             from watchdog.observers import Observer
@@ -95,18 +115,72 @@ class FileWatcher:
                 if hasattr(event, "src_path"):
                     self._watcher._file_changed(Path(event.src_path))
 
-        self._observer = Observer()
-        self._observer.schedule(_Handler(self), str(self.project_path), recursive=True)
-        self._observer.start()
-        self._running.set()
+        if not self._acquire_ownership():
+            return
+        try:
+            self._observer = Observer()
+            self._observer.schedule(
+                _Handler(self), str(self.project_path), recursive=True
+            )
+            self._observer.start()
+            self._running.set()
+        except BaseException:
+            self.stop()
+            raise
         logger.info("File watcher started for: %s", self.project_path)
+
+    def _acquire_ownership(self) -> bool:
+        """A stable local-filesystem lock coordinates daemon and stdio clients.
+
+        Never unlink/replace the lock file: competing owners must lock the same
+        inode. Closing the descriptor (including process exit) releases ownership.
+        Unsupported locking or I/O errors disable this watcher, not exclusion.
+        """
+        if self.ownership_path is None:
+            return True
+        stream = None
+        try:
+            self.ownership_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            fd = os.open(
+                self.ownership_path,
+                os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0),
+                0o600,
+            )
+            stream = os.fdopen(fd, "a+")
+            _lock_ownership_file(stream)
+            self._ownership_file = stream
+            return True
+        except (ImportError, OSError) as exc:
+            if stream is not None:
+                stream.close()
+            logger.info(
+                "Watcher ownership unavailable for %s: %s", self.project_path, exc
+            )
+            return False
+
+    def _release_ownership_if_stopped(self) -> None:
+        # Must hold _flush_lock: a callback may still be writing after stop().
+        if not self._running.is_set() and self._ownership_file is not None:
+            self._ownership_file.close()
+            self._ownership_file = None
+
+    def reconcile(self) -> None:
+        """Catch changes made while no watcher owned this project."""
+        # The indexer treats paths as hints and reconciles the full manifest.
+        # A nonempty root hint survives the normal retry/coalescing path even
+        # when no new filesystem event arrives after a failed first attempt.
+        self._do_flush([self.project_path])
 
     def stop(self) -> None:
         """Stop watching for file changes."""
         self._running.clear()
         if self._observer is not None:
             self._observer.stop()
-            self._observer.join(timeout=5)
+            if (
+                self._observer.ident is not None
+                and self._observer is not threading.current_thread()
+            ):
+                self._observer.join(timeout=5)
             if self._observer.is_alive():
                 logger.warning("Observer thread did not stop within timeout")
             self._observer = None
@@ -117,6 +191,14 @@ class FileWatcher:
             if self._cooldown_timer is not None:
                 self._cooldown_timer.cancel()
                 self._cooldown_timer = None
+        # Never join an active indexing callback here: its publication may need
+        # the manager lock held by the caller doing eviction. The callback's
+        # finally block releases this instance's lease when it finishes.
+        if self._flush_lock.acquire(blocking=False):
+            try:
+                self._release_ownership_if_stopped()
+            finally:
+                self._flush_lock.release()
         logger.info("File watcher stopped")
 
     def _file_changed(self, file_path: Path) -> None:
@@ -181,6 +263,8 @@ class FileWatcher:
             )
             # Re-queue with a timer for after cooldown expires
             with self._lock:
+                if not self._running.is_set():
+                    return
                 self._pending_changes.update(changes)
                 if self._cooldown_timer is not None:
                     self._cooldown_timer.cancel()
@@ -198,6 +282,8 @@ class FileWatcher:
                 "Flush already in progress, re-queuing %d changes", len(changes)
             )
             with self._lock:
+                if not self._running.is_set():
+                    return
                 self._pending_changes.update(changes)
                 if self._cooldown_timer is not None:
                     self._cooldown_timer.cancel()
@@ -208,6 +294,10 @@ class FileWatcher:
             return
 
         try:
+            # stop() can race the initial running check while we acquire the
+            # flush lock. A stopped instance must not begin another write.
+            if not self._running.is_set():
+                return
             logger.info("Flushing %d file changes for re-indexing", len(changes))
             try:
                 self.on_change(changes)
@@ -217,6 +307,8 @@ class FileWatcher:
                 logger.error("Error in change callback: %s", e)
                 # Re-queue failed changes and schedule a retry timer
                 with self._lock:
+                    if not self._running.is_set():
+                        return
                     self._pending_changes.update(changes)
                     if self._cooldown_timer is not None:
                         self._cooldown_timer.cancel()
@@ -225,6 +317,7 @@ class FileWatcher:
                     timer.start()
                     self._cooldown_timer = timer
         finally:
+            self._release_ownership_if_stopped()
             self._flush_lock.release()
 
     def _flush_changes(self) -> None:

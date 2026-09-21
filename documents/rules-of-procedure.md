@@ -1,16 +1,16 @@
 ---
-version: "3.57.0"
+version: "3.58.0"
 status: "active"
-effective_date: "2026-09-18"
+effective_date: "2026-09-20"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.57.0
+**Version:** 3.58.0
 **Status:** Active
-**Effective Date:** 2026-09-18
+**Effective Date:** 2026-09-20
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1599,7 +1599,7 @@ The following behaviors constitute "Contempt of Court"—violations of constitut
 
 ### 7.7.2 The AI MUST
 
-- Pause and request clarification when gaps are detected
+- Investigate answerable gaps within existing authorization per Informational Readiness. Pause the dependent action and request human input when material intent, authority, required human-supplied evidence or safety remains unresolved; continue independent authorized work only where those boundaries do not apply.
 - Explicitly flag when operating with incomplete information
 - Cite principles when they materially influence decisions
 - Escalate to human oversight per Hybrid Interaction & RACI guidelines
@@ -5997,6 +5997,7 @@ This meta-method defines the universal scaffold format. Domain-specific methods 
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.58.0 | 2026-09-20 | MINOR: align §7.7.2 with Constitution v8.4.0 evidence sufficiency and investigative autonomy. Replace blanket clarification for every gap with investigation within authorization and human input for unresolved material decisions; preserve dependent-action and safety boundaries. Governance: `gov-7d2e635f9b52`. |
 | 3.57.0 | 2026-09-18 | MINOR: scope concise reporting to the message, not task termination; the next action may belong to the AI and needs no manufactured permission question (§7.15); regenerate from tiers.json v2.10.0. Retain genuine authority boundaries. Governance: `gov-ac3263445f20`. |
 | 3.56.0 | 2026-09-13 | MINOR: bounded delivery candidate removes the Claude-only planning gate from the generated universal behavioral floor; the Claude hook/workflow requirement remains. Coding tests/design checks move to the existing coding domain floor; previous-task closeout stays in completion workflows. Source knowledge is retained. Candidate host outcomes remain unverified. Governance: `gov-520856c13c5c`, `gov-43baa979d9d9`. |
 | 3.55.0 | 2026-08-31 | **MINOR: Part 7.15 — behavioral floor 15 → 16 directives; communication directives rewritten as hard constraints and given a per-turn delivery layer.** The user reported chronic verbosity, answers without context, and decisions listed without ever asking a question — on Claude Code *and* Codex. Root cause was delivery, not wording: the FRAME, the only per-turn layer, carried reasoning themes exclusively, and `evaluate_governance` fires only before Bash/Edit/Write, so a purely conversational answer — the exact place communication style applies — reached **no live layer**. Directives were stated once at session start and decayed from there. Second cause: every communication directive was a *soft* (semantic, unverifiable) constraint, the class the literature finds models ignore, versus *hard* (countable) constraints which bind; the floor was its own natural experiment, since the single directive the user reported as working (BLUF, "2-3 sentences") was the only countable one. `bluf-pyramid-briefing` gains a ~200-word ceiling and answer-first ordering; `freeform-dialogue` gains an explicit WHEN trigger (the wording promoted from `SERVER_INSTRUCTIONS`, where the strong form already existed); `default-register` narrows to its observable signature; new **`close-with-the-ask`** requires every substantive reply to end in one next action or one direct question. The FRAME now re-anchors answer shape every turn on both hosts. Also corrects this Part's own delivery-layer list from **four layers to five** — it declared itself the single source of truth for the layers and omitted `SERVER_INSTRUCTIONS`, the sole channel reaching Claude Desktop, which the completion-sequence checklist's step 4a had known about all along. `plain-language` was proposed for removal and **kept**: it has a dedicated measurement instrument, three test surfaces, and a formal 0-RETIRE re-evaluation at compliance review #15. Governance: `gov-ad80a539f53b`, `gov-b4ca8423564d`. |

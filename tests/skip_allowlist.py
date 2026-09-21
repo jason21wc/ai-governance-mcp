@@ -41,6 +41,10 @@ larger design than this file. Filed rather than half-built here.
 # Adding an entry is the point of the mechanism, not a workaround for it: it forces
 # whoever adds a skip to say why the skip is correct, in a file someone reviews.
 REGISTERED_SKIP_REASONS: dict[str, str] = {
+    "POSIX watcher containment tests": (
+        "The supervisor uses POSIX process groups and flock. Windows retains its "
+        "existing uptime-only watcher and cannot execute these containment probes."
+    ),
     # --- environment-conditional: the artifact under test genuinely may not exist
     "governance index not built": (
         "A fresh clone and CI's default matrix have no built index. Legitimate. "

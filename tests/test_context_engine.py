@@ -11,9 +11,11 @@ Covers:
 
 import os
 import re
+import sys
 import threading
 import time
 from pathlib import Path
+from types import ModuleType
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import numpy as np
@@ -32,6 +34,19 @@ from ai_governance_mcp.context_engine.storage.filesystem import (
     FilesystemStorage,
     _validate_project_id,
 )
+
+
+@pytest.fixture
+def fake_sentence_transformers(monkeypatch):
+    """Non-ML tests must not import torch just to patch a model constructor."""
+    module = ModuleType("sentence_transformers")
+    model = Mock()
+    model.encode.side_effect = lambda texts, **kw: np.ones(
+        (len(texts), 384), dtype=np.float32
+    )
+    module.SentenceTransformer = Mock(return_value=model)
+    monkeypatch.setitem(sys.modules, "sentence_transformers", module)
+    return module
 
 
 # =============================================================================
@@ -3016,6 +3031,7 @@ class TestStorageDirectoryPermissions:
         assert mode == 0o700  # Should be tightened to 0o700
 
 
+@pytest.mark.usefixtures("fake_sentence_transformers")
 class TestModelAllowlist:
     """Test embedding model allowlist and bypass."""
 
@@ -3091,12 +3107,18 @@ class TestWatcherIgnoreSpecPassthrough:
         ) as mock_fw:
             mock_instance = Mock()
             mock_fw.return_value = mock_instance
-            pm._start_watcher(project_path, "test_id")
+            project_id = FilesystemStorage.project_id_from_path(project_path)
+            pm._start_watcher(project_path, project_id)
 
             mock_fw.assert_called_once_with(
                 project_path=project_path,
                 on_change=mock_fw.call_args[1]["on_change"],
                 ignore_spec=expected_spec,
+                ownership_path=(
+                    pm.storage.get_index_path(project_id).parent
+                    / ".watcher-locks"
+                    / f"{project_id}.lock"
+                ),
             )
             mock_instance.start.assert_called_once()
 
@@ -3991,6 +4013,7 @@ class TestProjectQueryResultFreshnessFields:
         assert result.index_age_seconds >= 0
 
 
+@pytest.mark.usefixtures("fake_sentence_transformers")
 class TestQueryProjectFreshnessIntegration:
     """Test freshness fields are populated by query_project."""
 
@@ -4292,6 +4315,7 @@ class TestCollectUnchangedChunks:
         assert len(vectors) == 0
 
 
+@pytest.mark.usefixtures("fake_sentence_transformers")
 class TestBuildIncrementalEmbeddings:
     """Test _build_incremental_embeddings reuses and generates correctly."""
 
@@ -6425,6 +6449,7 @@ class TestEnsureWatcher:
         mock_index = Mock()
         mock_index.chunks = []
         mock_index.updated_at = None
+        mock_index.index_mode = "realtime"
 
         # _load_project simulates loading from storage into memory
         def fake_load(pid):
@@ -7258,6 +7283,7 @@ class TestInheritanceEdgeExtraction:
 # =============================================================================
 
 
+@pytest.mark.usefixtures("fake_sentence_transformers")
 class TestIndexerEdgeIntegration:
     """Test that index_project produces code edges in storage."""
 
@@ -7306,6 +7332,7 @@ class TestIndexerEdgeIntegration:
 # =============================================================================
 
 
+@pytest.mark.usefixtures("fake_sentence_transformers")
 class TestFindReferences:
     """Test find_references MCP tool handler."""
 

@@ -22,14 +22,23 @@ parser, do not silently pin to a hardcoded list.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
+import pytest
 
 from ai_governance_mcp.server import (
     SCAFFOLD_SAAS_OPS_EXTRAS,
     SCAFFOLD_STANDARD_EXTRAS,
 )
-
+from tests.memory_policy_helpers import (
+    assert_declared_type,
+    assert_header_line_claims,
+    assert_lifecycle,
+    canonical_line_triggers,
+    canonical_types,
+    declared_field,
+)
 
 # As of v2.63.0 the tool-overlay loaders (CLAUDE.md, GEMINI.md) live in the CORE
 # kit, not standard extras, so SCAFFOLD_STANDARD_EXTRAS["code"] equals the §1.5.2
@@ -279,40 +288,14 @@ def test_every_scaffolded_memory_template_declares_a_canonical_type() -> None:
 
     Ground truth is CFR §7.0.2's table, parsed live — not a second hardcoded list.
     """
-    import re
-
-    from ai_governance_mcp.server._constants import (
-        SCAFFOLD_CORE_FILES,
-        SCAFFOLD_STANDARD_EXTRAS,
-    )
-
-    cfr = _cfr_path().read_text()
-    section = cfr[cfr.index("### 7.0.2") : cfr.index("### 7.0.3")]
-    canonical = set(re.findall(r"\|\s*\*\*(\w+) Memory\*\*", section))
-    assert len(canonical) >= 5, (
-        f"parsed {canonical} from CFR §7.0.2 — the parser drifted. Falling back to a "
-        "hardcoded list here would make this guard a tautology, so it fails instead."
-    )
-
-    offenders = []
-    for project_type in ("code", "document"):
-        pairs = list(SCAFFOLD_CORE_FILES[project_type]) + list(
-            SCAFFOLD_STANDARD_EXTRAS[project_type]
-        )
-        for name, content in pairs:
-            if not name.startswith("_ai-context/") or name.endswith("README.md"):
-                continue
-            m = re.search(r"^\*\*Memory Type:\*\*\s*(\w+)", content, re.M)
-            if not m:
-                offenders.append(
-                    f"{project_type}:{name} has no **Memory Type:** header"
-                )
-            elif m.group(1) not in canonical:
-                offenders.append(
-                    f"{project_type}:{name} declares '{m.group(1)}', "
-                    f"not one of {sorted(canonical)}"
-                )
-    assert not offenders, "scaffolded memory templates:\n  " + "\n  ".join(offenders)
+    # Keep private-source assertions in this existing public-deselected node;
+    # pure policy/parser fixtures below still execute in the public build.
+    policy = _cfr_path().read_text()
+    canonical = canonical_types(policy)
+    triggers = canonical_line_triggers(policy)
+    for label, stem, content in _memory_templates():
+        assert_declared_type(stem + ".md", content, canonical)
+        assert_header_line_claims(stem + ".md", content, triggers)
 
 
 def _memory_templates() -> list[tuple[str, str, str]]:
@@ -364,8 +347,7 @@ def test_scaffolded_memory_templates_meet_the_header_contract() -> None:
             ln for ln in content.splitlines()[:40] if not ln.lstrip().startswith("|")
         )
         siblings = by_type[label.split(":", 1)[0]]
-        if not re.search(r"^\*\*Lifecycle:\*\*\s*\S", header, re.M):
-            offenders.append(f"{label}: no **Lifecycle:**")
+        assert_lifecycle(stem + ".md", content)
         if not [s for s in siblings if s != stem and re.search(rf"\b{s}\b", header)]:
             offenders.append(f"{label}: header names no other memory file (no routing)")
     assert not offenders, (
@@ -538,3 +520,328 @@ def test_architecture_alone_cannot_satisfy_the_memory_sibling_contract() -> None
         f"a header routing only to ARCHITECTURE.md was accepted as routing to {routed} "
         "— the memory-sibling contract must reject it."
     )
+
+
+# Public builds omit the private CFR. These counterexamples carry their own policy
+# fixture, so parser/declaration coverage must not be skipped with corpus checks.
+POLICY_FIXTURE = """### 7.0.2 Cognitive Memory Types
+| Cognitive Type | File | Purpose | Lifecycle |
+|---|---|---|---|
+| **Working Memory** | `SESSION-STATE.md` | Current | Overwrite |
+| **Semantic Memory** | `PROJECT-MEMORY.md` | Decisions | Preserve |
+| **Episodic Memory** | `LEARNING-LOG.md` | Lessons | Graduate |
+| **Procedural Memory** | Methods documents | Procedures | Evolve |
+| **Prospective Memory** | `BACKLOG.md`, `OPERATIONS.md` | Intentions | Retire |
+| **Reference Memory** | Context Engine index | Content | Rebuild |
+### 7.0.3 Memory Loading Strategy
+### 7.0.4 Memory Lifecycle Principles
+**Distillation Triggers:**
+| Memory File | Trigger | Action |
+|---|---|---|
+| SESSION-STATE.md | > 300 lines | Review |
+| PROJECT-MEMORY.md | > 800 lines | Review |
+| LEARNING-LOG.md | Entry > 6 months | Review |
+| LEARNING-LOG.md | > 200 lines | Review |
+| BACKLOG.md | > 600 lines | Review |
+**Memory Health Check:**
+"""
+
+
+def test_wrong_but_canonical_learning_log_type_is_rejected(monkeypatch, tmp_path):
+    from ai_governance_mcp.server import _constants
+
+    policy = tmp_path / "policy.md"
+    policy.write_text(POLICY_FIXTURE)
+    monkeypatch.setattr(sys.modules[__name__], "_cfr_path", lambda: policy)
+    templates = {
+        kind: [
+            (
+                name,
+                content.replace(
+                    "**Memory Type:** Episodic", "**Memory Type:** Semantic"
+                ),
+            )
+            for name, content in pairs
+        ]
+        for kind, pairs in _constants.SCAFFOLD_CORE_FILES.items()
+    }
+    monkeypatch.setattr(_constants, "SCAFFOLD_CORE_FILES", templates)
+    with pytest.raises(AssertionError, match="LEARNING-LOG"):
+        test_every_scaffolded_memory_template_declares_a_canonical_type()
+
+
+def test_destructive_learning_log_lifecycle_is_rejected(monkeypatch):
+    monkeypatch.setattr(
+        sys.modules[__name__],
+        "_memory_templates",
+        lambda: [
+            (
+                "code:LEARNING-LOG",
+                "LEARNING-LOG",
+                "**Memory Type:** Episodic\n"
+                "**Lifecycle:** Delete every lesson after one session.\n"
+                "> Route decisions to PROJECT-MEMORY.md",
+            ),
+            (
+                "code:PROJECT-MEMORY",
+                "PROJECT-MEMORY",
+                "**Memory Type:** Semantic\n"
+                "**Lifecycle:** Grows with project.\n> Route lessons to LEARNING-LOG.md",
+            ),
+        ],
+    )
+    with pytest.raises(AssertionError, match="LEARNING-LOG"):
+        test_scaffolded_memory_templates_meet_the_header_contract()
+
+
+VALID_LIFECYCLES = {
+    "SESSION-STATE.md": "Overwrite the current snapshot every session; keep no session-history stack.",
+    "PROJECT-MEMORY.md": "Preserve decisions; condense supporting detail. Mark superseded decisions with a date and replacement link.",
+    "LEARNING-LOG.md": "Graduate lessons into procedures when patterns emerge. Remove obsolete lessons per §7.3.4; never prune for size alone.",
+    "BACKLOG.md": "Remove items when completed, closed, migrated, or abandoned.",
+    "OPERATIONS.md": "Retire recurring commitments with a documented reason; completion alone is not retirement.",
+}
+
+
+@pytest.mark.parametrize("name,prose", VALID_LIFECYCLES.items())
+def test_lifecycle_supported_declarations_and_wrapped_continuations(name, prose):
+    assert_lifecycle(name, "**Lifecycle:** " + prose)
+    assert_lifecycle(name, "**Lifecycle:** " + prose.replace("; ", ";\n  "))
+
+
+@pytest.mark.parametrize(
+    "name,prose",
+    [
+        (
+            "SESSION-STATE.md",
+            "Replaced at the start of each session; this is a snapshot, not a log.",
+        ),
+        (
+            "PROJECT-MEMORY.md",
+            "Retain all decisions. Summarize supporting material; superseded decisions carry the date and a link to the replacement.",
+        ),
+        (
+            "LEARNING-LOG.md",
+            "Distill recurring lessons into standing guidance. Removal follows §7.3.4; no size-only pruning.",
+        ),
+        (
+            "BACKLOG.md",
+            "Items are removed when implemented or abandoned. Git history holds closed work.",
+        ),
+        (
+            "OPERATIONS.md",
+            'Items persist indefinitely unless retired with documented rationale; these are never "done."',
+        ),
+    ],
+)
+def test_lifecycle_accepts_meaningful_tailored_variants(name, prose):
+    assert_lifecycle(name, "**Lifecycle:** " + prose)
+
+
+@pytest.mark.parametrize(
+    "name,old,new",
+    [
+        (
+            "SESSION-STATE.md",
+            "Overwrite the current snapshot every session",
+            "Append the latest session",
+        ),
+        (
+            "SESSION-STATE.md",
+            "keep no session-history stack",
+            "route decisions elsewhere",
+        ),
+        ("PROJECT-MEMORY.md", "Preserve decisions; ", ""),
+        ("PROJECT-MEMORY.md", "condense supporting detail. ", ""),
+        ("PROJECT-MEMORY.md", "a date and ", ""),
+        ("PROJECT-MEMORY.md", " and replacement link", ""),
+        (
+            "LEARNING-LOG.md",
+            "Graduate lessons into procedures when patterns emerge. ",
+            "",
+        ),
+        ("LEARNING-LOG.md", " when patterns emerge", ""),
+        ("LEARNING-LOG.md", "Remove obsolete lessons per §7.3.4; ", ""),
+        ("LEARNING-LOG.md", "; never prune for size alone", ""),
+        ("BACKLOG.md", "completed, closed, migrated, or ", ""),
+        ("BACKLOG.md", ", or abandoned", ""),
+        ("OPERATIONS.md", "with a documented reason", "as convenient"),
+        ("OPERATIONS.md", "; completion alone is not retirement", ""),
+    ],
+)
+def test_lifecycle_rejects_missing_obligations(name, old, new):
+    with pytest.raises(AssertionError, match=name):
+        assert_lifecycle(
+            name, "**Lifecycle:** " + VALID_LIFECYCLES[name].replace(old, new)
+        )
+
+
+@pytest.mark.parametrize(
+    "name,conflict",
+    [
+        ("SESSION-STATE.md", "Keep a session-history stack."),
+        ("PROJECT-MEMORY.md", "Delete superseded decisions."),
+        ("LEARNING-LOG.md", "Delete every lesson after one session."),
+        ("BACKLOG.md", "Keep completed work forever."),
+        ("OPERATIONS.md", "Delete when done."),
+    ],
+)
+def test_lifecycle_rejects_explicit_conflict_after_correct_clause(name, conflict):
+    with pytest.raises(AssertionError, match="conflicting"):
+        assert_lifecycle(
+            name, "**Lifecycle:** " + VALID_LIFECYCLES[name] + " " + conflict
+        )
+
+
+def test_lifecycle_cannot_borrow_obligations_from_other_fields_or_body():
+    valid = VALID_LIFECYCLES["PROJECT-MEMORY.md"]
+    for suffix in ("\n\n" + valid, "\n> " + valid, "\n**Routing:** " + valid):
+        with pytest.raises(AssertionError):
+            assert_lifecycle("PROJECT-MEMORY.md", "**Lifecycle:** Grows." + suffix)
+
+
+@pytest.mark.parametrize("field", ["Memory Type", "Lifecycle"])
+def test_header_fields_must_be_unique_nonempty_and_in_first_forty_lines(field):
+    line = f"**{field}:** Working"
+    for text in (
+        "",
+        f"**{field}:**",
+        line + "\n" + line,
+        "\n" * 40 + line,
+        f"| {line} | unrelated table cell |",
+    ):
+        with pytest.raises(AssertionError):
+            declared_field(text, field)
+    assert declared_field(line + "\n\n" + "\n" * 40 + line, field) == "Working"
+
+
+def test_canonical_mapping_includes_both_prospective_files_and_exact_assignments():
+    expected = {
+        "SESSION-STATE.md": "Working",
+        "PROJECT-MEMORY.md": "Semantic",
+        "LEARNING-LOG.md": "Episodic",
+        "BACKLOG.md": "Prospective",
+        "OPERATIONS.md": "Prospective",
+    }
+    assert canonical_types(POLICY_FIXTURE) == expected
+    for name, kind in expected.items():
+        assert_declared_type(
+            name, f"**Memory Type:** {kind} (tailored purpose)", expected
+        )
+        with pytest.raises(AssertionError, match=name):
+            assert_declared_type(name, "**Memory Type:** Reference", expected)
+
+
+@pytest.mark.parametrize(
+    "old,new",
+    [
+        ("### 7.0.2", "### 7.9.2"),
+        (
+            "| Cognitive Type | File | Purpose | Lifecycle |",
+            "| Type | File | Purpose | Lifecycle |",
+        ),
+        ("`BACKLOG.md`, `OPERATIONS.md`", "`BACKLOG.md`"),
+        ("`BACKLOG.md`, `OPERATIONS.md`", "`BACKLOG.md`, OPERATIONS.md"),
+        (
+            "`BACKLOG.md`, `OPERATIONS.md`",
+            "`BACKLOG.md`, `OPERATIONS.md`, `LEARNING-LOG.md`",
+        ),
+        (
+            "`PROJECT-MEMORY.md` | Decisions",
+            "`PROJECT-MEMORY.md`, LEARNING-LOG.md | Decisions",
+        ),
+        ("**Prospective Memory**", "**Semantic Memory**"),
+        ("**Prospective Memory**", "Prospective"),
+    ],
+)
+def test_canonical_mapping_fails_closed_on_missing_or_ambiguous_source(old, new):
+    with pytest.raises(AssertionError, match="7.0.2"):
+        canonical_types(POLICY_FIXTURE.replace(old, new))
+
+
+def test_policy_parser_uses_canonical_section_not_earlier_copy_or_prose():
+    fake = (
+        POLICY_FIXTURE.split("### 7.0.3")[0]
+        .replace("### 7.0.2", "### 1.0.2")
+        .replace("**Episodic Memory**", "**Wrong Memory**")
+    )
+    assert (
+        canonical_types(fake + "\n" + POLICY_FIXTURE)["LEARNING-LOG.md"] == "Episodic"
+    )
+    with pytest.raises(AssertionError):
+        canonical_types(
+            POLICY_FIXTURE.replace("`BACKLOG.md`, `OPERATIONS.md`", "`BACKLOG.md`")
+            + "\nOPERATIONS.md is Prospective"
+        )
+
+
+def test_canonical_trigger_parser_selects_line_rows_not_age_or_source_documents():
+    assert canonical_line_triggers(POLICY_FIXTURE) == {
+        "SESSION-STATE.md": 300,
+        "PROJECT-MEMORY.md": 800,
+        "LEARNING-LOG.md": 200,
+        "BACKLOG.md": 600,
+    }
+    assert (
+        canonical_line_triggers(POLICY_FIXTURE.replace("> 200 lines", "> 201 lines"))[
+            "LEARNING-LOG.md"
+        ]
+        == 201
+    )
+
+
+@pytest.mark.parametrize(
+    "old,new",
+    [
+        ("**Distillation Triggers:**", "Triggers:"),
+        ("| Memory File | Trigger | Action |", "| File | Trigger | Action |"),
+        ("| LEARNING-LOG.md | > 200 lines | Review |\n", ""),
+        ("> 200 lines", "about 200 lines"),
+        (
+            "| LEARNING-LOG.md | > 200 lines | Review |",
+            "| LEARNING-LOG.md | > 200 lines | Review |\n| LEARNING-LOG.md | > 300 lines | Review |",
+        ),
+    ],
+)
+def test_canonical_trigger_parser_fails_closed(old, new):
+    with pytest.raises(AssertionError, match="7.0.4"):
+        canonical_line_triggers(POLICY_FIXTURE.replace(old, new))
+
+
+def test_current_header_threshold_claims_checked_without_rewriting_history():
+    triggers = canonical_line_triggers(POLICY_FIXTURE)
+    name = "LEARNING-LOG.md"
+    assert_header_line_claims(
+        name, "**Lifecycle:** Review trigger: >200 lines.", triggers
+    )
+    assert_header_line_claims(
+        name,
+        "**Lifecycle:** Entry rules ≤5 lines.\n> Previously quoted >300 lines.\n| 1.0 | >300 lines |",
+        triggers,
+    )
+    for claim in (
+        "**Lifecycle:** Review trigger: >300 lines.",
+        "**Review trigger:** >300 lines",
+        "Target: 300 lines",
+        "> Review trigger: >300 lines",
+    ):
+        with pytest.raises(AssertionError, match="7.0.4"):
+            assert_header_line_claims(name, claim, triggers)
+
+
+def test_decision_preservation_is_not_mistaken_for_an_explicit_conflict():
+    assert_lifecycle(
+        "PROJECT-MEMORY.md",
+        "**Lifecycle:** Never delete superseded decisions; "
+        "condense supporting detail. Mark superseded decisions with date and replacement link.",
+    )
+
+
+def test_wrong_source_assignment_disagrees_with_real_header_even_if_type_is_canonical():
+    swapped = POLICY_FIXTURE.replace(
+        "`LEARNING-LOG.md` | Lessons", "`PROJECT-MEMORY.md` | Lessons"
+    ).replace("`PROJECT-MEMORY.md` | Decisions", "`LEARNING-LOG.md` | Decisions")
+    with pytest.raises(AssertionError, match="LEARNING-LOG"):
+        assert_declared_type(
+            "LEARNING-LOG.md", "**Memory Type:** Episodic", canonical_types(swapped)
+        )
