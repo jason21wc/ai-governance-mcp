@@ -126,3 +126,182 @@ def test_literal_skip_reasons_are_registered_without_triggering_the_condition():
     assert not unregistered, "literal skip reasons missing from allowlist: " + repr(
         unregistered
     )
+
+
+@pytest.fixture
+def run_execution_gate(tmp_path):
+    """Run actual production hook bodies with pytest in a tiny isolated suite."""
+    import os
+    import subprocess
+    import sys
+
+    source = Path(gate.__file__).read_text(encoding="utf-8")
+    names = {
+        "_PassedTestsGate",
+        "pytest_addoption",
+        "pytest_configure",
+        "_UNREGISTERED_SKIPS",
+        "pytest_runtest_logreport",
+        "pytest_sessionfinish",
+    }
+    nodes = []
+    for node in ast.parse(source).body:
+        name = getattr(node, "name", None)
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            name = node.target.id
+        if name in names:
+            nodes.append(ast.get_source_segment(source, node))
+    (tmp_path / "execution_plugin.py").write_text(
+        "import pytest\n" + "\n\n".join(nodes), encoding="utf-8"
+    )
+    (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
+    env = dict(os.environ)
+    env["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    env.pop("PYTEST_ADDOPTS", None)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(tmp_path), str(Path(__file__).resolve().parent.parent)]
+    )
+
+    def run(body, *args):
+        (tmp_path / "test_sample.py").write_text(
+            "import pytest\n" + body, encoding="utf-8"
+        )
+        return subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "-q",
+                "--noconftest",
+                "-c",
+                str(tmp_path / "pytest.ini"),
+                "-p",
+                "execution_plugin",
+                str(tmp_path / "test_sample.py"),
+                *args,
+            ],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+    return run
+
+
+def test_registered_all_skips_require_a_genuine_pass_only_when_enabled(
+    run_execution_gate,
+):
+    from tests.skip_allowlist import REGISTERED_SKIP_REASONS
+
+    reason = next(iter(REGISTERED_SKIP_REASONS))
+    body = f"def test_skip():\n    pytest.skip({reason!r})\n"
+    assert run_execution_gate(body).returncode == 0
+    result = run_execution_gate(body, "--require-passed-tests")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "NO PASSED TESTS" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "@pytest.mark.xfail(strict=True)\ndef test_expected():\n    assert False\n",
+        "@pytest.mark.xfail(strict=False)\ndef test_unexpected():\n    assert True\n",
+    ],
+)
+def test_expected_failure_or_nonstrict_xpass_is_not_a_genuine_pass(
+    run_execution_gate, body
+):
+    result = run_execution_gate(body, "--require-passed-tests")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "NO PASSED TESTS" in result.stdout
+
+
+def test_passing_call_with_skip_and_expected_failure_passes(run_execution_gate):
+    from tests.skip_allowlist import REGISTERED_SKIP_REASONS
+
+    reason = next(iter(REGISTERED_SKIP_REASONS))
+    body = (
+        f"def test_skip():\n    pytest.skip({reason!r})\n"
+        "@pytest.mark.xfail(strict=True)\ndef test_expected():\n    assert False\n"
+        "def test_pass():\n    assert 2 + 2 == 4\n"
+    )
+    result = run_execution_gate(body, "--require-passed-tests")
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize(
+    ("body", "args", "expected"),
+    [
+        ("def test_fail():\n    assert False\n", [], 1),
+        (
+            "def test_pass():\n    assert True\n@pytest.mark.xfail(strict=True)\ndef test_xpass():\n    assert True\n",
+            [],
+            1,
+        ),
+        ("def test_pass():\n    assert True\n", ["-k", "absent"], 5),
+        ("raise ValueError('collection failure')\n", [], 2),
+        ("def test_interrupt():\n    raise KeyboardInterrupt\n", [], 2),
+    ],
+)
+def test_execution_gate_preserves_pytest_nonzero_status(
+    run_execution_gate, body, args, expected
+):
+    result = run_execution_gate(body, "--require-passed-tests", *args)
+    assert result.returncode == expected, result.stdout + result.stderr
+
+
+def test_execution_gate_counts_only_passed_calls_and_does_not_share_state():
+    from types import SimpleNamespace
+
+    first = gate._PassedTestsGate()
+    second = gate._PassedTestsGate()
+    first.pytest_runtest_logreport(SimpleNamespace(when="call", passed=True))
+    for phase in ("setup", "teardown"):
+        second.pytest_runtest_logreport(SimpleNamespace(when=phase, passed=True))
+    first_session = SimpleNamespace(exitstatus=0)
+    second_session = SimpleNamespace(exitstatus=0)
+    first.pytest_sessionfinish(first_session)
+    second.pytest_sessionfinish(second_session)
+    assert first_session.exitstatus == 0
+    assert second_session.exitstatus == 1
+
+
+@pytest.mark.parametrize("status", [1, 2, 3, 4, 5])
+def test_both_skip_gates_preserve_existing_nonzero_status(collected, status):
+    from types import SimpleNamespace
+
+    session = SimpleNamespace(exitstatus=status)
+    gate._PassedTestsGate().pytest_sessionfinish(session)
+    collected.append(("test_bad", "unregistered"))
+    gate.pytest_sessionfinish(session, status)
+    assert session.exitstatus == status
+
+
+def test_registered_fixture_skip_does_not_count_setup_as_a_pass(run_execution_gate):
+    from tests.skip_allowlist import REGISTERED_SKIP_REASONS
+
+    reason = next(iter(REGISTERED_SKIP_REASONS))
+    body = (
+        f"@pytest.fixture\ndef missing_index():\n    pytest.skip({reason!r})\n"
+        "def test_requires_index(missing_index):\n    assert False\n"
+    )
+    result = run_execution_gate(body, "--require-passed-tests")
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "NO PASSED TESTS" in result.stdout
+
+
+def test_each_pytest_configuration_registers_a_fresh_gate():
+    from types import SimpleNamespace
+
+    plugins = []
+    manager = SimpleNamespace(register=lambda plugin, name: plugins.append(plugin))
+    config = SimpleNamespace(getoption=lambda name: True, pluginmanager=manager)
+    gate.pytest_configure(config)
+    plugins[0].pytest_runtest_logreport(SimpleNamespace(when="call", passed=True))
+    gate.pytest_configure(config)
+    assert len(plugins) == 2 and plugins[0] is not plugins[1]
+    session = SimpleNamespace(exitstatus=0)
+    plugins[1].pytest_sessionfinish(session)
+    assert session.exitstatus == 1

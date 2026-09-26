@@ -27,7 +27,12 @@ content cannot leak by omission:
    - **path allowlist** — every file must match an allowlist glob, else fail;
    - **content scan** (private-side only) — proprietary markers must not appear in
      an allowlisted file;
-   - **structural invariant** — the domain-enumerating fallback must be absent.
+   - **structural invariant** — the domain-enumerating fallback must be absent;
+     JSON under `src/` and `documents/`, plus `tiers.json` anywhere in the tree,
+     must contain no private domain-prefixed strings or `domain_floors`. This
+     independent check runs even without the private denylist, decodes JSON
+     escapes, and rejects unreadable or malformed configuration. Python examples
+     and other test/benchmark JSON remain outside this configuration check.
 5. **Human gate** — publishing is treated as an external-irreversible action; a
    human reviews the staged tree and performs the push. The extraction tooling
    never pushes.
@@ -67,7 +72,7 @@ If private content ever reaches this public repository:
 This tree is generated, not authored. It is an allowlist extraction of a
 private source repository.
 
-- **source-commit:** `2ff9b01a0c631e177f62a194af7faaa231dafbec`
+- **source-commit:** `395311c327ec1e0117823fa821f0d0c05eef7ff1`
 - **generator:** `build-public-release.sh` (stamp v1)
 
 <!-- END generated:provenance -->

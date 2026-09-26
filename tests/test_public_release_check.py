@@ -12,6 +12,9 @@ contract), so the guard is verified the same way the citation check is.
 from __future__ import annotations
 
 import subprocess
+import json
+
+import pytest
 from pathlib import Path
 
 SCRIPT_PATH = (
@@ -339,3 +342,93 @@ def test_denylist_regex_with_alternation(tmp_path: Path) -> None:
     )
     result2 = run_guard(root2, forbidden=fpath2)
     assert result2.returncode == 0, result2.stderr
+
+
+@pytest.mark.parametrize(
+    "rel",
+    [
+        "documents/tiers.json",
+        "src/ai_governance_mcp/tiers.json",
+        "src/renamed/floor-policy.json",
+        "documents/renamed-policy.json",
+        "extra/nested/tiers.json",
+    ],
+)
+def test_independent_guard_rejects_untransformed_config(
+    tmp_path: Path, rel: str
+) -> None:
+    """An allowlisted missed/renamed copy must fail without the private denylist."""
+    root, _ = make_tree(
+        tmp_path,
+        {rel: json.dumps({"nested": [{"id": "coding-quality-testing"}]})},
+        allowlist=ALLOWLIST + rel + " | deliberate config copy\n",
+    )
+    result = run_guard(root)
+    assert result.returncode == 2, result.stderr
+    assert "structural-invariant" in result.stderr and rel in result.stderr
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        '{"entry":{"id":"co\\u0064ing-quality-testing"}}',
+        '{"mrag-method-test": {}}',
+        '{"domain_floors": {}}',
+        '{"id":"coding-quality-testing","id":"meta-core-systemic-thinking"}',
+        "{broken",
+    ],
+)
+def test_config_encoding_and_nested_leaks_fail_closed(
+    tmp_path: Path, payload: str
+) -> None:
+    root, _ = make_tree(tmp_path, {"src/policy.json": payload})
+    result = run_guard(root)
+    assert result.returncode == 2, result.stderr
+    assert (
+        "structural-invariant" in result.stderr and "src/policy.json" in result.stderr
+    )
+    assert "Traceback" not in result.stderr
+
+
+def test_structural_config_invalid_utf8_fails_without_denylist(tmp_path: Path) -> None:
+    root, _ = make_tree(tmp_path, {"src/policy.json": "{}"})
+    (root / "src/policy.json").write_bytes(b"\xff")
+    result = run_guard(root)
+    assert result.returncode == 2
+    assert (
+        "structural-invariant" in result.stderr and "src/policy.json" in result.stderr
+    )
+
+
+def test_public_config_and_intentional_test_examples_pass(tmp_path: Path) -> None:
+    root, _ = make_tree(
+        tmp_path,
+        {
+            "src/policy.json": json.dumps(
+                {
+                    "nested": [{"id": "meta-core-systemic-thinking"}],
+                    "label": "public—example",
+                }
+            ),
+            "tests/test_examples.py": 'example = "coding-quality-testing"',
+            "tests/benchmarks/cases.json": json.dumps({"id": "coding-quality-testing"}),
+        },
+    )
+    result = run_guard(root)
+    assert result.returncode == 0, result.stderr
+
+
+def test_structural_scan_does_not_follow_config_directory_symlink(
+    tmp_path: Path,
+) -> None:
+    root, _ = make_tree(tmp_path, {"README.md": "public"})
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "config.py").write_text("def _default_domains(): pass", encoding="utf-8")
+    (outside / "tiers.json").write_text('{"id":"coding-secret"}', encoding="utf-8")
+    (root / "src").mkdir()
+    (root / "src/ai_governance_mcp").symlink_to(outside, target_is_directory=True)
+    result = run_guard(root)
+    assert result.returncode == 2
+    assert "symlink" in result.stderr
+    assert "structural-invariant" not in result.stderr

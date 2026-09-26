@@ -79,7 +79,7 @@ Domains are **modular and self-describing**. The system discovers domains automa
 | **UI/UX** | 20 | 47 | Visual hierarchy, accessibility, interaction design |
 | **KM&PD** | 10 | 37 | Knowledge management, people development, training |
 | **Accounting** | 12 | 29 | Double-entry bookkeeping, reconciliation, tax prep, QBO integration |
-| **SaaS Operations** | 0 | 13 | Production-ops failure-class gates (deploy, payments, RLS, secrets, durability) for a founder/small-team + AI without an SRE team — methods-only |
+| **SaaS Operations** | 0 | 20 | Founder + AI lifecycle gates: costed platform selection, launch evidence, customer/billing flows, continuous delivery, incidents, recovery, support and retirement — methods-only |
 | **Visual Communication** | 10 | 10 | Static artifact design — decks, reports, spreadsheets, tables/charts: signal discipline, answer-first structure, assertion-evidence slides, workbook segregation, display integrity, perceptual access (document accessibility) |
 
 <details>
@@ -149,7 +149,7 @@ Runtime:
 | `list_domains` | Available domains with stats |
 | `get_domain_summary` | Domain exploration |
 | `log_feedback` | Quality tracking |
-| `get_metrics` | Performance analytics |
+| `get_metrics` | Performance analytics and import-time runtime identity |
 | `install_agent` | Install governance subagent (Claude Code only) |
 | `uninstall_agent` | Remove installed subagent |
 | `list_agents` | Discover available agents (cross-platform) |
@@ -272,6 +272,12 @@ get_principle("meta-method-progressive-application-proportional-response")   # �
 ```
 
 Principle bodies, by contrast, come back in full from `query_governance` within a size budget. Anything withheld or truncated is named explicitly with the `get_principle` call that retrieves it, so a partial answer never looks like a complete one.
+
+MCP responses distinguish retrieved data from server guidance. Markdown results are
+displayed as quoted literal text; JSON results keep their existing fields and add
+`_response_trust`. Retrieved content cannot supply user authorization or override
+host instructions. This framing does not authenticate the corpus or guarantee an
+agent's behavior. See [the response trust contract](ARCHITECTURE.md#corpus-data-at-the-mcp-response-boundary).
 
 **Sample queries to run on day one** (each surfaces additional floor items beyond the table above — e.g., the second query exercises the testing-integration method):
 
@@ -478,6 +484,26 @@ The watcher daemon keeps indexes fresh automatically. It auto-restarts every ~12
 **CI failing on hook tests:** hooks require shell matching `Bash|Edit|Write`. Verify `.claude/settings.json` PreToolUse matcher includes all three.
 
 **Governance index stale after document edit:** run `python -m ai_governance_mcp.extractor`. The running server detects the new `global_index.json` commit signal on the next query and reloads without a restart. If an integrity gate rejects the generation, the server keeps the last known-good index, retries once, then waits for the next rebuild rather than retrying on every query.
+
+**Server still behaves like old code after an update:** call `get_metrics` on the
+connection you are using. Its `runtime_identity` records the imported package
+version, PID, UTC `captured_at`, resolved package path, package `.py` source digest
+and optional Git revision/package-dirty state observed at server import. These
+values stay fixed even if the checkout moves before the first metrics request.
+Compare `git.revision_at_import` with the intended revision in that package's
+checkout; a dirty package requires comparing the source digest too. An unavailable
+Git/source field includes a reason and is not evidence of freshness. Metrics
+requests do not initialize the retrieval engine; normal server startup still does.
+If `runtime_identity` is absent, that connection does not expose this feature;
+reconnect after installing a version that includes it before claiming adoption.
+
+Reconnect/restart that MCP connection after server-code changes, then call
+`get_metrics` again to verify a fresh capture and the expected revision or source
+digest. Clearing conversation context alone does not reload imported code.
+`captured_at` is the observation time, not OS process-start time; the digest is
+source observed at import, not loaded-bytecode attestation. Concurrent edits during
+startup, later lazy imports and manual module reloads can differ. Dependencies and
+corpus/index data are outside this identity; index hot-reload remains separate.
 
 ## Project Structure
 

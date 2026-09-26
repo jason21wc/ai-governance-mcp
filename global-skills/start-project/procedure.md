@@ -32,8 +32,8 @@ routing (PROCEED/REVIEW/ESCALATE). This is a setup task; it will normally PROCEE
    Memory location is the SAME for both types; `project_type` selects the template flavor and
    loader files (§7.8.2 File Location). Pre-v2.62.0 projects with root-level memory files are
    grandfathered — tooling recognizes both layouts.
-3. **Money-taking SaaS?** — for a **code** project, ask whether this app will take payments, hold
-   customer data, be multi-tenant, or run as a production-deployed service. If yes, it inherits the
+3. **SaaS or customer-data service?** — for a **code** project, establish whether this app will take payments, hold
+   customer data, be multi-tenant, or run as a customer-facing production service. If yes, it inherits the
    SaaS-ops operating layer: use `project_type="code"` AND `kit_tier="saas-ops"` (Phase 3), which adds a
    per-app `SAAS-OPS-SOP.md`. (This is the per-app instance of the `saas-ops` governance domain,
    title-45.) If it's an internal tool, a library, or otherwise takes no money and holds no customer
@@ -65,8 +65,8 @@ either not in ENHANCED or you are anchoring — name it (the "compliance brainst
 1. **Preview** — call `scaffold_project(project_type="<code|document>", kit_tier="<core|standard|saas-ops>",
    project_path="<dir>")` WITHOUT `confirmed`. For **code** projects, `kit_tier="standard"` adds
    CLAUDE.md / ARCHITECTURE.md / SPECIFICATION.md / a completion-sequence checklist / `_ai-context/BACKLOG.md` on
-   top of the core memory files (recommended). For a **money-taking SaaS** (Phase 1 step 3), use
-   `kit_tier="saas-ops"` — it adds `SAAS-OPS-SOP.md` (the per-app incident card) on top of standard.
+   top of the core memory files (recommended). For a **SaaS or customer-data service** (Phase 1 step 3), use
+   `kit_tier="saas-ops"` — it adds `SAAS-OPS-SOP.md` (the per-app lifecycle and incident card) on top of standard.
    For **document** projects the templates are use-case-neutral (no coding vocabulary);
    `kit_tier="standard"` adds `_ai-context/BACKLOG.md` for deferred-work tracking (recommended).
    After scaffolding, ask what kind of work the project holds and propose specialized memory
@@ -87,9 +87,17 @@ Capture the Phase-2 answers so they outlive the session:
 - **ENHANCED/no-precedent** — write the full §1.3.5 one-page design doc at
   `documents/design/<project-name>.md` (What / Why / Non-goals / Open-questions / Design-decisions),
   which becomes the input to plan-mode.
-- **Money-taking SaaS (`saas-ops` tier)** — fill in the designated **approver** + on-call human in the
-  scaffolded `SAAS-OPS-SOP.md` (the bracketed `[NAME]` fields). That human is the gate for every
-  money / auth / customer-data / schema-migration action; route incidents via the `saas-ops` domain.
+- **SaaS (`saas-ops` tier)** — use Service Capability and Ownership to fill the app's
+  users, risks, service promises, approver, response coverage and account ownership in
+  `SAAS-OPS-SOP.md`. Show current launch/optional/growth costs before asking for spending
+  decisions. Prefer supported conventional tools and qualified, discoverable app support.
+  Record launch evidence as UNVERIFIED until exercised; owner approval is not technical
+  proof. Run Launch Evidence before real customers, money or customer data. Recheck affected
+  evidence for later releases. Complete and rehearse the offline emergency card without
+  AI/MCP/app access; name the specialist intake and fallback when no responder is available.
+  Keep ordinary approved application workflows separate from engineering-agent production
+  interventions; the existing money/auth/customer-data/schema approval carve-out applies.
+  Route operational cadences to OPERATIONS and incidents to the named domain gates.
 
 ## Phase 5 — Hand off to plan-mode
 

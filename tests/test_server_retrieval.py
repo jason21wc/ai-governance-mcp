@@ -1189,14 +1189,15 @@ class TestCompleteQueryResponseBudget:
     ):
         from ai_governance_mcp.server.handlers import retrieval
         from ai_governance_mcp.server._constants import GOVERNANCE_REMINDER
+        from ai_governance_mcp.server._response_trust import quote_markdown
 
         result = sample_retrieval_result
         result.constitution_principles[0].principle.content = "body " * 3000
         ordinary = retrieval._format_retrieval_result(result)
-        exact = len(ordinary + GOVERNANCE_REMINDER)
+        exact = len(quote_markdown(ordinary) + GOVERNANCE_REMINDER)
         monkeypatch.setattr(retrieval, "QUERY_RESPONSE_MAX_CHARS", exact)
         assert retrieval._format_retrieval_result(result) == ordinary
         monkeypatch.setattr(retrieval, "QUERY_RESPONSE_MAX_CHARS", exact - 1)
         compact = retrieval._format_retrieval_result(result)
         assert "Compact response" in compact
-        assert len(compact + GOVERNANCE_REMINDER) <= exact - 1
+        assert len(quote_markdown(compact) + GOVERNANCE_REMINDER) <= exact - 1

@@ -184,6 +184,18 @@ case "$MODE" in
       block "HEAD does not contain live origin/$DEFAULT_REF; run refresh, test, and recommit closeout state"
       exit 1
     fi
+    # Repositories adopting portable review evidence fail early, before the
+    # expensive full gate. The raw Git hook rechecks the actual advertised base.
+    if [ -f "$TOPLEVEL/scripts/pre_push.py" ]; then
+      python3 "$TOPLEVEL/scripts/check_git_hook_contract.py" --raw-installed --repo "$TOPLEVEL" || {
+        block "shared raw push hook is not active; coordinate explicit installation before publication"
+        exit 1
+      }
+      python3 "$TOPLEVEL/scripts/publication_review.py" verify --repo "$TOPLEVEL" --base "$OBSERVED_SHA" --target "$HEAD_SHA" || {
+        block "completed scoped reviews are missing or stale; prepare requests and retain accepted reports for these exact commits"
+        exit 1
+      }
+    fi
     ensure_local_ci || exit $?
     git push origin "HEAD:refs/heads/$BRANCH" || {
       say "ERROR: could not publish exact topic HEAD $HEAD_SHA for durability"

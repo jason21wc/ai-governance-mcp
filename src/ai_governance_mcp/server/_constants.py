@@ -192,16 +192,14 @@ GOVERNANCE_REMINDER = """
 # Scaffold Project Templates
 # =============================================================================
 
-SCAFFOLD_SESSION_STATE = """# Session State
+SCAFFOLD_SESSION_STATE = """# Session State — {project_name}
 
+**Memory Type:** Working (current work snapshot)
+**Purpose / read when:** Read first when starting or resuming work in this project. Before dependent action, also consult project instructions and PROJECT-MEMORY.md’s current constraints; this snapshot does not replace them.
+**Keep:** Current objective, position, blockers, material assumptions, next actions and links needed to resume. Distinguish proposed actions from authorized work.
+**Routing:** Decisions → PROJECT-MEMORY.md; reusable lessons → LEARNING-LOG.md; deferred tasks → BACKLOG.md if present; recurring work → OPERATIONS.md if present. Preserve a short labeled pending-routing note if a destination is absent.
+**Lifecycle:** Overwrite each session and update when work changes or pauses. Preserve durable information in its destination before replacing this snapshot; never append a session-history stack. Link evidence or history only when resumption needs it.
 **Last Updated:** {date}
-**Memory Type:** Working (transient)
-**Lifecycle:** Overwritten each session; retain no session-history stack. Route content out per §7.0.4
-
-> This file tracks CURRENT work state only.
-> Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
-
----
 
 ## Current Position
 
@@ -217,24 +215,21 @@ SCAFFOLD_SESSION_STATE = """# Session State
 
 ## Immediate Context
 
-*What a new session needs to know to pick up where this one left off. Overwritten each session — this is a snapshot, not a log. Route as you go: decisions to PROJECT-MEMORY, lessons to LEARNING-LOG, work to BACKLOG, recurring commitments to OPERATIONS, and the session narrative to the commit message.*
+*Keep only the context needed to resume safely. Route durable material using the header before replacing this snapshot; do not append a session narrative.*
 
 ## Next Actions
 
 *Define during first session.*
 """
 
-SCAFFOLD_PROJECT_MEMORY = """# Project Memory
+SCAFFOLD_PROJECT_MEMORY = """# Project Memory — {project_name}
 
-**Memory Type:** Semantic (accumulates)
-**Lifecycle:** Preserve decisions; condense supporting detail at §7.0.4 review. Mark superseded decisions with date and replacement link; never delete the decision record.
-**Project:** {project_name}
+**Memory Type:** Semantic (durable decisions and constraints)
+**Purpose / read when:** Consult current constraints before acting and relevant decisions before changing direction. This file explains choices future sessions must understand.
+**Keep:** Decisions with date, rationale, scope and status; binding constraints with their source; pointers to authoritative project documents. Label proposals and unknowns; do not infer approval.
+**Routing:** Current progress → SESSION-STATE.md; actionable lessons → LEARNING-LOG.md; tasks → BACKLOG.md if present; recurrence → OPERATIONS.md if present. Link detailed sources instead of copying them. If an existing decision record elsewhere is authoritative, link it rather than create a second record here. Keep absent-destination items briefly labeled pending routing.
+**Lifecycle:** Update on a real decision or constraint change. Condense supporting detail; preserve decision records. Mark replaced decisions superseded with date and replacement link; never silently delete their rationale.
 **Created:** {date}
-
-> Record decisions and their rationale here. When in doubt, write it down.
-> **What goes elsewhere:** what you are doing right now → `SESSION-STATE.md` · lessons from experience → `LEARNING-LOG.md` · work not started yet → `BACKLOG.md` · commitments that recur → `OPERATIONS.md`. Decisions accumulate here and are superseded, never deleted.
-
----
 
 ## Phase Gates
 
@@ -247,19 +242,31 @@ SCAFFOLD_PROJECT_MEMORY = """# Project Memory
 
 ## Spec Summary
 
-*Fill in after Specify phase.*
+*Link the authoritative specification after Specify; do not copy it here.*
+
+## Source Documents
+
+| File | Purpose | Consult When |
+|------|---------|--------------|
+| | | |
+
+*Register only existing authoritative documents, using links relative to this file.
+State what each document owns and when to consult it. Update links when files move;
+keep approval and verification status in the source document, not a duplicate table.*
 
 ## Key Decisions
 
-| Decision | Date | Rationale |
-|----------|------|-----------|
-| | | |
+| Decision or canonical link | Date | Rationale | Scope / Status |
+|----------------------------|------|-----------|----------------|
+| | | | |
 
 ## Tech Stack
 
 *Fill in after Plan phase.*
 
 ## Constraints
+
+*Current binding constraints, their scope and source; unknown is not none.*
 
 *Document any constraints discovered during work.*
 
@@ -270,16 +277,13 @@ SCAFFOLD_PROJECT_MEMORY = """# Project Memory
 | | | |
 """
 
-SCAFFOLD_LEARNING_LOG = """# Learning Log
+SCAFFOLD_LEARNING_LOG = """# Learning Log — {project_name}
 
-**Memory Type:** Episodic (experiences)
-**Lifecycle:** Graduate to methods when patterns emerge per §7.0.4. Remove lessons only per §7.3.4; never prune for size alone.
-
-> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
-> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
-> Route other content: decisions → PROJECT-MEMORY, architecture → ARCHITECTURE.md
-
----
+**Memory Type:** Episodic (experience that changes future action)
+**Purpose / read when:** Before similar work, consult relevant lessons to avoid repeating a mistake or losing a proven approach.
+**Keep:** A concise trigger, what was learned and the action to take next time; normally no more than five lines. Include a source link when needed to verify applicability.
+**Routing:** Decisions → PROJECT-MEMORY.md; current progress → SESSION-STATE.md; detailed evidence → its linked record. A rule already maintained elsewhere needs a pointer, not another full copy. If a destination is absent, retain a short pending-routing note.
+**Lifecycle:** Add only when the lesson changes future behavior. Graduate to standing guidance when patterns emerge. Remove only per §7.3.4: when obsolete, no longer actionable, or incorporated into an identified maintained rule/reference that future work will consult; retain its link. An evidence archive alone is not a replacement for an active lesson. Never prune for size alone.
 
 ## Active Lessons
 
@@ -299,16 +303,21 @@ SCAFFOLD_LEARNING_LOG = """# Learning Log
 # only platform-neutral memory + session-start + governance *guidance* lives here.
 # Governance/hook ENFORCEMENT and S-Series stop-rules stay in the CLAUDE.md overlay,
 # never in this imported body. Keep it lean (Codex project_doc_max_bytes ~32 KiB).
-SCAFFOLD_AGENTS_MD = """# {project_name}
+SCAFFOLD_AGENTS_MD = """# Project Working Instructions — {project_name}
 
+**Purpose / read when:** Read when starting work here; these are shared project instructions and document pointers, not session memory.
+**Keep:** Enduring project rules, verified commands and where to find current constraints and task-relevant sources. Identify the project scope and label unverified setup claims.
+**Routing:** Current work → _ai-context/SESSION-STATE.md; decisions → _ai-context/PROJECT-MEMORY.md; lessons → _ai-context/LEARNING-LOG.md; detailed domain facts → registered source documents. Host-specific mechanics belong in the host adapter. If a required file is unavailable, disclose the gap and resolve it before dependent work.
+**Lifecycle:** Update when rules, commands or paths change; replace obsolete instructions. Link detailed references instead of importing their entire contents for every task. No statement here creates host permissions or proves a hook is installed or running.
 **Description:** [Brief project description]
 **Framework:** AI Coding Methods (current version)
 **Mode:** Standard
 
 ## Memory Files
 
-Project memory lives in `_ai-context/` and is committed to git (shared memory,
-not scratch — nothing auto-discovers these files; this loader is the pointer):
+Project memory lives in `_ai-context/` (shared project records, not scratch).
+In Git projects these files are committed, not ignored scratch. This loader supplies the pointers;
+file access and automatic loading depend on the host:
 - `_ai-context/SESSION-STATE.md` — current position, quick reference, next actions
 - `_ai-context/PROJECT-MEMORY.md` — decisions, constraints, gotchas
 - `_ai-context/LEARNING-LOG.md` — active lessons
@@ -323,7 +332,8 @@ The host tool's own built-in memory is separate — leave it to the host.
 2. Read `_ai-context/PROJECT-MEMORY.md` — decisions, constraints, gotchas
 3. Read `_ai-context/LEARNING-LOG.md` — active lessons
 4. If present, check `_ai-context/OPERATIONS.md` for cadences now due and tripwires whose condition has become true
-5. Run existing tests (if applicable) — establish known-good baseline
+5. If `SAAS-OPS-SOP.md` exists, read its service profile, evidence gaps and operating routes before SaaS work
+6. Run existing tests (if applicable) — establish known-good baseline
 
 ## Governance
 
@@ -345,6 +355,11 @@ CLAUDE.md — not here):
 
 ## Concurrency
 
+For a project without Git, coordinate one writer per shared working file and
+preserve important changes in its established dated records. Do not initialize
+a repository or publish anything merely to follow these instructions.
+
+The following checkout and branch procedure applies to Git projects only.
 Each mutating session owns one checkout and one topic branch. Run the
 `start-worktree` skill before edits; read-only sessions may share a checkout.
 Claude Code, Codex CLI, and Codex Desktop use different host adapters, but the
@@ -370,21 +385,23 @@ targets; namespace those separately when the project uses them.
 # reading the body rather than losing it (belt-and-suspenders). Holds ONLY
 # Claude-Code-specific mechanics — hook enforcement + S-Series stay here, never in the
 # imported body (safety boundary, title-10 Appendix A/K.3).
-SCAFFOLD_CLAUDE_MD = """# {project_name}
+SCAFFOLD_CLAUDE_MD = """# Claude Project Adapter — {project_name}
+
+**Purpose / read when:** Entry instructions for Claude hosts that read this file; shared project guidance lives in AGENTS.md.
+**Keep:** Verified Claude-specific setup and behavior. Do not duplicate shared rules, project facts or session history.
+**Use / routing:** Read AGENTS.md; the import below is a convenience. If the host cannot resolve it, open the file explicitly. If it is unavailable, report the missing guidance before dependent work; do not invent its contents.
+**Lifecycle:** Recheck after host, hook or instruction changes; remove obsolete setup claims. Hook enforcement is unverified unless supported by current installation and execution evidence. This adapter does not grant permissions.
 
 Also read AGENTS.md for project context.
 @AGENTS.md
 
-The shared project body — memory-file pointers, session-start protocol, and
-governance guidance — is imported from `AGENTS.md` above. Keep only
-Claude-Code-specific mechanics below; do not duplicate the body here.
+## Governance — Hook Status (Claude Code)
 
-## Governance — ENFORCED BY HOOK (Claude Code)
-
-On Claude Code a PreToolUse hook BLOCKS Bash/Edit/Write until the required
-governance tools are called — structural, not advisory. S-Series (safety) stop
-rules and MCP-requirement enforcement live here, never in the imported body. On
-other hosts this degrades to advisory.
+Hook installation and execution are UNVERIFIED for this generated project.
+If configured and verified, a Claude Code PreToolUse hook can gate tool calls;
+do not infer that protection from this file. Keep actual host-specific enforcement
+configuration and S-Series (safety) stop rules here, never in the imported body.
+Safety stop rules still apply when no hook is running; guidance is not enforcement.
 
 ## Plan Mode
 
@@ -402,13 +419,15 @@ review before leaving plan mode.
 # the code core kit so a default project auto-loads on Gemini too; a Claude-only
 # project simply carries an unused thin file (cheap clutter vs a silently missing
 # loader).
-SCAFFOLD_GEMINI_MD = """# {project_name}
+SCAFFOLD_GEMINI_MD = """# Gemini Project Adapter — {project_name}
+
+**Purpose / read when:** Entry instructions for Gemini hosts that read this file; shared project guidance lives in AGENTS.md.
+**Keep:** Verified Gemini-specific setup and behavior. Do not duplicate shared rules, project facts or session history.
+**Use / routing:** Read AGENTS.md; the import below is a convenience. If the host cannot resolve it, open the file explicitly. If it is unavailable, report the missing guidance before dependent work; do not invent its contents.
+**Lifecycle:** Recheck after host or instruction changes; replace obsolete commands and setup claims. Verify what the host actually loaded. This adapter does not grant permissions.
 
 Also read AGENTS.md for project context.
 @./AGENTS.md
-
-The shared project body is imported from `AGENTS.md` above. Keep only
-Gemini-specific bits below; do not duplicate the body here.
 
 ## Gemini-Specific
 
@@ -417,10 +436,22 @@ Gemini-specific bits below; do not duplicate the body here.
 - Checkpointing is available for multi-step edits.
 """
 
-SCAFFOLD_COMPLETION_CHECKLIST = """# Post-Change Completion Checklist
+SCAFFOLD_COMPLETION_CHECKLIST = """# Post-Change Completion Checklist — {project_name}
 
-For topic branches, make the default branch explicit. Do not infer it from a
-possibly stale local `main` or `master`.
+**Purpose / read when:** Reusable procedure for validating and closing a change in this project; consult before declaring work complete or publishing.
+**Keep:** Applicable checks, their commands or evidence requirements, prerequisites and failure routes. Separate code, content and document checks where they differ.
+**Routing:** Current run results belong in a dated evidence record, with a short pointer in _ai-context/SESSION-STATE.md. Decisions belong in _ai-context/PROJECT-MEMORY.md. If a destination is absent, retain a labeled temporary result until a durable location is established.
+**Lifecycle:** Update when checks or project workflows change. Do not accumulate completed runs or reuse an old pass as proof for a new revision. Mark inapplicable checks with reasons; do not silently skip them. Publication and destructive actions still require their applicable authorization.
+
+Paths below are relative to the project root. For topic branches, make the
+default branch explicit; do not infer it from a stale local `main` or `master`.
+Run the applicable checks, then publish only within existing authorization.
+
+For a project without Git: run the applicable validation, save dated evidence in
+its established records location, route durable decisions and lessons, then
+replace the session snapshot. Deliver only through the project's authorized
+process. Do not initialize a repository or publish merely to complete this list.
+The commit, branch and remote steps below apply to Git projects only.
 
 ## Code changes
 
@@ -450,8 +481,12 @@ possibly stale local `main` or `master`.
 4. Commit and publish with the same optimistic retry rule; never force-push
 """
 
-SCAFFOLD_AI_CONTEXT_README = """# {project_name} — AI Context
+SCAFFOLD_AI_CONTEXT_README = """# Project Context Guide — {project_name}
 
+**Purpose / read when:** Start here to find this project's continuity files and reference documents. This is a routing guide, not another store of their contents.
+**Keep:** Existing file links, each file's role and when to consult it. Project references are listed in PROJECT-MEMORY.md's Source Documents table.
+**Use / routing:** Read SESSION-STATE.md and constraints in PROJECT-MEMORY.md; then consult task-relevant lessons and references. Check OPERATIONS.md for due work when present. Do not assume an absent optional file exists or create it merely to fill this index. Disclose missing required context before dependent work.
+**Lifecycle:** Update links when files are added, moved or removed. Replace stale descriptions; do not append activity logs. Access to these files and automatic loading depend on the host and must be verified separately.
 **Created:** {date}
 **Type:** Document project
 
@@ -479,9 +514,11 @@ SCAFFOLD_AI_CONTEXT_README = """# {project_name} — AI Context
 ## Tailoring
 
 These starter files are deliberately neutral. Tell the AI your use case — what
-kind of work lives in this project — and it will propose specialized memory
-files to add alongside the core set (for example: an architecture document for
+kind of work lives in this project — and it can propose specialized reference
+documents when needed (for example: an architecture document for
 software, a property register for real estate, a style guide for writing).
+Register their authoritative locations in PROJECT-MEMORY.md; do not copy their
+contents into memory or create empty documents merely to fill a folder.
 
 ## Subfolders
 
@@ -499,16 +536,14 @@ files — automated tools detect only the top-level `_ai-context/` folder.
 # the CFR pre-seeds and updates that table at defined transitions (§1.4, §7.8.4).
 # Guarded both directions by tests/test_scaffold_neutrality.py.
 
-SCAFFOLD_SESSION_STATE_DOC = """# Session State
+SCAFFOLD_SESSION_STATE_DOC = """# Session State — {project_name}
 
+**Memory Type:** Working (current work snapshot)
+**Purpose / read when:** Read first when starting or resuming work in this project. Before dependent action, also consult project instructions and PROJECT-MEMORY.md’s current constraints; this snapshot does not replace them.
+**Keep:** Current objective, position, blockers, material assumptions, next actions and links needed to resume. Distinguish proposed actions from authorized work.
+**Routing:** Decisions → PROJECT-MEMORY.md; reusable lessons → LEARNING-LOG.md; deferred tasks → BACKLOG.md if present; recurring work → OPERATIONS.md if present. Preserve a short labeled pending-routing note if a destination is absent.
+**Lifecycle:** Overwrite each session and update when work changes or pauses. Preserve durable information in its destination before replacing this snapshot; never append a session-history stack. Link evidence or history only when resumption needs it.
 **Last Updated:** {date}
-**Memory Type:** Working (transient)
-**Lifecycle:** Overwritten each session; retain no session-history stack. Route content out.
-
-> This file tracks CURRENT work state only.
-> Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
-
----
 
 ## Current Focus
 
@@ -522,36 +557,45 @@ SCAFFOLD_SESSION_STATE_DOC = """# Session State
 
 ## Immediate Context
 
-*What a new session needs to know to pick up where this one left off. Overwritten each session — this is a snapshot, not a log. Route as you go: decisions to PROJECT-MEMORY, lessons to LEARNING-LOG, work to BACKLOG, recurring commitments to OPERATIONS, and the session narrative to the commit message.*
+*Keep only the context needed to resume safely. Route durable material using the header before replacing this snapshot; do not append a session narrative.*
 
 ## Next Steps
 
 *Define during first session.*
 """
 
-SCAFFOLD_PROJECT_MEMORY_DOC = """# Project Memory
+SCAFFOLD_PROJECT_MEMORY_DOC = """# Project Memory — {project_name}
 
-**Memory Type:** Semantic (accumulates)
-**Lifecycle:** Preserve decisions; condense supporting detail. Mark superseded decisions with date and replacement link; never delete the decision record.
-**Project:** {project_name}
+**Memory Type:** Semantic (durable decisions and constraints)
+**Purpose / read when:** Consult current constraints before acting and relevant decisions before changing direction. This file explains choices future sessions must understand.
+**Keep:** Decisions with date, rationale, scope and status; binding constraints with their source; pointers to authoritative project documents. Label proposals and unknowns; do not infer approval.
+**Routing:** Current progress → SESSION-STATE.md; actionable lessons → LEARNING-LOG.md; tasks → BACKLOG.md if present; recurrence → OPERATIONS.md if present. Link detailed sources instead of copying them. If an existing decision record elsewhere is authoritative, link it rather than create a second record here. Keep absent-destination items briefly labeled pending routing.
+**Lifecycle:** Update on a real decision or constraint change. Condense supporting detail; preserve decision records. Mark replaced decisions superseded with date and replacement link; never silently delete their rationale.
 **Created:** {date}
-
-> Record decisions and their rationale here. When in doubt, write it down.
-> **What goes elsewhere:** what you are doing right now → `SESSION-STATE.md` · lessons from experience → `LEARNING-LOG.md` · work not started yet → `BACKLOG.md` · commitments that recur → `OPERATIONS.md`. Decisions accumulate here and are superseded, never deleted.
-
----
 
 ## Purpose
 
 [One paragraph: what this project is and what it is for.]
 
-## Key Decisions
+## Source Documents
 
-| Decision | Date | Rationale |
-|----------|------|-----------|
+| File | Purpose | Consult When |
+|------|---------|--------------|
 | | | |
 
+*Register only existing authoritative documents, using links relative to this file.
+State what each document owns and when to consult it. Update links when files move;
+keep approval and verification status in the source document, not a duplicate table.*
+
+## Key Decisions
+
+| Decision or canonical link | Date | Rationale | Scope / Status |
+|----------------------------|------|-----------|----------------|
+| | | | |
+
 ## Constraints
+
+*Current binding constraints, their scope and source; unknown is not none.*
 
 *Document any constraints discovered during work — requirements, limits, rules
 the work must respect.*
@@ -563,16 +607,13 @@ the work must respect.*
 | | | |
 """
 
-SCAFFOLD_LEARNING_LOG_DOC = """# Learning Log
+SCAFFOLD_LEARNING_LOG_DOC = """# Learning Log — {project_name}
 
-**Memory Type:** Episodic (experiences)
-**Lifecycle:** Distill recurring lessons into standing guidance. Remove lessons only per §7.3.4; never prune for size alone.
-
-> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
-> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
-> Route other content: decisions → PROJECT-MEMORY; durable project facts → the relevant reference file.
-
----
+**Memory Type:** Episodic (experience that changes future action)
+**Purpose / read when:** Before similar work, consult relevant lessons to avoid repeating a mistake or losing a proven approach.
+**Keep:** A concise trigger, what was learned and the action to take next time; normally no more than five lines. Include a source link when needed to verify applicability.
+**Routing:** Decisions → PROJECT-MEMORY.md; current progress → SESSION-STATE.md; detailed evidence → its linked record. A rule already maintained elsewhere needs a pointer, not another full copy. If a destination is absent, retain a short pending-routing note.
+**Lifecycle:** Add only when the lesson changes future behavior. Graduate to standing guidance when patterns emerge. Remove only per §7.3.4: when obsolete, no longer actionable, or incorporated into an identified maintained rule/reference that future work will consult; retain its link. An evidence archive alone is not a replacement for an active lesson. Never prune for size alone.
 
 ## Active Lessons
 
@@ -587,10 +628,14 @@ SCAFFOLD_LEARNING_LOG_DOC = """# Learning Log
 | | | |
 """
 
-SCAFFOLD_ARCHITECTURE = """# Architecture
+SCAFFOLD_ARCHITECTURE = """# Architecture — {project_name}
 
-> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real content to add (do not auto-populate with hallucinated architecture — leaving placeholders visible is correct).
-> Start with rough shapes; refine as implementation reveals constraints. Per `title-10-ai-coding-cfr.md §1.5.3` (Enhanced Kit evaluation thresholds), consider promoting to `DATA-REFERENCE.md` / `PRODUCT-CONTEXT.md` as complexity grows.
+**Purpose / scope:** Reference for this project's current structure, component responsibilities, boundaries and data flow.
+**Read when:** Planning or changing structure, interfaces, dependencies or security boundaries.
+**Keep:** Verified design facts and invariants, with source links; label proposed designs and unknowns. Explain relationships that cannot be understood from one component alone.
+**Routing:** Requirements → SPECIFICATION.md if present; decisions and rationale → _ai-context/PROJECT-MEMORY.md or its registered canonical decision record; progress → _ai-context/SESSION-STATE.md. Link those records instead of duplicating them. Preserve a brief pending-routing note if a destination is absent.
+**Lifecycle:** Recheck affected sections after structural changes; replace outdated descriptions and link consequential decisions. Keep historical diagrams in linked records when needed, not interleaved as current design.
+**Verified against:** [Revision or named source and date; unverified until checked]
 
 ## Overview
 
@@ -618,13 +663,17 @@ SCAFFOLD_ARCHITECTURE = """# Architecture
 
 ## Architecture Decisions
 
-[ADR-style entries: decision, rationale, consequences. Add as decisions are made.]
+[Link canonical decisions in _ai-context/PROJECT-MEMORY.md or its registered decision-record location. Describe current architectural consequences here; do not duplicate decision records.]
 """
 
-SCAFFOLD_SPECIFICATION = """# Specification
+SCAFFOLD_SPECIFICATION = """# Specification — {project_name}
 
-> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real content to add (do not auto-populate — leaving placeholders visible is correct).
-> Start with what you know; iterate as the problem is better understood. Specifications firm up through discovery.
+**Purpose / scope:** Defines this project's intended outcomes, boundaries and acceptance criteria.
+**Read when:** Planning work, resolving scope or deciding whether an outcome meets the request.
+**Keep:** Requirements with status and source, success criteria, exclusions and material assumptions. Separate proposed changes from accepted requirements; an entry is not approval.
+**Routing:** Current design → ARCHITECTURE.md if present; decision rationale → _ai-context/PROJECT-MEMORY.md; progress → _ai-context/SESSION-STATE.md; detailed verification → linked results. Preserve a concise pending-routing note when a destination is absent.
+**Lifecycle:** Change when requirements are clarified or authorized to change. Preserve consequential scope-change decisions and replace stale requirements with explicit supersession links; do not accumulate execution logs.
+**Status / source:** [Proposed or accepted, with actual source/date; unknown until verified]
 
 ## Problem Statement
 
@@ -655,13 +704,13 @@ SCAFFOLD_SPECIFICATION = """# Specification
 [What are you assuming about environment, users, data that, if wrong, would invalidate this spec?]
 """
 
-SCAFFOLD_BACKLOG = """# Backlog
+SCAFFOLD_BACKLOG = """# Backlog — {project_name}
 
-**Memory Type:** Prospective (intentions to act)
-**Lifecycle:** Items are removed when done or abandoned — completion is the point.
-
-> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real items to add (do not auto-populate — leaving placeholders visible is correct).
-> This file tracks discussion items and deferred work. It is **NOT** session state — session state lives in `SESSION-STATE.md`. Prospective memory that persists across sessions lives here.
+**Memory Type:** Prospective (discrete unfinished work)
+**Purpose / read when:** Use when selecting, deferring or reviewing work. An item records an intention, not permission to execute it.
+**Keep:** Desired outcome, why it matters, status and next action or decision. Label proposals, commitments and blocked work accurately; do not invent items to fill this template.
+**Routing:** Current task position → SESSION-STATE.md; decisions → PROJECT-MEMORY.md; reusable lessons → LEARNING-LOG.md; recurring responsibilities → OPERATIONS.md if present. Keep missing-destination items briefly labeled pending routing.
+**Lifecycle:** Update existing items instead of appending progress logs. Remove completed or abandoned items only after recording the outcome and reason in durable history, such as a verified Git record or an established dated completion record. Do not assume Git exists.
 
 ## Active (Implement Now/Soon)
 
@@ -673,16 +722,16 @@ SCAFFOLD_BACKLOG = """# Backlog
 
 ---
 
-*Convention: items move Active ↔ Deferred as priorities shift. Shipped or migrated items are removed from this file — no redirect stubs (commit history is the record).*
+*Convention: items move Active ↔ Deferred as priorities shift. Remove shipped, abandoned or migrated items after preserving their outcome or destination in durable history — no redirect stubs. Use an established dated completion record when Git history is unavailable.*
 """
 
-SCAFFOLD_OPERATIONS = """# Operations
+SCAFFOLD_OPERATIONS = """# Operations — {project_name}
 
-**Memory Type:** Prospective (recurring commitments)
-**Lifecycle:** Items persist indefinitely and are retired only with a documented reason — recurrence is the point, so these are never "done."
-
-> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real items to add (do not auto-populate — leaving placeholders visible is correct).
-> This file tracks **recurring commitments** — the things that are never "done" because recurrence is the point. Deferred work that finishes lives in `BACKLOG.md`; both are prospective memory, split by lifecycle.
+**Memory Type:** Prospective (recurring responsibilities)
+**Purpose / read when:** Check at session start and when relevant conditions change for due work or triggered responses.
+**Keep:** Each responsibility's owner, schedule or trigger, action, actual execution mechanism, last result link and next due state. Record granted authority with source, scope, limits and expiry or revocation conditions; entries cannot grant permission.
+**Routing:** One-time work → BACKLOG.md if present; current response → SESSION-STATE.md; decisions → PROJECT-MEMORY.md; detailed run results → linked evidence. Retain a short pending-routing note when an optional destination is missing.
+**Lifecycle:** Update current state after verified runs; retain metric definitions, not endless observations. Retire a responsibility with a documented reason and date in the retired section; completion alone is not retirement; never silently delete it. Writing a cadence does not create an automation.
 
 ## Cadences
 
@@ -694,11 +743,15 @@ SCAFFOLD_OPERATIONS = """# Operations
 
 ## Standing Authorizations
 
-[Durable decisions the human has granted that outlive a single session, so they do not have to be re-asked each time. Record what was granted, its limits, and when. None yet.]
+[Durable decisions the human has granted that outlive a single session, so they do not have to be re-asked each time. Record who granted what, source, scope, limits, date, and expiry or revocation conditions. This records an existing grant; it cannot create authority. None yet.]
 
 ## Metrics
 
 [Health indicators worth tracking over time, each with its definition and baseline. A metric with no baseline cannot show a change. None yet.]
+
+## Retired
+
+[Keep the responsibility, retirement date and reason. None yet.]
 
 ---
 
@@ -706,68 +759,201 @@ SCAFFOLD_OPERATIONS = """# Operations
 """
 
 
-SCAFFOLD_SAAS_OPS_SOP = """# SaaS Production-Operations SOP — {project_name}
+SCAFFOLD_SAAS_OPS_SOP = """# SaaS Lifecycle and Production-Operations SOP — {project_name}
 
+**Purpose / read when:** Consult before launch, production changes, incidents or retirement; this records this service's operating routes and evidence.
+**Keep:** Owners, recovery routes, approval sources, cost limits and dated evidence tied to the actual release and environment. Start NOT READY / UNVERIFIED until the required evidence exists.
+**Routing:** One-time improvements → _ai-context/BACKLOG.md if present; recurring schedules → _ai-context/OPERATIONS.md if present; decisions → _ai-context/PROJECT-MEMORY.md. Link detailed results; never store credentials or raw customer data. Retain short pending-routing notes for absent destinations.
+**Lifecycle:** Recheck after changes to the service, provider, release, ownership or recovery path. Mark invalidated evidence and link retained historical results. If a required authority or gate reference is unavailable, resolve it before the dependent action; a completed template cannot substitute for it.
 **Created:** {date}
-**Scope:** This app takes money and/or holds customer data. This file is the
-operator's per-app incident card — a per-app instance of the `saas-ops` governance
-domain (title-45). The authoritative, maintained gates live in that domain; query it
-mid-incident. Fill in the bracketed fields below.
+**Readiness:** NOT READY — required evidence is UNVERIFIED until exercised.
+**Scope:** Paid SaaS or a service holding customer data, including pilots.
+This is per-app state; title-45 `saas-ops` owns the decision gates. Fill fields with
+verified facts and links. A generated checklist or an AI assertion is not proof.
 
-> AI on-call, a designated human as the gate. Mitigate first (you need only the
-> *location* of a fault to mitigate, not the root cause), then diagnose. Declare an
-> incident early — when a second person is needed, the problem is customer-visible, or
-> it is unresolved after a short bounded interval.
+## Service profile and authority
 
-## Designated approver (the gate)
+- User, buyer, first useful outcome and critical journeys: [RECORD]
+- Data sensitivity, individual/organization ownership and forbidden access: [RECORD]
+- Customer promise; acceptable outage and data-loss window: [RECORD AND JUSTIFY]
+- Accountable approver: [NAME AND CONTACT]. Approval is authority, not technical proof.
+- Response coverage, human responder, alternate and escalation trigger: [RECORD]
+- Actual unattended monitoring/job mechanism and delivery test: [RECORD]. A chat
+  session is not an always-on engineer; missing coverage limits the service promise.
+- Owner-controlled accounts, recovery identities and access-vault locations: [LINKS;
+  NO SECRETS]. Remove departing access and rotate shared secrets with approval.
 
-- **Accountable approver:** [NAME] — signs off every money / auth / customer-data /
-  schema-migration action before it reaches production.
-- **On-call human:** [NAME] (solo founder: the same person).
+Ordinary payments/logins run under the approved application design. Engineering-agent
+production interventions touching money, auth, customer data or schema require the
+designated human's approval under the title-45 carve-out and title-20 authority rules.
 
-On any personnel change, rotate shared secrets AND remove the departing person's
-dashboard / repo / console access (the Production Access & Offboarding gate). This is
-where the team-shape RACI seam binds — see `title-45-saas-ops.md`.
+## Capability and cost ledger
 
-## Failure-class router (route by symptom)
+Show costs before requesting a spending decision. Use current primary pricing sources;
+separate shared subscriptions, per-app/environment charges, usage and transaction fees.
 
-Find your symptom, then get the live gate (detect -> respond -> STOP) via
-`query_governance("<your symptom>")` against the `saas-ops` domain, or read the
-*Situation Index* in `title-45-saas-ops-cfr.md`. Gates are named (not section-numbered)
-so this card stays valid as the domain evolves.
+| Capability and chosen provider/plan | Launch required / optional / growth trigger | Fixed + usage unit, currency/tax/billing term | Shared vs app/environment | Source + verified date | Owner, limit alert and response |
+|---|---|---|---|---|---|
+| [Hosting, database, files/recovery, identity, billing, email, logs/alerts, CI, domain, AI engineering/API, support, legal/accounting] | [NEED AND TRIGGER] | [COST OR QUOTE NEEDED] | [ALLOCATION] | [URL + DATE] | [CONTROL] |
+
+Price a base case and plausible usage/recovery growth. Unknown costs remain explicit;
+free-tier limits and unsupported spend caps do not establish cost containment.
+
+## Stack and starter maintenance
+
+- Coherent stack and comparison with a conventional managed monolith: [FIT + TRADEOFFS].
+- Starter, if used: [LICENSE/SUPPORT, UPSTREAM UPDATE ROUTE, CUSTOMIZATION BOUNDARY,
+  TEST QUALITY, MAINTAINER/SPECIALIST AND VENDOR-EXIT PATH].
+- Isolated representative upstream upgrade with one app customization: [REVISION,
+  MIGRATION/JOURNEY/RECOVERY RESULTS]. Unexercised maintenance remains UNVERIFIED.
+
+## Agent operating recipe
+
+Link the app's normal tooling; keep handoffs in existing framework memory.
+
+| Operation | Exact command/control + scoped synthetic identity | Expected result / failure report |
+|---|---|---|
+| Install/bootstrap + supported runtime/tool versions | [RECORD] | [BASELINE] |
+| Validate configuration + per-worktree ports/databases | [RECORD] | [FAIL EXPLICITLY; NO PRODUCTION FALLBACK] |
+| Synthetic seed/reset | [RECORD] | [ISOLATED STATE] |
+| Start/stop + browser access | [RECORD] | [CUSTOMER JOURNEY] |
+| Tests + redacted logs | [RECORD] | [RESULT + DIAGNOSTIC LOCATION] |
+
+Fresh authorized agent from clean checkout: [REVISION, COMMANDS, BASELINE, JOURNEY,
+HARMLESS SEEDED-FAILURE DIAGNOSIS IN ISOLATION, RESET RESULT]. Recheck after tooling or
+environment changes. Written commands alone are UNVERIFIED.
+
+## Recovery authority
+
+| Asset (data/files, backups, keys, source/releases, identity, DNS, billing) | Identity + actual API/CLI/MCP delete/disable route | Protected recovery route + evidence |
+|---|---|---|
+| [ASSET] | [SCOPE; NO CREDENTIAL VALUES] | [PERMISSION CHECK + DISPOSABLE DRILL] |
+
+Prove ordinary development/repair credentials cannot destroy every recovery route;
+dashboard restrictions alone are insufficient. Use non-destructive permission checks
+and disposable environments; never destroy real customer data to rehearse recovery.
+Separately exercise restore and alternate account recovery. Record retention/deletion
+obligations and prefer managed protection or scoped independent copies over custom systems.
+
+## Customer-facing AI release contract — conditional
+
+Applicability: [YES / NO + RATIONALE]. Required only when a model produces a customer
+result or takes an application action; AI used only to build the app does not qualify.
+
+- Acceptable/unacceptable outcomes and representative evaluation cases: [LINK].
+- Versioned model/prompt/tool/retrieval configuration and permitted data/actions: [LINK].
+- Latency, per-task/customer cost, concurrency/retry/token bounds: [LIMIT + CONTROL].
+- Fallback and customer-visible failure behavior: [TESTED RESULT].
+- Repeated variable cases, actual resulting state, allowed/forbidden actions and
+  calibrated graders: [EVIDENCE]. Model agreement is not ground truth. Use the
+  title-20 Agent Evaluation Framework; configuration changes invalidate affected evidence.
+
+## Evidence register
+
+Statuses: PASS / FAIL / UNVERIFIED / NOT APPLICABLE (with rationale and approver).
+Required FAIL or UNVERIFIED prevents the dependent launch/change. Record what evidence
+is invalidated by a change; rerun it against the release, configuration and environment.
+
+| Requirement and applicable risk | Status | Artifact/test result + revision/environment/date | Reviewer/owner | Invalidation trigger + next verification |
+|---|---|---|---|---|
+| Critical browser journeys before paid/customer-data exposure, onboarding, accessibility and support | UNVERIFIED | [LINK] | [NAME] | [CHANGE] |
+| Identity recovery, permissions and forbidden cross-user/tenant access | UNVERIFIED | [LINK] | [NAME] | [AUTH/DATA CHANGE] |
+| Billing/entitlement reconciliation, duplicates/reorder/crash, cancellation/refund | UNVERIFIED | [LINK] | [NAME] | [PAYMENT/QUEUE CHANGE] |
+| Complete isolated restore, files/config, measured recovery and external reconciliation | UNVERIFIED | [LINK] | [NAME] | [SCHEMA/PROVIDER CHANGE] |
+| Synthetic probes, failed jobs, alert delivery and responder exercise | UNVERIFIED | [LINK] | [NAME] | [MONITOR/CONTACT CHANGE] |
+| Release gates, preview isolation, representative load and compatible rollback | UNVERIFIED | [LINK] | [NAME] | [RELEASE/CONFIG CHANGE] |
+| Privacy, terms, tax/commerce applicability, retention/export/deletion | UNVERIFIED | [LINK] | [NAME] | [MARKET/DATA/CONTRACT CHANGE] |
+| Cost controls, ownership/account recovery and specialist handoff | UNVERIFIED | [LINK] | [NAME] | [PLAN/ACCESS/COVERAGE CHANGE] |
+| Fresh-agent recipe, harmless failure diagnosis and reset | UNVERIFIED | [LINK] | [NAME] | [TOOLING/ENVIRONMENT CHANGE] |
+| Recovery survives ordinary agent delete/disable authority | UNVERIFIED | [LINK] | [NAME] | [IDENTITY/API/ASSET CHANGE] |
+| Starter upgrade rehearsal, if used | UNVERIFIED | [LINK OR N/A RATIONALE] | [NAME] | [UPSTREAM/CUSTOMIZATION CHANGE] |
+| Customer-facing AI release contract, only if applicable | UNVERIFIED | [LINK OR N/A RATIONALE] | [NAME] | [MODEL/PROMPT/TOOL/RETRIEVAL CHANGE] |
+
+Automate critical browser journeys where material cookie, redirect, multi-page or
+client/server/billing risks require them. Use synthetic identities and provider
+sandboxes; live probes must not create uncontrolled charges or messages.
+
+## Lifecycle router
+
+Use `query_governance` for discovery, then `get_principle` for the full returned method;
+or read the named gate in `title-45-saas-ops-cfr.md`. Keep an accessible reference copy.
+
+| Decision | Gate |
+|---|---|
+| Define users, risks, service promises and response ownership | Service Capability and Ownership |
+| Select proven tools and price launch/optional/growth capabilities | Platform Selection and Costed Capabilities |
+| Admit customers or charge money | Launch Evidence |
+| Onboard, bill, support, export or delete a customer's data | Commercial and Customer Lifecycle |
+| Ship a feature, patch, migration or recovery | Continuous Delivery and Recovery |
+| Run maintenance, arrange support and rehearse continuity | Maintenance and Support Continuity |
+| Close the app or leave a provider | Service Retirement |
+
+## Failure-class router
 
 | Symptom | Gate |
-|---------|------|
-| Errors or latency spiked right after a deploy | Bad Deploy |
-| Database / connection-pool / quota errors; timeouts | DB & Connection-Pool Exhaustion |
-| Session id in the URL; cookie not rotating after login; old cookie still works after logout | Auth & Session Misconfiguration |
-| A webhook failed; a customer paid but wasn't provisioned (or was charged twice) | Payment Integrity |
-| A secret, API key, or backend key may be exposed, leaked, or expired | Secret & Key Leak |
-| A downstream / third-party service is timing out or rate-limiting us | External-Dependency Outage |
-| We need to change the database schema / run a migration | Data-Migration Safety |
-| A teammate is leaving, or we need to manage production access | Production Access & Offboarding |
-| One tenant can see another tenant's data; a table is exposed without row-level security | Multi-Tenant Data-Isolation Breach |
-| Data may be lost or silently corrupted; is our backup good? | Data Durability |
-| What to do first / when to declare an incident | Cross-Cutting Incident Rules |
-| Is this a reportable breach / what about PCI / SOC2? | Compliance Boundary |
+|---|---|
+| Errors/latency after release | Bad Deploy |
+| Connection/queue/quota exhaustion | DB & Connection-Pool Exhaustion |
+| Identity/session weakness | Auth & Session Misconfiguration |
+| Failed webhook, wrong entitlement, duplicate charge | Payment Integrity |
+| Exposed/expired key | Secret & Key Leak |
+| Dependency timeout/throttling | External-Dependency Outage |
+| Schema/data change | Data-Migration Safety |
+| Production access or departing contributor | Production Access & Offboarding |
+| Unauthorized cross-user/tenant access | Multi-Tenant Data-Isolation Breach |
+| Lost, corrupted or unrestorable data | Data Durability |
+| Incident declaration/first response | Cross-Cutting Incident Rules |
+| Suspected reportable breach | Compliance Boundary |
 
-## STOP — bring in the designated human
+STOP for unapproved money/auth/customer-data/schema interventions or suspected breach;
+escalate to the designated human. Preserve evidence; qualified counsel owns notification
+interpretation. Do not recharge, delete evidence or repeatedly guess at production fixes.
 
-The AI must STOP and get the designated approver before acting when:
+## Offline emergency card
 
-- **Money / auth / customer-data / schema-migration** -> never run autonomously;
-  mandatory approval by the designated human (the autonomy carve-out — a specialization
-  of the title-20 AO-series; do not re-derive the levels).
-- **Suspected personal-data breach** -> STOP, bring in the human, and start the
-  legal / notification clock. The AI holds only the escalation gate; the notification
-  regime itself is counsel-owned.
+Keep an access-controlled copy outside the app and AI/MCP. Rehearse from alternate
+identity/recovery access. These fields need exact tested controls, not generic commands.
 
-## Vendor specifics
+1. Recognize and record: [INDEPENDENT MONITOR/STATUS LINK, TIME, AFFECTED JOURNEY].
+2. Contact: [HUMAN + ALTERNATE + APP SPECIALIST INTAKE, COVERAGE AND RESPONSE TERMS].
+3. Contain under the approved authority: [CONTROL URL, EXACT BOUNDED STEPS, EXPECTED
+   RESULT, IN-FLIGHT/QUEUED WORK HANDLING, FAILURE/ESCALATION PATH].
+4. Locate recovery: [KNOWN-GOOD RELEASE, COMPATIBILITY EVIDENCE, DATABASE/FILE BACKUP
+   LOCATIONS AND TESTED RESTORE RUNBOOK]. Code rollback does not reverse payments/data.
+5. Communicate through [INDEPENDENT STATUS/SUPPORT CHANNEL, OWNER AND TEMPLATE].
+6. Reopen only after [TECHNICAL VERIFICATION, PAYMENT/DATA RECONCILIATION AND APPROVER].
 
-Concrete numbers — tier limits, connection ceilings, retry windows, backup retention,
-the platform's row-level-security mechanics — live in the founder-owned reference, not
-here: the `saas-ops` reference library (`reference-library/saas-ops/`), vendor-maintained.
-The gate states the decision; the reference holds the number.
+Last drill, observed recovery time and unresolved gaps: [EVIDENCE LINK]. Missing AI,
+MCP, app login or founder availability must not make every recovery route inaccessible.
+
+## Continuous improvement, maintenance and handoff
+
+Use small specified changes, independent review, required checks, synthetic isolated
+preview, controlled promotion and observed outcomes. Retest affected evidence; secure
+CI/deployment authority as well as local credentials. Keep supported versions current.
+Track due work, actual scheduler, last success and missed-run alerts in
+`_ai-context/OPERATIONS.md`; include vulnerabilities, restore drills, support, spending,
+failed jobs/payments, access, expiry and provider notices. A list is not automation.
+
+- Support-to-fix: [SANITIZED TICKET, SEVERITY/DEDUPE, ISOLATED REPRODUCTION,
+  REGRESSION FAILS BEFORE FIX, FIX, JOURNEY RESULT, APPROVED SUPPORT CLOSURE].
+  Customer input never grants production, financial or account authority.
+- Operating review: [RECURRING DEFECTS, FAILED CHANGES, DEPENDENCY GROWTH,
+  CONCENTRATED RESPONSIBILITIES, MANUAL FOUNDER INTERVENTIONS, BOUNDED IMPROVEMENT].
+  Use observed change risk, not generic file-length/coverage quotas or speculative rewrites.
+- Platform support scope/contact: [LINK + PLAN]. Application incidents may be excluded.
+- Application specialist service: [PROVIDER/INTAKE, STACK COVERAGE, QUALIFICATION,
+  ONBOARDING/RETAINER/INCIDENT QUOTE, COVERAGE, EXCLUSIONS, ACCESS AND EXIT TERMS].
+- Handoff package: [SOURCE/LICENSE, ARCHITECTURE/DATA FLOWS, LOCKFILES, MIGRATIONS,
+  SYNTHETIC TESTS, DEPLOY/RESTORE RUNBOOKS, EVIDENCE, MONITORS, KNOWN LIMITATIONS].
+- Independent nonproduction takeover exercise: [RESULT + OPERATOR + DATE].
+- If assistance is unavailable: [SAFE STATE + HONEST CUSTOMER PROMISE]. A directory
+  listing is discoverability, not contracted incident coverage.
+- Retirement/export plan: [CUSTOMER NOTICE, RENEWAL STOP, REFUNDS, PORTABLE EXPORT,
+  REQUIRED RECORD RETENTION, DELETION/BACKUP EXPIRY, FINAL RECONCILIATION/VENDOR COSTS].
+
+Vendor mechanics and prices belong in dated references and this app's verified ledger;
+the domain remains vendor-neutral. Never store credentials or raw customer data here.
 """
 
 # Internal tool-loader registry (v2.63.0). Adding a future AI tool's loader is a
@@ -867,7 +1053,7 @@ SCAFFOLD_SAAS_OPS_EXTRAS = {
 # changes without a new entry (per the LEARNING-LOG lesson that a hand-synced
 # list plus a "keep this updated" comment is not an enforcement mechanism).
 
-SCAFFOLD_TEMPLATE_VERSION = "2.70.0"
+SCAFFOLD_TEMPLATE_VERSION = "2.73.0"
 
 # Stamp written as the first line of every scaffolded file. HTML comment —
 # invisible in rendered markdown, cheap to parse, survives content edits.
@@ -1121,6 +1307,47 @@ SCAFFOLD_TEMPLATE_CHANGELOG = [
             "their declarations while preserving project-specific routing and content. "
             "Scaffold sync reports this change but does not rewrite existing files."
         ),
+    },
+    {
+        "version": "2.71.0",
+        "date": "2026-09-23",
+        "applies_to": ["code"],
+        "files": ["AGENTS.md", "SAAS-OPS-SOP.md"],
+        "change": "SaaS lifecycle evidence, cost visibility, offline recovery and support handoff; conditional session-start loader.",
+        "why": "An incident card alone cannot establish launch readiness or keep evidence current through continuous changes.",
+        "action": "For SaaS projects, retain per-app facts while adding lifecycle/evidence/cost/offline fields and the conditional AGENTS.md pointer. Start new evidence UNVERIFIED. Sync reports changes without overwriting existing files.",
+    },
+    {
+        "version": "2.72.0",
+        "date": "2026-09-24",
+        "applies_to": ["code"],
+        "files": ["SAAS-OPS-SOP.md"],
+        "change": "SaaS agent operating recipe, prospective browser tests, protected recovery, conditional AI contract, starter upgrade and support loop.",
+        "why": "Solo operation needs executable evidence that a fresh agent can diagnose safely and that its authority cannot erase all recovery paths.",
+        "action": "For SaaS projects, preserve owner facts and add the new operating/evidence fields. Mark AI-feature and starter requirements NOT APPLICABLE only with rationale when absent; new required evidence starts UNVERIFIED. Sync reports changes without rewriting existing files.",
+    },
+    {
+        "version": "2.73.0",
+        "date": "2026-09-25",
+        "applies_to": ["code", "document"],
+        "files": [
+            "_ai-context/SESSION-STATE.md",
+            "_ai-context/PROJECT-MEMORY.md",
+            "_ai-context/LEARNING-LOG.md",
+            "_ai-context/BACKLOG.md",
+            "_ai-context/OPERATIONS.md",
+            "_ai-context/README.md",
+            "ARCHITECTURE.md",
+            "SPECIFICATION.md",
+            "SAAS-OPS-SOP.md",
+            "AGENTS.md",
+            "CLAUDE.md",
+            "GEMINI.md",
+            ".claude/skills/completion-sequence-aigov/checklist.md",
+        ],
+        "change": "Standalone purpose, reading, inclusion, routing and maintenance guidance in every template; source registry in both project-memory variants.",
+        "why": "Copied files must remain usable without the manual, Git history or optional destinations. References must not duplicate decision records; generated host text must not claim unverified hook enforcement.",
+        "action": "Review and adapt headers to existing content; do not overwrite customized files. Preserve binding constraints, canonical decision records and useful lessons. Add only real sources to the registry. No folder migration or host-setting change is required.",
     },
 ]
 

@@ -1509,6 +1509,7 @@ class ProjectManager:
             project_path=project_path,
             on_change=on_change,
             ignore_spec=ignore_spec,
+            ignore_loader=lambda: self._indexer.load_ignore_patterns(project_path),
             ownership_path=(
                 self.storage.get_index_path(project_id).parent
                 / ".watcher-locks"

@@ -69,7 +69,9 @@ def scan_reference_content(text: str) -> list[dict]:
     and credential-specific patterns for reference library entries.
 
     Returns a list of warning dicts with pattern_type and matched content.
-    Empty list means clean.
+    An empty list means no known pattern matched, not that the text is trusted.
+    Prefixes, confusables and delimiter-line skips remain heuristic limitations;
+    MCP response framing is a separate interpretation boundary.
     """
     warnings: list[dict] = []
     in_code_block = False
@@ -456,7 +458,7 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             suggestions=[
                 "Use kit_tier='core' for the essential kit (code: 6 files — memory + AGENTS.md/CLAUDE.md/GEMINI.md loaders; document: 4 files — memory + README)",
                 "Use kit_tier='standard' for 10 files on code projects (adds ARCHITECTURE.md + SPECIFICATION.md + .claude/skills/completion-sequence-aigov/checklist.md + _ai-context/BACKLOG.md) or 5 on document projects (adds _ai-context/BACKLOG.md)",
-                "Use kit_tier='saas-ops' for 12 files (standard + SAAS-OPS-SOP.md, a per-app SaaS production-operations SOP for a money-taking SaaS; code projects only)",
+                "Use kit_tier='saas-ops' for 12 files (standard + SAAS-OPS-SOP.md, a per-app SaaS lifecycle and production-operations SOP for paid services or customer-data pilots; code projects only)",
             ],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]

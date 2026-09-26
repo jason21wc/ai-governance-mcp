@@ -30,9 +30,11 @@ from .._constants import (
     REFERENCE_SUMMARY_MAX_CHARS,
 )
 from .._content_budget import allocate_content
+from .._response_trust import quote_markdown
 from .._logging import log_feedback_async, log_query_async
 from .._security import _rate_limit_lock, _sanitize_for_logging
 from .._state import get_metrics
+from .._runtime_identity import get_runtime_identity
 
 
 _CONFIDENCE_RANK = {
@@ -451,7 +453,7 @@ def _format_retrieval_result(result) -> str:
     output = "\n".join(lines)
     # Dispatch appends the reminder AFTER this formatter. Reserve its exact length.
     limit = QUERY_RESPONSE_MAX_CHARS - len(GOVERNANCE_REMINDER)
-    if len(output) <= limit:
+    if len(quote_markdown(output)) <= limit:
         return output
     return _compact_retrieval_result(result, bodies, limit)
 
@@ -503,7 +505,7 @@ def _compact_retrieval_result(result, bodies: dict[int, str | None], limit: int)
     def notice(omitted: int) -> str:
         return (
             f"**Compact response — complete text limited to {QUERY_RESPONSE_MAX_CHARS:,} "
-            "characters including the governance reminder.** Scores, match reasons and "
+            "characters including framing and the governance reminder.** Scores, match reasons and "
             "reference summaries are omitted; long titles are marked as clipped. "
             "Bodies may be withheld or truncated. Fetch full principles, methods and "
             "references with `get_principle('<id>')` using the exact IDs below.\n\n"
@@ -511,17 +513,21 @@ def _compact_retrieval_result(result, bodies: dict[int, str | None], limit: int)
             "To discover entries absent here, narrow the query or specify a domain."
         )
 
-    # The all-omitted count has at least as many digits as any final count.
-    remaining = limit - len(header) - len(notice(len(entries))) - 2
+    # Measure each complete candidate, including its actual omission count/fence.
     order = sorted(range(len(entries)), key=lambda i: (-entries[i][0], -entries[i][1]))
     selected = {}
+
+    def render(blocks):
+        return "\n\n".join(
+            [header, notice(len(entries) - len(blocks))]
+            + [blocks[i] for i in sorted(blocks)]
+        )
+
     for i in order:
         _, _, heading, brief, _ = entries[i]
         block = heading + ("\n\n" + brief if brief else "")
-        cost = len(block) + 2
-        if cost <= remaining:
+        if len(quote_markdown(render({**selected, i: block}))) <= limit:
             selected[i] = block
-            remaining -= cost
 
     # Upgrade only whole already-allocated bodies; never cut the final markdown.
     for i in order:
@@ -529,14 +535,9 @@ def _compact_retrieval_result(result, bodies: dict[int, str | None], limit: int)
             continue
         _, _, heading, _, body = entries[i]
         block = heading + ("\n\n" + body if body else "")
-        extra = len(block) - len(selected[i])
-        if extra <= remaining:
+        if len(quote_markdown(render({**selected, i: block}))) <= limit:
             selected[i] = block
-            remaining -= extra
-    return "\n\n".join(
-        [header, notice(len(entries) - len(selected))]
-        + [selected[i] for i in sorted(selected)]
-    )
+    return render(selected)
 
 
 async def _handle_get_principle(
@@ -793,6 +794,7 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
     }
 
     output = {
+        "runtime_identity": get_runtime_identity(),
         "total_queries": metrics.total_queries,
         "avg_retrieval_time_ms": round(metrics.avg_retrieval_time_ms, 2),
         "s_series_trigger_count": metrics.s_series_trigger_count,

@@ -68,8 +68,7 @@ private-reference-library/
 .claude/projects/
 .claude/scheduled_tasks.lock
 # In-repo git worktrees (session-transient) — keep the parent repo's git status clean.
-# CE-index exclusion is handled by the indexer's DEFAULT_IGNORE_PATTERNS: this .gitignore
-# is NOT consulted for indexing when a .contextignore exists (indexer.py:load_ignore_patterns).
+# Context Engine merges these rules with its defaults and then .contextignore.
 .claude/worktrees/
 .pytest-home/
 

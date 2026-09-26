@@ -1,0 +1,5 @@
+interface:
+  display_name: "Content Enhancer"
+  short_description: "Improve documents or synthesize attributed source material"
+policy:
+  allow_implicit_invocation: false

@@ -137,8 +137,13 @@ Use when work is complete on a non-trunk branch and you can merge directly.
 **Force-push trap:** Do not force-push either branch. `integrate.sh` merges the live default into the topic and publishes only a fast-forward refspec after the internal full check passes on exact `HEAD` and the live default stays unchanged.
 
 **Local-hook boundary:** Supported publication uses the helper's one-ref pushes.
-`--no-verify` and a multi-ref push can bypass the client hook because pre-commit
-evaluates only the first non-deletion ref; neither is server-side protection.
+`--no-verify` can bypass client hooks. Legacy pre-commit installations expose only
+the first eligible ref. Repositories with the explicit raw wrapper check every
+tuple for its obligations; delegated checks retain pre-commit's limitation.
+Neither installation is server-side protection. Where `scripts/pre_push.py` is
+present, coordinate explicit shared-hook activation and retain accepted exact-scope
+review records before publication; see `docs/publication-evidence.md` in that repo.
+The helper verifies installation and reviews before running the full check.
 
 ### Option D — KEEP OPEN (durable checkpoint or handoff)
 

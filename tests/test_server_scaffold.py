@@ -4,6 +4,7 @@ Extracted from test_server.py as part of server.py decomposition (Phase 3, Task 
 """
 
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -24,6 +25,104 @@ class TestScaffoldProject:
         _state._cached_roots_path = None
         yield
         _state._cached_roots_path = None
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("project_type", ["code", "document"])
+    @pytest.mark.parametrize("kit_tier", ["core", "standard", "saas-ops"])
+    async def test_rendered_files_explain_their_own_use(
+        self, tmp_path, monkeypatch, project_type, kit_tier
+    ):
+        """Detached-file regression: all emitted roles need usable instructions.
+
+        Check real handler output, including reference/loader/procedure files
+        omitted by the older memory-only header guard. These are bounded content
+        checks, not proof an AI understands or complies with the prose.
+        """
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_path": str(tmp_path),
+                "project_name": "Independent reader",
+                "project_type": project_type,
+                "kit_tier": kit_tier,
+                "confirmed": True,
+            }
+        )
+        response = json.loads(result[0].text)
+        assert response["status"] == "scaffolded"
+        paths = list(tmp_path.rglob("*.md"))
+        assert len(paths) == len(response["files_created"])
+        for path in paths:
+            text = path.read_text()
+            header = "\n".join(text.splitlines()[:40])
+            assert "Independent reader" in header, path
+            for role in ("Purpose", "Keep", "Routing", "Lifecycle"):
+                assert re.search(
+                    rf"^\*\*[^\n*]*{role}[^\n*]*:\*\*", header, re.I | re.M
+                ), path
+            assert re.search(r"read|consult", header, re.I), path
+            assert "{project_name}" not in text and "{date}" not in text
+        assert not (tmp_path / "_project-context").exists()
+        if project_type == "code":
+            # Code folders may also lack Git. A template must not implicitly
+            # authorize repository creation or publication to satisfy its steps.
+            agents = (tmp_path / "AGENTS.md").read_text()
+            assert "For a project without Git" in agents
+            assert "applies to Git projects only" in agents
+            if kit_tier != "core":
+                procedure = (
+                    tmp_path / ".claude/skills/completion-sequence-aigov/checklist.md"
+                ).read_text()
+                assert "For a project without Git" in procedure
+                assert "save dated evidence" in procedure
+                assert "apply to Git projects only" in procedure
+
+    @pytest.mark.asyncio
+    async def test_nongit_core_preserves_missing_destination_and_source_boundaries(
+        self, tmp_path, monkeypatch
+    ):
+        """A core document kit cannot assume Git or optional routing destinations.
+
+        Preserve essential information until a real home exists, without creating
+        optional files or inventing authoritative source documents.
+        """
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        await _handle_scaffold_project(
+            {
+                "project_path": str(tmp_path),
+                "project_type": "document",
+                "kit_tier": "core",
+                "confirmed": True,
+            }
+        )
+        context = tmp_path / "_ai-context"
+        assert not (tmp_path / ".git").exists()
+        for name in ("BACKLOG.md", "OPERATIONS.md"):
+            assert not (context / name).exists()
+        state = (context / "SESSION-STATE.md").read_text()
+        memory = (context / "PROJECT-MEMORY.md").read_text()
+        lessons = (context / "LEARNING-LOG.md").read_text()
+        assert "commit message" not in state
+        for text in (state, memory, lessons):
+            assert re.search(r"pending[- ]routing", text)
+        assert "project instructions" in state and "current constraints" in state
+        assert "## Source Documents" in memory
+        assert "Register only existing authoritative documents" in memory
+        assert "relative to this file" in memory
+        assert "second record" in memory
+        assert "evidence archive alone is not a replacement" in lessons
+
+        # Upgrading/rerunning scaffold must not replace the user's real records.
+        custom = memory + "\n## Accepted decision\nPreserve this rationale.\n"
+        (context / "PROJECT-MEMORY.md").write_text(custom)
+        await _handle_scaffold_project(
+            {"project_type": "document", "kit_tier": "core", "confirmed": True}
+        )
+        assert (context / "PROJECT-MEMORY.md").read_text() == custom
 
     @pytest.mark.asyncio
     async def test_preview_code_core(self, tmp_path, monkeypatch):
@@ -135,9 +234,9 @@ class TestScaffoldProject:
 
     @pytest.mark.asyncio
     async def test_preview_code_saas_ops(self, tmp_path, monkeypatch):
-        """Preview for code/saas-ops should return an 11-file manifest.
+        """Preview for code/saas-ops should return a 12-file manifest.
 
-        saas-ops tier = 6 core + 4 standard extras + 1 SaaS-ops SOP stub
+        saas-ops tier = 6 core + 5 standard extras + 1 SaaS-ops SOP stub
         (SAAS-OPS-SOP.md). BACKLOG #71 Phase C2. The SOP is a SEPARATE kit key
         (SCAFFOLD_SAAS_OPS_EXTRAS), never folded into standard (parity invariant).
         """
@@ -193,13 +292,25 @@ class TestScaffoldProject:
         assert "breach" in content.lower()
         # the SOP must NOT hard-code §-anchors (post-ship dangling-pointer risk)
         assert "§1.1" not in content
+        assert "NOT READY" in content
+        assert "Evidence register" in content
+        assert "invalidated" in content
+        assert "Offline emergency card" in content
+        assert "Platform Selection and Costed Capabilities" in content
+        assert "SAAS-OPS-SOP.md" in (tmp_path / "AGENTS.md").read_text()
+        # Re-running scaffold must preserve filled-in app evidence.
+        sop.write_text("Owner-reviewed service evidence\n")
+        await _handle_scaffold_project(
+            {"project_type": "code", "kit_tier": "saas-ops", "confirmed": True}
+        )
+        assert sop.read_text() == "Owner-reviewed service evidence\n"
 
     @pytest.mark.asyncio
     async def test_saas_ops_document_equals_document_standard(
         self, tmp_path, monkeypatch
     ):
         """The SOP stays code-only: document + saas-ops folds in the document
-        STANDARD extras (BACKLOG.md) but never the SOP — 5 files, not 4
+        STANDARD extras (BACKLOG.md and OPERATIONS.md) but never the SOP — 6 files
         (document standard gained BACKLOG.md in session-243)."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
@@ -680,6 +791,11 @@ class TestScaffoldProjectPath:
             f"SOP stub missing from show_manual saas-ops output: {paths}"
         )
         assert len(response["files"]) == 12
+        files = {f["path"]: f["content"] for f in response["files"]}
+        assert "NOT READY" in files["SAAS-OPS-SOP.md"]
+        assert "Offline emergency card" in files["SAAS-OPS-SOP.md"]
+        assert "SAAS-OPS-SOP.md" in files["AGENTS.md"]
+        assert not (tmp_path / "SAAS-OPS-SOP.md").exists()
 
     @pytest.mark.asyncio
     async def test_scaffold_show_manual_works_without_valid_path(self, monkeypatch):

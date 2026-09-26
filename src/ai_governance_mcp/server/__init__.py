@@ -7,6 +7,9 @@ handler logic in handlers/; state, logging, security, constants in their
 respective _ modules.
 """
 
+# Capture source identity before importing retrieval state or handlers.
+from . import _runtime_identity as _runtime_identity
+
 # -- Submodules importable as package attributes (e.g. server._state) --------
 from . import _state as _state  # noqa: F401 — tests access server._state
 from . import _security as _security  # noqa: F401 — tests access server._security

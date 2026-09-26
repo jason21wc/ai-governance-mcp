@@ -157,6 +157,8 @@ def test_unavailable_service_never_imports_model(monkeypatch, socket_value, cons
 
     monkeypatch.setattr(builtins, "__import__", guarded_import)
     if consumer == "indexer":
+        # Empty socket configuration discovers the host daemon; simulate outage.
+        monkeypatch.setattr(ipc.EmbeddingClient, "available", Mock(return_value=False))
         engine = Indexer(storage=Mock())
         attr = "embedding_model"
     else:
@@ -176,6 +178,8 @@ def test_explicit_standalone_opt_in(monkeypatch):
 
 
 def make_server(monkeypatch, tmp_path, encode=None):
+    # Production resolves socket paths; the fixture root must use the same spelling.
+    tmp_path = tmp_path.resolve()
     monkeypatch.setattr(ipc, "CONTAINMENT_ROOT", tmp_path)
     return ipc.EmbeddingServer(encode or Mock(), socket_path=tmp_path / "test.sock")
 
@@ -308,7 +312,8 @@ time.sleep(30)
         child.stdout.close()
 
 
-def test_connection_cap_recovers_after_slot_is_released(monkeypatch):
+@pytest.mark.parametrize("use_alias", [False, True])
+def test_connection_cap_recovers_after_slot_is_released(monkeypatch, use_alias):
     import socket
     import tempfile
     from pathlib import Path
@@ -316,6 +321,10 @@ def test_connection_cap_recovers_after_slot_is_released(monkeypatch):
     monkeypatch.setattr(ipc, "MAX_CONNECTIONS", 2)
     with tempfile.TemporaryDirectory(prefix="oom-ipc-") as directory:
         root = Path(directory)
+        if use_alias:
+            alias = root / "alias"
+            alias.symlink_to(root, target_is_directory=True)
+            root = alias
         server = make_server(monkeypatch, root)
         sockets = []
 

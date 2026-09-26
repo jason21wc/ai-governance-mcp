@@ -1,6 +1,6 @@
 # Content Enhancer — Procedure
 
-Transform raw content into enhanced reference documents that are easier to use than the informal original, calibrated to the target audience.
+Enhancement mode: improve a primary source while preserving its author's meaning and voice. Use `synthesis.md` instead when the requested result combines attributed knowledge across sources. Multiple files alone do not change the mode.
 
 > **Trigger:** Invoke via `/content-enhancer`. Read this file and work through each step.
 >
@@ -23,12 +23,12 @@ Proceed if:
 - You can distinguish facts from opinions in the material
 - The domain is one where you can verify claims against known sources
 
-STOP and escalate if:
+Stop the affected transformation if meaning cannot be preserved without resolving these gaps:
 - The content is in a domain where errors are dangerous (medical procedures, legal advice, safety-critical operations) AND you cannot verify claims against authoritative sources
 - The content is heavily dependent on proprietary knowledge you do not have
 - The source material is so fragmentary that enhancement would require more invention than organization
 
-When stopping: tell the user what specific gap prevents enhancement, and what additional context would unblock it.
+An already-authorized structure-only edit can continue with attributed source claims and explicit gaps; this does not verify those claims or permit high-risk gap-filling. Ask only when the requested transformation actually depends on missing knowledge or authority. Explain the specific missing evidence and continue independent sections.
 
 ### 1.2 Audience identification
 
@@ -53,53 +53,13 @@ If the user does not specify, infer from the content itself. State your inferenc
 
 If unstated, default to **desktop reference** and note the assumption.
 
-### 1.4 Visual content assessment
+### 1.4 Source and visual handling
 
-**Does the source contain images, charts, screenshots, or diagrams?**
-
-Scan the source material for visual elements: embedded images, referenced figures, inline screenshots, charts, or diagrams. Classify the visual situation:
-
-Identify the source type and its **strategy** (SKILL.md Step 3 has the mechanics and escalation branches for each):
-
-| Situation | Action |
-|-----------|--------|
-| Source is a file with embedded images (PDF, DOCX) | **Extract** per SKILL.md Step 3, then process per Steps 2.5, 3.5, 4.4, 5.4 |
-| Source has inline/referenced images (HTML, Markdown) | **Copy/download** per SKILL.md Step 3, then process per Steps 2.5, 3.5, 4.4, 5.4 |
-| Native-rendered deck (PPTX with shapes/charts, empty `ppt/media/`) | **Render** with an explicitly selected supported background engine per `background-office.md`; use user PDF export only if none works |
-| Legacy binary (`.doc`, `.ppt`) | **Convert first** with `textutil` where supported or with a `RUNNABLE` LibreOffice; otherwise escalate, then re-assess the converted file |
-| Tabular source (XLSX / spreadsheet) | **Tabularize** → Markdown tables, not image extraction (SKILL.md Step 3); applies to §4.4 as tables, not §3.5 alt-text |
-| Multi-file folder | **Orchestrate**: md5-dedup, global figure numbering, content-driven selection (SKILL.md Step 3) |
-| Visual gap with no provided-source image (a concept/data the source never illustrates) | **Fill per the Gap-Filling Protocol visual lane**: re-express data as a Markdown table/prose, or link+describe an external source. Never embed or synthesize a third-party image. |
-| Source references images you cannot access | Mark with `[Visual content referenced but not available: description]` and proceed with text |
-| Unknown / encrypted / corrupt source | **Escalate** (SKILL.md Step 3 terminal branches); skip the file, continue with the rest |
-| Source is text-only | Skip visual subsections (2.5, 3.5, 4.4, 5.4) — they do not apply |
-
-**Modern background conversion/recalculation.** Follow `background-office.md` to
-resolve the host runtime, run the bounded explicit-engine helper, and validate
-the saved artifact. The actual conversion is the capability test; a separate
-CSV probe is not required. A failing system engine does not establish that a
-supported bundled engine will fail. Manual export is not unattended completion.
-
-**Legacy LibreOffice capability gate.** This PATH-based probe applies only when
-legacy conversion selects the system LibreOffice engine; pure-Python inspection of an existing
-PDF, DOCX, or XLSX must not launch it:
-
-```bash
-CE=~/.claude/skills/content-enhancer
-[ -f "$CE/probe_libreoffice.py" ] || CE=~/.codex/skills/content-enhancer
-python3 "$CE/probe_libreoffice.py" --timeout 30
-```
-
-The probe performs one PDF conversion with a disposable user profile and output
-directory, asserts a non-empty PDF, and prints a diagnostic. Exit `0` /
-`RUNNABLE` permits the strategy. Exit `1` / `ABSENT` means install LibreOffice
-or ask for a modern/PDF export. Exit `2` / `INSTALLED_BUT_BLOCKED` means the
-binary exists but cannot complete the operation in this execution context; ask
-for the export or use a separately authorized executor that can run it. A
-nonzero exit, timeout, or success-without-output is blocked. Never silently
-substitute a lower-fidelity renderer.
-
-If the source has visual content and the output format cannot support images (e.g., plain text requested), tell the user: "The source includes visual content that would be lost in plain text format. Proceed with text-only, or use a format that supports images?"
+For files, URLs, visuals or durable bundles, read [source-handling.md](source-handling.md).
+It owns extraction, rendering, source locators, coverage and omission accounting.
+A short pasted-text edit needs none of that machinery. For a source with essential
+inaccessible visuals, disclose the limitation and complete independent sections;
+do not claim text-only extraction is complete visual review.
 
 ---
 
@@ -116,11 +76,11 @@ Identify the content type. This determines which cleaning and restructuring oper
 | **Lecture / presentation notes** | Fragmentary, assumes shared context, may reference slides | Expand fragments into complete thoughts, supply missing context |
 | **Informal post** | Casual tone, incomplete reasoning, valuable insights buried in noise | Extract signal from noise, preserve the insight while adding rigor |
 
-### 2.2 Separate core facts from presentation
+### 2.2 Separate source claims from presentation
 
 For every claim or piece of information in the source, classify it:
 
-**Core facts** (preserve verbatim or near-verbatim):
+**Source claims** (preserve meaning and attribution; accuracy is a separate check):
 - Definitions, technical terms, named concepts
 - Specific numbers, measurements, dates, proper nouns
 - Causal claims the author makes ("X causes Y")
@@ -131,11 +91,11 @@ For every claim or piece of information in the source, classify it:
 **Presentation** (enhance freely):
 - How information is ordered and grouped
 - Transitional language between ideas
-- Examples and illustrations (can be improved or supplemented)
+- Examples and illustrations (organize them; preserve the author's own examples per §3.4)
 - Formatting, headings, visual hierarchy
 - Repetition used for emphasis in speech (collapse in text)
 
-**The boundary rule:** If changing it would make the author say "that's not what I said," it is a core fact. If the author would say "sure, that's a better way to present it," it is presentation.
+**The boundary rule:** If changing it would make the author say "that's not what I said," it is a source claim. If the author would say "sure, that's a better way to present it," it is presentation.
 
 ### 2.3 Voice fingerprinting
 
@@ -147,7 +107,7 @@ Before enhancing, identify the source author's voice characteristics:
 - **Reasoning style:** Evidence-to-conclusion or conclusion-then-support? Analogies? First principles?
 - **Tone:** Authoritative, conversational, cautionary, enthusiastic, clinical
 
-Write 2-3 sentences summarizing the voice. This is your constraint for Step 3.
+Keep a brief working note of the voice as a constraint for Step 3; do not add it to the deliverable unless it helps the user.
 
 ### 2.4 Structural analysis
 
@@ -165,7 +125,7 @@ If visual content was identified in Step 1.4, catalog each visual element:
 - **What it means** — its purpose in the source (illustrates a concept, shows data, demonstrates a step)
 - **Where it belongs** — which section or claim it supports (maps to structural analysis from 2.4)
 - **Current state** — does it have alt text? A caption? Adequate resolution? Metadata?
-- **Extraction status** — has the image been extracted to the output directory? File path if yes, reason if no.
+- **Disposition** — included, redundant, out of scope, or unavailable/failed, with locator and reason per source-handling.md.
 
 This inventory drives placement decisions in Step 4.4 and verification in Step 5.4. *(Cross-ref: mrag R1 Image-Text Collocation, R2 Descriptive Context)*
 
@@ -245,13 +205,13 @@ During all enhancement work, apply these guards:
 
 ### 3.5 Visual content enhancement
 
-Images should already be extracted to `enhanced/{slug}/` per SKILL.md Step 3. Enhance the supporting text — not the image itself:
+Source visuals should be preserved using the extraction or faithful rendering path in source-handling.md. Enhance the supporting text — not the image itself:
 
 - **Alt text:** If missing, write concise alt text (~125 characters) describing the image's purpose, not its appearance. Mark AI-generated alt text: `[Alt text (AI-generated, verify): description]`. *(Cross-ref: mrag P5 Accessibility Compliance)*
 - **Context description:** If the image lacks a caption or surrounding explanation, add one per the Gap-Filling Protocol. Mark it with `[Editor's note: ...]` as with any gap-fill. *(Cross-ref: mrag R2 Descriptive Context)*
 - **Retrieval metadata:** If the enhanced document will enter a RAG system, note relevant tags (concept, step, use case) in a comment or metadata block adjacent to each image. *(Cross-ref: mrag R3 Retrieval Metadata)*
 
-**Do not:** generate, recreate, redraw, or alter any **provided source image** (its pixels). Re-expressing the underlying **data** as a Markdown **table or prose** is a separate, allowed operation governed by the Gap-Filling Protocol's visual lane (§2.2 facts, not pixels); synthesizing or redrawing a **chart image** stays prohibited unless the user explicitly requests it. Do not replace an image with a text description unless the image is genuinely inaccessible. Do not add decorative images.
+**Do not:** generate, recreate, redraw, or alter the meaning of a **provided source image**. Faithful page/region rendering under source-handling.md is preservation, not chart synthesis. Re-expressing the underlying **data** as a Markdown **table or prose** is a separate, allowed operation governed by the Gap-Filling Protocol's visual lane (§2.2 meaning versus presentation); synthesizing or redrawing a **chart image** stays prohibited unless the user explicitly requests it. Do not replace an image with a text description unless the image is genuinely inaccessible. Do not add decorative images.
 
 ---
 
@@ -316,10 +276,10 @@ Do NOT use: blog posts, social media, forums, or AI-generated content as authori
 
 A visual gap (a concept or data that needs a figure the source lacks) is filled under the same gate as a textual gap (real + impairs audience + not high-risk), and **only when no provided-source image already covers it**. Two lanes — never embed or synthesize a third-party image:
 
-1. **Re-express → table or prose (preferred, for information/data).** When the gap's value is the underlying *facts* (not copyrightable, per §2.2): rebuild a clean **Markdown table**, or describe it in prose. This is a §2.2 presentation operation on facts, not a generated image. **Do not synthesize or redraw a chart image** — that reads as fabrication in a voice-preserving document and reopens the §3.5 prohibition; a redrawn/synthesized chart is an explicit user opt-in, not an agent-authorized default. Mark the table as a gap-fill (`[Editor's note: …]`) with its data source cited per the contract above, and verify it **against the source data** (Step 5.4).
+1. **Re-express → table or prose (preferred, for information/data).** When the gap's value is the underlying information: rebuild a clean **Markdown table**, or describe it in prose. This is a §2.2 presentation operation on facts, not a generated image. **Do not synthesize or redraw a chart image** — that reads as fabrication in a voice-preserving document and reopens the §3.5 prohibition; a redrawn/synthesized chart is an explicit user opt-in, not an agent-authorized default. Mark the table as a gap-fill (`[Editor's note: …]`) with its data source cited per the contract above, and verify it **against the source data** (Step 5.4).
 2. **Link + describe (when the specific image *is* the information).** A screenshot, or a specific drawing that cannot be faithfully tabularized: describe it and cite/link the source URL, marked `[Visual content referenced but not available: <description>]`. Pixels never enter the document.
 
-Excluded outright: photos of artwork or people, and any image whose license is unknown — link only, never include. Copyright protects the *image*, not the facts inside it; internal-use docs err on excluding anything not known to be freely distributable. *(Cross-ref: mrag P3 three-test gates whether the visual is worth referencing at all; CT1/CT2 govern source attribution.)*
+Excluded outright: photos of artwork or people, and any image whose license is unknown — link only, never include. Re-expression does not itself establish permission to reproduce or distribute source material; retain attribution and check the intended use. Internal-use docs err on excluding external images not known to be freely distributable. *(Cross-ref: mrag P3 three-test gates whether the visual is worth referencing at all; CT1/CT2 govern source attribution.)*
 
 ---
 
@@ -339,7 +299,7 @@ Every enhanced document includes:
 - Organized by topic, not by source order (unless source order IS the logical order)
 - Each section has a descriptive heading
 - Each section is self-contained — a reader arriving via search should understand it without reading prior sections
-- Core facts are present and unaltered
+- Source claims are represented faithfully; unverified or disputed assertions remain attributed
 - AI-added content is marked per Gap-Filling Protocol
 
 **No boilerplate.** Do not include:
@@ -377,7 +337,7 @@ Format follows use context:
 
 If visual content was identified in Step 1.4, place each preserved visual element. Reference extracted images using relative Markdown syntax: `![Revenue comparison](fig-01-revenue-comparison.png)`
 
-> **Re-expressed tables are not extracted images.** A table from the Gap-Filling visual lane is placed inline as Markdown and marked `[Editor's note: …]`; it has no `fig-*` file and is **not** subject to the §5.4 file-presence check. The `![](fig-*)` syntax and that check apply only to images extracted from a provided source.
+> **Re-expressed tables are not extracted images.** A table from the Gap-Filling visual lane is placed inline as Markdown and marked `[Editor's note: …]`; it has no `fig-*` file and is **not** subject to the §5.4 file-presence check. The `![](fig-*)` syntax and that check apply to visuals extracted or faithfully rendered from a provided source.
 
 1. **Position at the point of relevance.** The image appears immediately after the text it supports — not in an appendix, not clustered in a gallery. Use the inventory (Step 2.5) for placement mapping. *(Cross-ref: mrag P1 Inline Image Integration, R1 Image-Text Collocation)*
 2. **Apply the three-test filter.** Before including each image, confirm: (a) it directly supports the surrounding text (Coherence), (b) it adds information the text alone does not convey (Unique Value), (c) it can be placed adjacent to the text it supports (Proximity). Drop images that fail any test. *(Cross-ref: mrag P3 Image Selection Criteria)*
@@ -393,12 +353,12 @@ Checks before delivering. All must pass (§5.1–§5.5).
 
 ### 5.1 Factual fidelity
 
-Re-read the source material. For every core fact identified in Step 2.2:
+Re-read the source material. For every consequential source claim identified in Step 2.2:
 - Is it present in the output?
 - Is it stated accurately (same meaning as the original)?
-- Has any core fact been altered, softened, or reframed?
+- Has any consequential source claim been altered, softened, or reframed?
 
-If any core fact was dropped or altered: fix it before delivering.
+If a consequential claim was dropped or its meaning changed: fix it or explain the user-requested omission. Faithfulness does not establish that the author's claim is true.
 
 ### 5.2 Voice check
 
@@ -425,7 +385,7 @@ If the enhanced document is not clearly better: identify what is wrong and fix i
 
 If the source contained visual elements (Step 1.4):
 
-- **Presence check:** Every visual element from the inventory (Step 2.5) is either included in the output or explicitly noted as unavailable. No silent drops.
+- **Presence check:** Every visual element in the declared review scope has an included, redundant, out-of-scope or unavailable/failed disposition with a locator and reason. Intentional exclusions under §4.4 are not missing-file failures. No silent drops.
 - **Position check:** Each image appears adjacent to the text it supports, not displaced to an appendix or unrelated section. *(Cross-ref: mrag P1, R1)*
 - **Cross-modal consistency:** Text descriptions of images match what the images actually show. If the text says "the chart shows a downward trend" — verify the chart shows a downward trend. *(Cross-ref: mrag V1 Cross-Modal Consistency Verification)*
 - **Re-expressed-table fidelity:** A table rebuilt from data (Gap-Filling visual lane) is verified **against the source data** — every value traces to the source, not merely to the table's own caption. *(Cross-ref: mrag V1)*
@@ -441,13 +401,15 @@ If any gap was filled (Step 3.3):
 - **Researched fills carry their source:** every externally-researched fill has its source inline in the editor's note — `[Editor's note: … — [Source: <name>, <URL>]]`.
 - **From-memory fills are marked:** every fill from model knowledge carries `— from general domain knowledge, not externally verified`.
 
-This is a presence/format self-check (a skill runs no enforcement hook mid-task): an editor's note that states a fact with neither a source nor the from-memory marker fails it. Add the source or the marker before delivering.
+Also verify that each cited passage actually supports its associated addition, including qualifications, and that consequential additions have evidence or an explicit unverified label. Presence/format alone is not factual verification.
+
+For the presence/format portion (a skill runs no enforcement hook mid-task): an editor's note that states a fact with neither a source nor the from-memory marker fails it. Add the source or the marker before delivering.
 
 ---
 
 ## Human Escalation Rules
 
-Stop and ask the user in these situations:
+First check the user's request and existing authorization. Resolve routine choices from that context and continue independent work. Ask only when these situations leave a material question or missing authority unresolved:
 
 1. **Content is high-risk and you cannot verify claims.** "This content includes [medical/legal/safety/financial] claims I cannot independently verify. I can restructure and clean the presentation, but I should not fill gaps or modify factual claims in this domain. Proceed with structure-only enhancement?"
 

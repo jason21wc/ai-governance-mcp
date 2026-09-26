@@ -62,6 +62,7 @@ class FileWatcher:
         debounce_seconds: float = DEFAULT_DEBOUNCE_SECONDS,
         cooldown_seconds: float = DEFAULT_COOLDOWN_SECONDS,
         ownership_path: Path | None = None,
+        ignore_loader: Callable[[], pathspec.GitIgnoreSpec] | None = None,
     ) -> None:
         """Initialize the file watcher.
 
@@ -71,10 +72,12 @@ class FileWatcher:
             ignore_spec: Compiled gitignore-style spec for files to ignore.
             debounce_seconds: Minimum delay between change events and callback.
             cooldown_seconds: Minimum gap between completed re-indexes.
+            ignore_loader: Reload root ignore policy when either control file changes.
         """
         self.project_path = project_path
         self.on_change = on_change
         self.ignore_spec = ignore_spec
+        self.ignore_loader = ignore_loader
         self.debounce_seconds = debounce_seconds
         self.cooldown_seconds = cooldown_seconds
         self.ownership_path = ownership_path
@@ -110,10 +113,19 @@ class FileWatcher:
                 self._watcher = watcher
 
             def on_any_event(self, event):
-                if event.is_directory:
+                # Reading policy must not recursively schedule more reads on
+                # platforms that report opened/closed-without-write events.
+                if event.is_directory or event.event_type not in {
+                    "created",
+                    "modified",
+                    "deleted",
+                    "moved",
+                }:
                     return
-                if hasattr(event, "src_path"):
-                    self._watcher._file_changed(Path(event.src_path))
+                for name in ("src_path", "dest_path"):
+                    path = getattr(event, name, None)
+                    if path:
+                        self._watcher._file_changed(Path(path))
 
         if not self._acquire_ownership():
             return
@@ -212,7 +224,24 @@ class FileWatcher:
         except ValueError:
             return
 
-        if self.ignore_spec is not None and self.ignore_spec.match_file(str(relative)):
+        policy_changed = relative.as_posix() in {".gitignore", ".contextignore"}
+        if policy_changed and self.ignore_loader is not None:
+            try:
+                self.ignore_spec = self.ignore_loader()
+            except Exception:
+                # The indexer validates policy again before indexing. Until it
+                # succeeds, retain all event hints so newly included files cannot
+                # lose edits behind a stale event filter. No content is read here.
+                self.ignore_spec = None
+                logger.exception(
+                    "Cannot reload ignore policy; scheduling reconciliation"
+                )
+
+        if (
+            not policy_changed
+            and self.ignore_spec is not None
+            and self.ignore_spec.match_file(str(relative))
+        ):
             return
 
         changes_to_flush = None

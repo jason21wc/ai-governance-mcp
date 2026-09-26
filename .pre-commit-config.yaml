@@ -113,11 +113,11 @@ repos:
         # GitHub Free cannot protect a private repository's default branch. This
         # host-neutral local guard therefore rejects direct pushes from Claude,
         # Codex, or an ordinary shell. integrate.sh supplies an exact-HEAD token
-        # only after the PR checks pass and the live default is unchanged.
-        # Honest boundary: `--no-verify` and a multi-ref push (pre-commit exposes
-        # only its first non-deletion ref) can bypass a client hook. Supported
-        # publication uses integrate.sh's one-ref pushes; this prevents ordinary
-        # accidents, not a hostile operator with repository access.
+        # only after the internal full check passes and the live default is unchanged.
+        # The explicit raw wrapper additionally checks every tuple before this
+        # delegate. This pre-commit check alone sees its first eligible ref only.
+        # Installation: docs/publication-evidence.md. --no-verify still bypasses
+        # client hooks; integrate.sh uses one-ref pushes. Cooperative protection.
         stages: [pre-push]
         entry: python3 scripts/check_default_branch_push.py
         language: system

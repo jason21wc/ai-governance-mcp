@@ -55,8 +55,8 @@ def get_domain_names() -> list[str]:
     The `index is not None` guard is load-bearing, not defensive noise:
     `RetrievalEngine._load_index` returns early leaving `index = None` when
     `index/global_index.json` is missing or unparseable, and `_app.call_tool`
-    calls `get_engine()` on every dispatch — so on a fresh checkout with no
-    built index the engine is non-None while its index is None. Without the
+    calls `get_engine()` on every non-metrics dispatch — so on a fresh checkout
+    with no built index the engine is non-None while its index is None. Without the
     guard this raises `AttributeError` on `None.domains` and takes every
     caller down with it, including `list_tools`.
     """

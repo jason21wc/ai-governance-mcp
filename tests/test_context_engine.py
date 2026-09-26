@@ -2521,7 +2521,7 @@ class TestWorktreeIgnorePattern:
 
     def test_worktrees_ignored_even_with_contextignore(self, tmp_path):
         """Defaults always apply, so worktrees are excluded even when a
-        .contextignore exists (which otherwise shadows .gitignore in load_ignore_patterns).
+        .contextignore exists (both root ignore files extend the defaults).
         Must NOT over-exclude the .claude/ content that IS indexed (skills, agents, hooks).
         """
         from ai_governance_mcp.context_engine.indexer import Indexer
@@ -3114,6 +3114,7 @@ class TestWatcherIgnoreSpecPassthrough:
                 project_path=project_path,
                 on_change=mock_fw.call_args[1]["on_change"],
                 ignore_spec=expected_spec,
+                ignore_loader=mock_fw.call_args[1]["ignore_loader"],
                 ownership_path=(
                     pm.storage.get_index_path(project_id).parent
                     / ".watcher-locks"
@@ -3121,6 +3122,7 @@ class TestWatcherIgnoreSpecPassthrough:
                 ),
             )
             mock_instance.start.assert_called_once()
+            assert mock_fw.call_args[1]["ignore_loader"]() is expected_spec
 
     def test_watcher_without_ignore_spec_fires_on_all(self, tmp_path):
         """Without ignore_spec, watcher should fire on all file types."""
@@ -3165,6 +3167,162 @@ class TestWatcherIgnoreSpecPassthrough:
         if watcher._debounce_timer:
             watcher._debounce_timer.cancel()
         assert py_file in watcher._pending_changes
+
+
+class TestWatcherIgnorePolicyChanges:
+    """Exercise real stored chunks through the watcher and manager callbacks."""
+
+    @pytest.mark.parametrize("control_name", [".gitignore", ".contextignore"])
+    @pytest.mark.parametrize("atomic", [False, True])
+    def test_reinclude_then_edit_and_exclude(
+        self, tmp_path, fake_sentence_transformers, control_name, atomic
+    ):
+        """A changed policy must also govern the next ordinary file edit.
+
+        Covers: FM-CONTEXT-IGNORE-LAYERING
+        """
+        from watchdog.events import FileDeletedEvent, FileModifiedEvent, FileMovedEvent
+
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        project = tmp_path / "project"
+        project.mkdir()
+        gitignore = project / ".gitignore"
+        gitignore.write_text(".*\n*.md\n")
+        control = project / control_name
+        if control_name == ".contextignore":
+            control.write_text("# initially inherit Git exclusions\n")
+        note = project / "notes.md"
+        note.write_text("# Evidence\nOriginal content\n")
+        (project / "main.py").write_text("answer = 42\n")
+        storage = FilesystemStorage(base_path=tmp_path / "storage")
+        pm = ProjectManager(storage=storage)
+        project_id = storage.project_id_from_path(project)
+
+        # Replace scheduling/OS delivery only; indexing, storage and callbacks
+        # remain real. Explicit flushes avoid timing-sensitive sleeps.
+        with (
+            patch("watchdog.observers.Observer") as observer,
+            patch("ai_governance_mcp.context_engine.watcher.threading.Timer"),
+        ):
+            pm.get_or_create_index(project, index_mode="realtime")
+            watcher = pm._watchers[project_id]
+            watcher.cooldown_seconds = 0
+            handler = observer.return_value.schedule.call_args.args[0]
+
+            def contents():
+                return [
+                    chunk["content"]
+                    for chunk in storage.load_chunks(project_id)
+                    if Path(chunk["source_path"]).name == "notes.md"
+                ]
+
+            try:
+                watcher._flush_changes()
+                assert not contents()
+                included = "!notes.md\n" if control_name == ".contextignore" else ".*\n"
+                if atomic:
+                    temporary = project / ".policy.tmp"
+                    temporary.write_text(included)
+                    temporary.replace(control)
+                    # Both source and destination are otherwise ignored by .*.
+                    handler.on_any_event(FileMovedEvent(str(temporary), str(control)))
+                else:
+                    control.write_text(included)
+                    handler.on_any_event(FileModifiedEvent(str(control)))
+                watcher._flush_changes()
+                assert "Original content" in "".join(contents())
+
+                note.write_text("# Evidence\nLater ordinary edit\n")
+                handler.on_any_event(FileModifiedEvent(str(note)))
+                watcher._flush_changes()
+                assert "Later ordinary edit" in "".join(contents())
+                assert "Original content" not in "".join(contents())
+
+                if control_name == ".contextignore":
+                    control.unlink()  # Git's exclusion becomes authoritative again.
+                    handler.on_any_event(FileDeletedEvent(str(control)))
+                else:
+                    control.write_text(".*\n*.md\n")
+                    handler.on_any_event(FileModifiedEvent(str(control)))
+                watcher._flush_changes()
+                assert not contents()
+
+                if control_name == ".gitignore":
+                    control.unlink()
+                    handler.on_any_event(FileDeletedEvent(str(control)))
+                    watcher._flush_changes()
+                    assert "Later ordinary edit" in "".join(contents())
+            finally:
+                pm.shutdown()
+
+    def test_policy_creation_and_read_events(self, tmp_path):
+        """Hidden policy creation refreshes filtering; reads cannot loop.
+
+        Covers: FM-CONTEXT-IGNORE-LAYERING
+        """
+        import pathspec
+        from watchdog.events import FileCreatedEvent, FileOpenedEvent
+
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        loader = Mock(return_value=pathspec.GitIgnoreSpec.from_lines(["*.md"]))
+        watcher = FileWatcher(
+            tmp_path,
+            Mock(),
+            pathspec.GitIgnoreSpec.from_lines([".*"]),
+            ignore_loader=loader,
+        )
+        with (
+            patch("watchdog.observers.Observer") as observer,
+            patch("ai_governance_mcp.context_engine.watcher.threading.Timer"),
+        ):
+            watcher.start()
+            handler = observer.return_value.schedule.call_args.args[0]
+            try:
+                control = str(tmp_path / ".contextignore")
+                handler.on_any_event(FileOpenedEvent(control))
+                loader.assert_not_called()
+                assert not watcher._pending_changes
+                handler.on_any_event(FileCreatedEvent(control))
+                loader.assert_called_once()
+                assert Path(control) in watcher._pending_changes
+                watcher._file_changed(tmp_path / "notes.md")
+                assert tmp_path / "notes.md" not in watcher._pending_changes
+            finally:
+                watcher.stop()
+
+    def test_invalid_policy_preserves_event_hints_until_repaired(self, tmp_path):
+        """A loader error must not strand newly included files behind old filters.
+
+        Covers: FM-CONTEXT-IGNORE-LAYERING
+        """
+        import pathspec
+
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        loader = Mock(
+            side_effect=[
+                ValueError("invalid pattern"),
+                pathspec.GitIgnoreSpec.from_lines([]),
+            ]
+        )
+        watcher = FileWatcher(
+            tmp_path,
+            Mock(),
+            pathspec.GitIgnoreSpec.from_lines(["*.md"]),
+            ignore_loader=loader,
+        )
+        watcher._running.set()
+        with patch("ai_governance_mcp.context_engine.watcher.threading.Timer"):
+            try:
+                watcher._file_changed(tmp_path / ".contextignore")
+                watcher._file_changed(tmp_path / "notes.md")
+                assert tmp_path / "notes.md" in watcher._pending_changes
+                watcher._file_changed(tmp_path / ".contextignore")
+                assert watcher.ignore_spec is not None
+            finally:
+                watcher.stop()
 
 
 class TestWatcherCircuitBreaker:

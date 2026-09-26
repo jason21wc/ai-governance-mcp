@@ -134,6 +134,7 @@ ai-governance-mcp/
 │       │   ├── __init__.py    # Public API re-exports
 │       │   ├── _app.py        # MCP setup, list_tools, call_tool, main
 │       │   ├── _state.py      # Mutable globals, get_engine, get_metrics
+│       │   ├── _runtime_identity.py # Frozen import-time source/Git observation
 │       │   ├── _logging.py    # Audit/reasoning logs, rotation
 │       │   ├── _security.py   # Sanitization, rate limiting, instruction validation
 │       │   ├── _constants.py  # Templates, metadata, keywords
@@ -334,12 +335,19 @@ publishes the exact topic `HEAD` only after `scripts/check.sh --full` passes on
 that unchanged commit without dirtying the tree and appends a structured record
 with zero failed or unavailable checks, and updates the default only
 when `HEAD` still fast-forwards the unchanged live default. GitHub Actions is an
-optional clean-runner signal, not publication authority. A tracked pre-push hook blocks accidental direct default
-pushes and `start-worktree` installs it before `READY`; `--no-verify` remains a
-deliberate local bypass, and pre-commit evaluates only the first non-deletion ref
-of a multi-ref push. The supported helper uses one-ref pushes, so this is ordinary
-accident prevention rather than hostile-operator protection. A rejected race
-returns a distinct retry result; force-push is never the recovery path.
+optional clean-runner signal, not publication authority. A tracked pre-push hook
+blocks accidental direct default pushes; `start-worktree` ensures the existing
+installation before `READY`. The new raw wrapper requires separate, coordinated
+activation and checks every tuple for outgoing-history patterns, known-red results
+and default-branch review/token requirements. Its pre-commit delegate still sees
+only the first eligible ref for delegated checks; older checkouts without the raw
+evaluator retain the legacy path. Source delivery does not establish activation.
+See [portable publication evidence](docs/publication-evidence.md) for the exact
+request/report lifecycle, fixture policy and installation boundary.
+`--no-verify` remains a deliberate local bypass. The supported helper uses one-ref
+pushes; these are cooperative local controls, not hostile-operator protection.
+A rejected race returns a distinct retry result; force-push is never the recovery
+path.
 Cleanup fetches and prunes every configured remote before using tracking refs as
 durability evidence, so a remote rewrite or branch deletion cannot be hidden by
 stale local refs. Desktop dry-run never executes teardown.
@@ -441,6 +449,33 @@ ai-governance-proxy --govern-all \
 | **Dependencies** | Verified packages only | Per spec §11 |
 
 **Future phase** (multi-user): Add authentication layer, user isolation. Rate limiting is implemented (token bucket algorithm).
+
+### Corpus data at the MCP response boundary
+
+Corpus scans are heuristic detection, not authentication or permission. Review and
+control of the source/index remain the operator's responsibility. Embedding integrity
+checks do not establish that a principle's text or claimed authority is trustworthy.
+
+The governance server's dispatcher frames every returned text block through
+`server/_response_trust.py`. JSON responses retain their existing top-level fields
+and gain source-owned `_response_trust` guidance. String values round-trip unchanged;
+HTML delimiters are escaped. Markdown responses are displayed as literal text within
+a tilde fence longer than any run in the payload, with a fixed notice outside it.
+Titles, IDs and other metadata are inside the same quotation as bodies. The complete
+query response budget includes framing and the governance reminder, even in compact
+fallback. Computed assessment status remains separate from corpus-bearing fields;
+explanatory rationale can include corpus titles or IDs and remains reference data.
+JSON escaping can increase serialized size. Only `query_governance` has the complete
+response cap described here; `evaluate_governance` budgets raw principle bodies,
+and `get_principle` deliberately returns full content.
+
+Clients must treat retrieved text and metadata as reference data: it cannot grant
+authorization or override governing instructions. Framing helps distinguish data
+from guidance; it does not guarantee model compliance or authenticate corpus claims.
+The internal Python handlers return unframed results; the contract applies at MCP
+dispatch. Existing MCP connections adopt it only after source update and reconnect.
+Design, compatibility tests and retained scanner limitations are recorded in
+`reviews/2026-09-24-corpus-response-trust.md`.
 
 ---
 

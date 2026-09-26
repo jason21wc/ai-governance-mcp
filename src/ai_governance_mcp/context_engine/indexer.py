@@ -77,8 +77,8 @@ DEFAULT_IGNORE_PATTERNS = [
     "*.lock",
     # Claude Code in-repo git worktrees — nested checkouts that duplicate the
     # parent tree; without this every file is indexed once per live worktree.
-    # In DEFAULT_IGNORE_PATTERNS (not just .gitignore) so it always applies, even
-    # in a repo with a .contextignore (which otherwise shadows .gitignore here).
+    # In DEFAULT_IGNORE_PATTERNS so it applies without project ignore files;
+    # projects may still explicitly re-include content through user patterns.
     ".claude/worktrees/",
 ]
 
@@ -101,7 +101,7 @@ class Indexer:
     """Core indexing orchestrator.
 
     Manages the full indexing pipeline:
-    1. Discover files (respecting .contextignore)
+    1. Discover files (respecting .gitignore and .contextignore)
     2. Route files to appropriate connectors
     3. Parse files into content chunks
     4. Generate embeddings for semantic search
@@ -782,31 +782,30 @@ class Indexer:
         )
 
     def load_ignore_patterns(self, project_path: Path) -> pathspec.GitIgnoreSpec:
-        """Load ignore patterns from .contextignore/.gitignore + defaults.
+        """Load root ignore files over defaults, with security exclusions last.
 
         Returns a compiled GitIgnoreSpec for efficient matching.
-        Order: defaults → user patterns → security patterns (last, non-overridable).
+        Order: defaults → .gitignore → .contextignore → security patterns.
+        Later user patterns may negate earlier exclusions, except security rules.
+        Each unreadable or oversized file is skipped independently.
         """
         patterns = list(DEFAULT_IGNORE_PATTERNS)
 
-        contextignore = project_path / ".contextignore"
-        gitignore = project_path / ".gitignore"
-
-        source = contextignore if contextignore.exists() else gitignore
-        if source.exists():
+        for name in (".gitignore", ".contextignore"):
+            source = project_path / name
             try:
                 # Guard against oversized ignore files (1MB limit)
                 if source.stat().st_size > 1_048_576:
                     logger.warning(
-                        "Ignore file %s exceeds 1MB, using defaults only",
+                        "Ignore file %s exceeds 1MB, skipping this layer",
                         source.name,
                     )
                 else:
-                    for line in source.read_text().splitlines():
-                        line = line.strip()
-                        if line and not line.startswith("#"):
-                            patterns.append(line)
-            except OSError as e:
+                    # Let pathspec interpret comments, escapes and whitespace.
+                    patterns.extend(source.read_text(encoding="utf-8").splitlines())
+            except FileNotFoundError:
+                continue
+            except (OSError, UnicodeError) as e:
                 logger.warning("Failed to read %s: %s", source.name, e)
 
         # Security patterns last — user negation cannot re-include secrets

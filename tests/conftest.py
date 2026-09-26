@@ -1151,6 +1151,40 @@ def sample_error_response():
 # Implemented as a session hook rather than a test because a test cannot observe
 # the outcomes of the run that contains it.
 
+
+# Opt-in evidence gate for sweeps whose entire selection could legitimately skip.
+# A separate instance per pytest config prevents earlier in-process runs from
+# supplying evidence to a later run. No terminal output/JUnit parsing is needed.
+def pytest_addoption(parser):
+    parser.addoption(
+        "--require-passed-tests",
+        action="store_true",
+        default=False,
+        help="Fail an otherwise successful run unless at least one test call passes.",
+    )
+
+
+def pytest_configure(config):
+    if config.getoption("--require-passed-tests"):
+        config.pluginmanager.register(_PassedTestsGate(), "require-passed-tests")
+
+
+class _PassedTestsGate:
+    def __init__(self):
+        self.passed_calls = 0
+
+    def pytest_runtest_logreport(self, report):
+        if report.when == "call" and report.passed and not hasattr(report, "wasxfail"):
+            self.passed_calls += 1
+
+    def pytest_sessionfinish(self, session):
+        if self.passed_calls == 0 and session.exitstatus == pytest.ExitCode.OK:
+            print(
+                "\nNO PASSED TESTS — --require-passed-tests requires a genuine passing test call."
+            )
+            session.exitstatus = pytest.ExitCode.TESTS_FAILED
+
+
 _UNREGISTERED_SKIPS: list[tuple[str, str]] = []
 
 
@@ -1205,4 +1239,5 @@ def pytest_sessionfinish(session, exitstatus):
         "WHY it is correct. If it is not correct, you have found a defect that "
         "would otherwise have been invisible in a green run."
     )
-    session.exitstatus = 1
+    if session.exitstatus == pytest.ExitCode.OK:
+        session.exitstatus = pytest.ExitCode.TESTS_FAILED

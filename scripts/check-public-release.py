@@ -26,7 +26,10 @@ Three layers:
       define `_default_domains` — that function enumerates the private domains and
       is one git-revert away from re-leaking their descriptions, which the content
       denylist (string-based) cannot see. The de-domain transform deletes it; this
-      asserts the deletion held.
+      asserts the deletion held. JSON beneath src/ and documents/, and tiers.json
+      anywhere in the tree, must contain no private domain-prefixed strings or
+      domain_floors. Other test/benchmark JSON and Python examples are not runtime
+      configuration and are outside this structural check.
 
 Exit 0 = clean; 2 = violation(s) or error.
 """
@@ -34,6 +37,7 @@ Exit 0 = clean; 2 = violation(s) or error.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -43,6 +47,10 @@ from pathlib import Path
 ALLOWLIST_RELATIVE_PATH = "documents/.public-allowlist"
 CONFIG_RELATIVE_PATH = "src/ai_governance_mcp/config.py"
 DEFAULT_DOMAINS_MARKER = "def _default_domains"
+
+# Independent of the private transform: this script also runs alone in public CI.
+# TestPublicLeakGuardCoversEveryDomain checks BOTH patterns against the extractor.
+_DOMAIN_ID_RE = re.compile(r"^(coding|multi|uiux|acct|kmpd|stor|mrag|so|viscom)-")
 
 # Files excluded from the CONTENT scan because they legitimately name the
 # forbidden markers (the denylist, the allowlist, and this guard itself). Keyed on
@@ -247,19 +255,70 @@ def check_forbidden_content(
 
 
 def check_structural_invariant(root: Path) -> list[Violation]:
+    violations: list[Violation] = []
+    paths = walk_files(root)
     config = root / CONFIG_RELATIVE_PATH
-    if config.exists() and DEFAULT_DOMAINS_MARKER in config.read_text(
-        encoding="utf-8", errors="replace"
-    ):
-        return [
-            Violation(
-                "structural-invariant",
-                CONFIG_RELATIVE_PATH,
-                f"contains `{DEFAULT_DOMAINS_MARKER}` — de-domain transform must "
-                "remove it (it enumerates private domains)",
+    if config in paths and not config.is_symlink():
+        try:
+            text = config.read_text(encoding="utf-8")
+            if DEFAULT_DOMAINS_MARKER in text:
+                violations.append(
+                    Violation(
+                        "structural-invariant",
+                        CONFIG_RELATIVE_PATH,
+                        f"contains `{DEFAULT_DOMAINS_MARKER}` — de-domain transform must remove it",
+                    )
+                )
+        except (OSError, UnicodeError) as exc:
+            violations.append(
+                Violation(
+                    "structural-invariant",
+                    CONFIG_RELATIVE_PATH,
+                    f"cannot read configuration (fail-closed): {exc}",
+                )
             )
-        ]
-    return []
+
+    def contains_domain(node: object) -> bool:
+        if isinstance(node, str):
+            return node == "domain_floors" or bool(_DOMAIN_ID_RE.match(node))
+        return isinstance(node, list) and any(contains_domain(item) for item in node)
+
+    for path in paths:
+        # The path layer rejects links. Never dereference them to scan outside root.
+        if path.is_symlink():
+            continue
+        rel = path.relative_to(root)
+        if not (
+            path.name == "tiers.json"
+            or (path.suffix.lower() == ".json" and rel.parts[0] in {"src", "documents"})
+        ):
+            continue
+        try:
+            # Keep every object key/value, INCLUDING duplicate keys, and decode
+            # JSON escapes before checking. A last-key-wins dict could hide a leak.
+            data = json.loads(
+                path.read_text(encoding="utf-8"),
+                object_pairs_hook=lambda pairs: [
+                    item for pair in pairs for item in pair
+                ],
+            )
+            if contains_domain(data):
+                violations.append(
+                    Violation(
+                        "structural-invariant",
+                        rel.as_posix(),
+                        "contains private domain configuration — de-domain transform incomplete",
+                    )
+                )
+        except (OSError, ValueError, RecursionError) as exc:
+            violations.append(
+                Violation(
+                    "structural-invariant",
+                    rel.as_posix(),
+                    f"cannot inspect JSON configuration (fail-closed): {exc}",
+                )
+            )
+    return violations
 
 
 def find_violations(root: Path, forbidden_path: Path | None) -> list[Violation]:

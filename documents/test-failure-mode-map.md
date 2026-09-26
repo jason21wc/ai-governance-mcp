@@ -23,6 +23,17 @@
 
 - `tests/test_enforcement.py` → `TestSecurityHardening::test_from_config_rejects_security_critical_overrides`
 
+### `FM-CONTEXT-IGNORE-LAYERING`
+
+> A root .contextignore must extend .gitignore instead of discarding it. Context negations may restore ordinary files but never security exclusions. Each unreadable or oversized layer is independent. Watcher policy changes, including atomic replacements, must reconcile additions and removals and continue delivering subsequent edits under the new policy.
+
+- `tests/test_context_engine.py` → `TestWatcherIgnorePolicyChanges::test_invalid_policy_preserves_event_hints_until_repaired`
+- `tests/test_context_engine.py` → `TestWatcherIgnorePolicyChanges::test_policy_creation_and_read_events`
+- `tests/test_context_engine.py` → `TestWatcherIgnorePolicyChanges::test_reinclude_then_edit_and_exclude`
+- `tests/test_context_ignore_layers.py` → `test_discovery_combines_exclusions_and_explicit_reinclusions`
+- `tests/test_context_ignore_layers.py` → `test_failed_layer_keeps_other_exclusions`
+- `tests/test_context_ignore_layers.py` → `test_layer_order_and_gitignore_whitespace_are_preserved`
+
 ### `FM-EMBEDDING-LAZY-LOAD-SINGLE`
 
 > Embedding model must lazy-load once and be cached thereafter — double-load would cost memory + risk non-atomic init under threading.
@@ -435,6 +446,7 @@ _No annotated tests yet._
 
 > Observability tests must assert state changes / side effects, not just return values (a function can return success while failing to write its file).
 
+- `tests/test_dedomain_public.py` → `test_removes_private_publication_tests_from_public_stage`
 - `tests/test_extractor_integration.py` → `TestExtractAll::test_extract_all_saves_content_embeddings`
 - `tests/test_extractor_integration.py` → `TestExtractAll::test_extract_all_saves_index_file`
 - `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_deny_writes_audit_entry`

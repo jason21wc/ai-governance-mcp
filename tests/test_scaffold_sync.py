@@ -218,6 +218,7 @@ async def test_reports_template_changes_the_project_predates(tmp_path, monkeypat
         "2.67.0",
         "2.68.0",
         "2.70.0",
+        "2.73.0",
     ]
     # Each entry must carry intent and an action, not just a diff.
     for entry in report["pending_template_changes"]:
@@ -422,22 +423,22 @@ async def test_invalid_mode_is_rejected(tmp_path, monkeypatch):
 # sha256 of every scaffold template, as of SCAFFOLD_TEMPLATE_VERSION. Changing a
 # template changes its hash and fails this test — which is the point.
 TEMPLATE_FINGERPRINTS = {
-    "SCAFFOLD_OPERATIONS": "32dc9a2cf2e89f3190ebc700b4dd1cb38cb00efdd094ed6b1b64a3137735bedd",
-    "SCAFFOLD_AGENTS_MD": "0df076686d0f60f9b1a67cd99d574bd98799edad7ff598973a08b91ed84cc357",
-    "SCAFFOLD_AI_CONTEXT_README": "d7a8c7cfa6c0b01dbc19b521ed3837366121c70c24d8169995cfa62bb344039b",
-    "SCAFFOLD_ARCHITECTURE": "2aaf6966d0479ddf61179ace60348129c3a245ecac9487ddc567f7bd55cef6dd",
-    "SCAFFOLD_BACKLOG": "603624d6ea3284b069ede618fb86f7a644ad7cc27cf7caec0ae47a4f095e8bc0",
-    "SCAFFOLD_CLAUDE_MD": "174aa71852e63bc4a885274f1d8386353c6fc428c4f791db65396213519735ed",
-    "SCAFFOLD_GEMINI_MD": "59293aad647cd5561e298a4b984edd0ae0dfa62a89c1f54d5479dd2f793a7c46",
-    "SCAFFOLD_COMPLETION_CHECKLIST": "0194b7c17038fb4a385aee771b1b5a454a8b634f13216d6c2b21c8a4f9324a21",
-    "SCAFFOLD_LEARNING_LOG": "5804375f0ba18c4479133653294e81269e31e76de40c5eb45abcca0c193ef228",
-    "SCAFFOLD_LEARNING_LOG_DOC": "01072c9c8eb991125386bea4987d38a4e237857970035a21508733106d90b0e3",
-    "SCAFFOLD_PROJECT_MEMORY": "145b84e4329785dcb7bd7e367e8e8507af9d18c6243a6c091e1fdd93090b4038",
-    "SCAFFOLD_PROJECT_MEMORY_DOC": "5e8cddf17d70e9146bd12d2ccda1c629ae9ec5473c571b2b419eeaa896106066",
-    "SCAFFOLD_SAAS_OPS_SOP": "eb9811d0aa99ca13b5480435644beb7909a91d52cb0cd7679f79665c518f23fe",
-    "SCAFFOLD_SESSION_STATE": "722ed42e8a20272d3d8d699ce5ff52a1f33cba38edc924d44cb70f202f50f6d3",
-    "SCAFFOLD_SESSION_STATE_DOC": "18d368339c4cc3a0ca4ed273bcf124c5e6ce3be7220795170be0429b56492829",
-    "SCAFFOLD_SPECIFICATION": "76ba184035dc42cca4173aeb27164f72a8f0169f74195a4ee67eb0ab2df4ec80",
+    "SCAFFOLD_OPERATIONS": "0fb4bfa460b37ec63651745e8296e976c946eeaf21d0d297c1e623e2e4ffdc95",
+    "SCAFFOLD_AGENTS_MD": "93d5d01d965f64cb1963048404a77311fa265bda18b69e57aa0970d19b1e478d",
+    "SCAFFOLD_AI_CONTEXT_README": "0662df71dc050752ef51faab3fe5808920f264bc6951e229179050b790f6e5b2",
+    "SCAFFOLD_ARCHITECTURE": "0b4398f1e583190fa94e42477a6799553294b09e653fcd45d95be904c502758d",
+    "SCAFFOLD_BACKLOG": "0326fe9b3c3ebcde2f7c2845019417efc26b665f19ba25d6686f41c17508c112",
+    "SCAFFOLD_CLAUDE_MD": "da1fcba1ff48f776263a6ee3153ca1b8ac1c79cb324e77ba9947dc82c3f0f80e",
+    "SCAFFOLD_GEMINI_MD": "fa4eb265b9b3af117ec47ec4f1944d8c627499337fa839d1c890b060dde31675",
+    "SCAFFOLD_COMPLETION_CHECKLIST": "e08aacb37c100ec2c84376f77280f705bf2fb29ba50aaaf91e467e46110cd00d",
+    "SCAFFOLD_LEARNING_LOG": "7c83721b100f278e25b32d524ebde26cf960b60bd6e90ae2845e4aca5a04495d",
+    "SCAFFOLD_LEARNING_LOG_DOC": "fdeae6bfa22a336d93c6668066d4f10fe56425b143b00b2d02024b44aa4ec74e",
+    "SCAFFOLD_PROJECT_MEMORY": "34de71afa513d68cd66db94f29d55bbe7083de327e6c826631e4d4ffb94873e6",
+    "SCAFFOLD_PROJECT_MEMORY_DOC": "1532ddefc78e3bb1eb82907ce8423722a1eeec7b446bc9e6bd2c995d354f3db4",
+    "SCAFFOLD_SAAS_OPS_SOP": "87c5384b5196ade01ceb3c04afbb66462e9ed9beb4b0fc6d3be085d1ded49c7a",
+    "SCAFFOLD_SESSION_STATE": "ba5f27097fb165d7574ae7b00c03c35bc7bb05fc66982c2b66a2a279e3dfec7c",
+    "SCAFFOLD_SESSION_STATE_DOC": "f43639879c89ffb5a4ccead345e662c74175ec3e4916dc0366a5e946c7321b34",
+    "SCAFFOLD_SPECIFICATION": "078b66df77fe2ba0b0a33c40d087dea8e036ea10a847a92175df75d7817cb8f0",
 }
 
 
@@ -508,3 +509,52 @@ def test_changelog_versions_are_ordered_and_bounded():
         }
         assert entry["applies_to"], "an entry applies to no project type — it is dead"
         assert set(entry["applies_to"]) <= {"code", "document"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("old_version", "expected_versions"),
+    [
+        ("2.70.0", ["2.71.0", "2.72.0", "2.73.0"]),
+        ("2.71.0", ["2.72.0", "2.73.0"]),
+        ("2.72.0", ["2.73.0"]),
+    ],
+)
+async def test_old_saas_project_reports_lifecycle_upgrade_without_writing(
+    tmp_path, monkeypatch, old_version, expected_versions
+):
+    """Existing apps receive all pending guidance without losing owner evidence."""
+    await create_project(
+        tmp_path, monkeypatch, project_type="code", kit_tier="saas-ops"
+    )
+    for path in tmp_path.rglob("*.md"):
+        path.write_text(
+            path.read_text().replace(
+                f"template-v{constants.SCAFFOLD_TEMPLATE_VERSION}",
+                f"template-v{old_version}",
+            )
+        )
+    sop = tmp_path / "SAAS-OPS-SOP.md"
+    content = sop.read_text()
+    for section in (
+        "Agent operating recipe",
+        "Recovery authority",
+        "Customer-facing AI release contract — conditional",
+        "Stack and starter maintenance",
+        "Support-to-fix",
+    ):
+        assert section in content
+    assert "AI used only to build the app does not qualify" in content
+    assert "REGRESSION FAILS BEFORE FIX" in content
+    sop.write_text(sop.read_text() + "\nOwner-specific recovery evidence\n")
+    before = {str(p): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
+    report = await scaffold(tmp_path, monkeypatch, mode="sync")
+    changes = report["pending_template_changes"]
+    assert [entry["version"] for entry in changes] == expected_versions
+    assert "SAAS-OPS-SOP.md" in changes[-1]["files"]
+    assert "customized files" in changes[-1]["action"]
+    if old_version != "2.72.0":
+        assert changes[-2]["files"] == ["SAAS-OPS-SOP.md"]
+        assert "UNVERIFIED" in changes[-2]["action"]
+    after = {str(p): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
+    assert before == after

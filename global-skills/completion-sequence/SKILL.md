@@ -29,7 +29,12 @@ pushes are blocked and the helper supplies a one-shot exact-HEAD token only afte
 the repository's internal full check passes without moving `HEAD` or dirtying the
 tree, and its structured record reports zero failed or unavailable checks. GitHub
 checks are optional clean-runner evidence, not publication authority.
-A client hook can still be bypassed deliberately with
-`--no-verify`; pre-commit also evaluates only the first non-deletion ref of a
-multi-ref push. The helper's supported path uses one-ref pushes. This is
-accidental-change prevention, not server-side protection.
+Repositories with `scripts/pre_push.py` additionally require an explicitly installed
+raw hook and accepted exact-scope review records before the full check. See the
+repository's `docs/publication-evidence.md` for request/report retention. Topic
+checkpoints can remain unfinished; a checkpoint does not renew user permission.
+A client hook can still be bypassed deliberately with `--no-verify`. The raw hook
+checks every tuple for its obligations; its pre-commit delegate still exposes only
+the first eligible ref to delegated checks. Older installations have only that
+legacy boundary. The helper uses one-ref pushes. These are cooperative local
+controls, not server-side protection.

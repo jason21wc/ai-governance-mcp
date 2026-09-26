@@ -1,16 +1,16 @@
 ---
-version: "4.62.0"
+version: "4.67.0"
 status: "active"
-effective_date: "2026-09-20"
+effective_date: "2026-09-25"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 4.62.0
+**Version:** 4.67.0
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-09-20
+**Updated:** 2026-09-25
 
 ---
 
@@ -34,7 +34,7 @@ Read and follow constitution.md as the governing constitution for all behavior.
 - Creative writing, narrative structure, dialogue → Storytelling domain (`title-30-storytelling`)
 - Slide decks, pitch decks, reports, documents, spreadsheets, cost estimates, tables, charts — the DESIGN of static artifacts (readability, answer-first structure, workbook layout, display integrity) → Visual Communication domain (`title-35-visual-communication`). *Generating* the file (xlsx/docx/pdf mechanics) is AI Coding §9.4; *interactive* interfaces and live charts are UI/UX.
 - Image retrieval, visual presentation, multimodal → Multimodal RAG domain (`title-40-multimodal-rag`)
-- Production operations, incident response, deploys, payments, RLS, escalation for a money-taking SaaS → SaaS Operations domain (`title-45-saas-ops`)
+- SaaS planning, launch evidence, costed capabilities, customer/billing lifecycle, continuous delivery, production incidents, recovery, maintenance, specialist handoff and retirement → SaaS Operations domain (`title-45-saas-ops`)
 
 **Note:** Domains can overlap. Multiple domains may apply simultaneously (e.g., AI Coding + Multi-Agent when agents perform coding tasks). Use `list_domains` (MCP) to see all available domains dynamically.
 </domain_activation>
@@ -82,8 +82,8 @@ If Multimodal RAG jurisdiction:
 - State reference document availability
 
 If SaaS Operations jurisdiction:
-- State production incident state if active
-- State deploy/rollback context if known
+- State lifecycle stage and relevant readiness/evidence gaps if known
+- For incidents, state the active symptom and deploy/recovery context if known
 
 If Visual Communication jurisdiction:
 - State the artifact type (deck / report / workbook / table-chart)
@@ -147,14 +147,14 @@ Create these files in **`_ai-context/`** at the project top level (unified layou
 ## Immediate Escalation Triggers
 - S-Series (Safety) violation detected → STOP, flag, request guidance
 - Specification gap preventing safe execution → Pause, clarify before proceeding
-- Multiple valid approaches with significant implications → Present options to Product Owner
+- Alternatives exceed delegated technical authority or change material product intent → Present a recommendation and the missing decision
 - Security vulnerability (HIGH/CRITICAL) → Block, do not defer
 - Gate checklist item cannot be checked → Return to phase, address deficiency
 
 ## Decision Authority
 - Technical implementation details → AI proceeds autonomously
 - Product/business decisions → Escalate with options and recommendation
-- Phase validation gates → Require Product Owner approval via Gate Artifact
+- Phase validation gates → Validate against established intent and authority; new Product Owner approval only for missing decisions, changed scope or expressly reserved gates
 
 ## Phase Workflow
 ```
@@ -185,14 +185,14 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- constitution.md v8.4.0+
-- rules-of-procedure.md v3.58.0+
-- title-10-ai-coding.md v2.11.1+
-- title-10-ai-coding-cfr.md v2.80.0+
-- title-20-multi-agent.md v2.7.6+
-- title-20-multi-agent-cfr.md v2.24.1+
+- constitution.md v8.5.0+
+- rules-of-procedure.md v3.59.0+
+- title-10-ai-coding.md v2.12.0+
+- title-10-ai-coding-cfr.md v2.84.0+
+- title-20-multi-agent.md v2.8.0+
+- title-20-multi-agent-cfr.md v2.25.0+
 - title-30-storytelling.md v1.4.3+
-- title-30-storytelling-cfr.md v1.1.5+
+- title-30-storytelling-cfr.md v1.2.0+
 - title-15-ui-ux.md v1.3.0+
 - title-15-ui-ux-cfr.md v1.3.1+
 - title-25-kmpd.md v1.4.3+
@@ -203,8 +203,8 @@ This loader is designed for use with:
 - title-40-multimodal-rag-cfr.md v2.4.0+
 - title-35-visual-communication.md v1.1.0+
 - title-35-visual-communication-cfr.md v1.3.0+
-- title-45-saas-ops.md v1.0.0+
-- title-45-saas-ops-cfr.md v1.1.0+
+- title-45-saas-ops.md v1.1.0+
+- title-45-saas-ops-cfr.md v1.3.0+
 </document_versions>
 
 ---
@@ -213,6 +213,11 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.67.0 | 2026-09-25 | **MINOR: standalone template guidance pins.** Track title-10 CFR v2.84.0 and storytelling CFR v1.2.0: copied memory/reference examples explain purpose, reading triggers, admission, routing and safe maintenance without requiring prior framework knowledge. Preserve decisions, host boundaries and existing layouts. MINOR-on-MINOR per completion checklist item 7c. Governance consultation: `gov-d0232b9fa6f2`. |
+| 4.66.0 | 2026-09-24 | MINOR: propagate Title 10 CFR v2.83.0 prospective browser-test selection and Title 45 CFR v1.3.0 researched solo-AI SaaS operating evidence. Governance: `gov-3730903a4347`. |
+| 4.65.0 | 2026-09-23 | MINOR: SaaS charter v1.1.0 and methods v1.2.0 extend the existing methods-only domain across launch, cost visibility, customer lifecycle, continuous delivery, recovery, support and retirement. Update activation routing and version floors. Governance: `gov-0ed4434804d9`. |
+| 4.64.0 | 2026-09-22 | MINOR: propagate Title 10 CFR v2.82.0 merged ignore precedence and live policy reconciliation (#173). MINOR-on-MINOR; governance `gov-459f8bded5d5`. |
+| 4.63.0 | 2026-09-22 | MINOR: preserve applicable authorization across phases, checkpoints and agent handoffs; require human input only for unresolved material decisions, changed scope or expressly reserved gates. Reconcile routine technical autonomy with specification and validation requirements; retain safety and quality gates. Governance: `gov-e20f5a676213`. |
 | 4.62.0 | 2026-09-20 | MINOR: propagate Constitution v8.4.0 and Rules of Procedure v3.58.0 evidence-sufficiency and investigative-autonomy amendments. MINOR-on-MINOR; no new principles or changes to host permissions. Governance: `gov-7d2e635f9b52`. |
 | 4.61.0 | 2026-09-18 | MINOR: propagate Rules of Procedure v3.57.0 and Title 10 CFR v2.80.0 checkpoint/continuation distinction; retain quality and authority gates. Governance: `gov-ac3263445f20`. |
 | 4.60.0 | 2026-09-18 | MINOR: integrate Rules of Procedure v3.56.0 scoped guidance with main's Title 10 CFR v2.79.0 memory merging. Controlled host comparisons were canceled by the user; retain software validation and normal-use feedback. Governance: `gov-ac3263445f20`. |

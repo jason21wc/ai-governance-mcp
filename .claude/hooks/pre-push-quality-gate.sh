@@ -378,9 +378,24 @@ if [ "${QUALITY_GATE_SKIP:-false}" = "true" ]; then
     exit 0
 fi
 
+# Prefer the host-neutral raw hook only when the acting checkout is unambiguous
+# and its installation is verified. Source presence alone never enables this.
+RAW_GATE=false
+RAW_ROOT=""
+RAW_ADAPTER="$HOOK_DIR/../../scripts/publication_host_adapter.py"
+if [ -f "$RAW_ADAPTER" ]; then
+    if RAW_ROOT=$(printf '%s' "$INPUT" | python3 "$RAW_ADAPTER" 2>/dev/null); then
+        # Exit zero without usable output is unavailable evidence, not proof
+        # that the shared hook is installed. Retain legacy checks on that path.
+        case "$RAW_ROOT" in
+            /*) if [ -d "$RAW_ROOT" ] && [ -f "$RAW_ROOT/scripts/pre_push.py" ]; then RAW_GATE=true; fi ;;
+        esac
+    fi
+fi
+
 # Get transcript path from hook input
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // ""' 2>/dev/null || echo "")
-if [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; then
+if [ "$RAW_GATE" != "true" ] && { [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; }; then
     debug "Transcript not available, fail-closed"
     emit_deny "QUALITY GATE: Transcript unavailable — cannot verify pre-push checks. Set QUALITY_GATE_SKIP=true to override."
 fi
@@ -411,6 +426,10 @@ PUSH_CWD=$(echo "$INPUT" | jq -r '.cwd // ""' 2>/dev/null || echo "")
 [ -z "$PUSH_CWD" ] && PUSH_CWD="$PWD"
 REPO_ROOT=$(git -C "$PUSH_CWD" rev-parse --show-toplevel 2>/dev/null || echo "")
 [ -z "$REPO_ROOT" ] && REPO_ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
+if [ "$RAW_GATE" = "true" ]; then
+    REPO_ROOT="$RAW_ROOT"
+    echo '[publication-evidence] Git will verify every actual ref; scoped reviews are required at main publication. Transcript mentions are not completion evidence.' >&2
+fi
 debug "push cwd=$PUSH_CWD -> repo root=$REPO_ROOT (hook dir=$HOOK_DIR)"
 
 # Determine commit-range for diff/count operations.
@@ -442,9 +461,9 @@ fi
 # is empty by construction (line 357), not because nothing changed. A range we
 # cannot compute means we cannot scan the diff, and that must WARN, not
 # silently no-op (fail-closed, per BACKLOG #140 §8.3.4).
-if [ -z "$RANGE" ]; then
+if [ -z "$RANGE" ] && [ "$RAW_GATE" != "true" ]; then
     debug "Range undeterminable — secret-scan cannot run; fail-closed"
-    ISSUES="${ISSUES}Push range undeterminable (no @{push}, no origin/main, no HEAD~1). Cannot run the diff secret-scan. Verify upstream branch tracking is set, or set QUALITY_GATE_SKIP=true to override. "
+    emit_deny "QUALITY GATE: Push range undeterminable (no @{push}, no origin/main, no HEAD~1). Cannot run the legacy diff secret-scan. Configure upstream history or install the shared raw push hook, which reads actual Git tuples."
 fi
 
 if [ -z "$CHANGED_FILES" ] && [ -n "$RANGE" ]; then
@@ -496,7 +515,7 @@ debug "Changed files: $(echo "$CHANGED_FILES" | tr '\n' ' ')"
 # amend. Bypass: QUALITY_GATE_SKIP=true, which exits at the top of this file.
 SECRET_PATTERNS='AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{20,}|sk-ant-[a-zA-Z0-9_-]{40,}|ghp_[a-zA-Z0-9]{20,}|github_pat_[a-zA-Z0-9_]{20,}|gho_[a-zA-Z0-9]{20,}|ghs_[a-zA-Z0-9]{20,}|eyJ[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{20,}\.[a-zA-Z0-9_-]{10,}|-----BEGIN [A-Z]+ PRIVATE KEY-----'
 SECRETS_FOUND=""
-if [ -n "$RANGE" ]; then
+if [ "$RAW_GATE" != "true" ] && [ -n "$RANGE" ]; then
     SECRETS_FOUND=$(git -C "$REPO_ROOT" diff $RANGE 2>/dev/null | grep -E '^[+]' | grep -E "$SECRET_PATTERNS" 2>/dev/null | sed -n '1,3p' || true)
 fi
 if [ -n "$SECRETS_FOUND" ]; then
@@ -694,7 +713,7 @@ NON_DOC_FILES=$(echo "$CHANGED_FILES" | grep -v -E '\.(md|json)$' | grep -v 'tes
 # allows, which is indistinguishable from a check that found nothing. Found by
 # mutation probe, not by review. Hence the test below it: a check with no test
 # asserting it can DENY is a check that cannot be shown to work.
-if [ "${QUALITY_GATE_SKIP:-false}" != "true" ] && [ -f "$REPO_ROOT/logs/check-runs.jsonl" ]; then
+if [ "$RAW_GATE" != "true" ] && [ "${QUALITY_GATE_SKIP:-false}" != "true" ] && [ -f "$REPO_ROOT/logs/check-runs.jsonl" ]; then
     HEAD_SHA=$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo "")
     if [ -n "$HEAD_SHA" ]; then
         LAST_RED=$(python3 -c '
@@ -766,7 +785,7 @@ fi
 # disables the secret scanner (Check 6). Advisory first, evidence second.
 #
 # Gated on NON_DOC_FILES: doc-only pushes don't need a full check.sh run.
-if [ "${QUALITY_GATE_SKIP:-false}" != "true" ] && [ -n "$NON_DOC_FILES" ]; then
+if [ "$RAW_GATE" != "true" ] && [ "${QUALITY_GATE_SKIP:-false}" != "true" ] && [ -n "$NON_DOC_FILES" ]; then
     CHECK12_SHA=$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo "")
     if [ -n "$CHECK12_SHA" ]; then
         HAS_RECORD="false"
@@ -837,12 +856,12 @@ if [ -z "$NON_DOC_FILES" ] && [ -z "$GOVERNANCE_FILES" ] && [ -z "$MEMORY_FILES"
     exit 0
 fi
 
-ISSUES=""
+ISSUES="${ISSUES:-}"
 
 # Check 1: Were tests run this session?
 # Gated on NON_DOC_FILES: narrowing the hatch must not start demanding `pytest` for a
 # SESSION-STATE edit. (The Check 5 that once shared this gate was retired — BACKLOG #202.)
-if [ -n "$NON_DOC_FILES" ]; then
+if [ "$RAW_GATE" != "true" ] && [ -n "$NON_DOC_FILES" ]; then
     TESTS_RUN=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "pytest" "$TRANSCRIPT" 2>/dev/null || echo "false")
     debug "Tests run: $TESTS_RUN"
     if [ "$TESTS_RUN" = "false" ]; then
@@ -879,7 +898,7 @@ debug "New src files: $(echo "$NEW_SRC_FILES" | tr '\n' ' ')"
 # scripts/measure_review_gate.py — and read its CHURN lines, not the net delta: ~7 pushes
 # are newly blocked, which is the figure that matters for bypass risk, since a
 # newly-passed push does not cancel a newly-blocked one.
-if [ -n "$RISKY_FILES" ] || [ -n "$NEW_SRC_FILES" ]; then
+if [ "$RAW_GATE" != "true" ] && { [ -n "$RISKY_FILES" ] || [ -n "$NEW_SRC_FILES" ]; }; then
     REVIEW_DONE="false"
     for AGENT_TYPE in "code-reviewer" "security-auditor"; do
         FOUND=$(python3 "$HOOK_DIR/scan_transcript.py" --subagent "$AGENT_TYPE" "$TRANSCRIPT" 2>/dev/null || echo "false")
@@ -904,7 +923,7 @@ fi
 # satisfied" — that is a base-rate error: only 6 of 22 governance-file-editing sessions
 # used plan mode at all, so for the other 16 this check is doing real work. Making it
 # meaningful in the plan-mode case is a separate question, deliberately not bundled here.
-if [ -n "$GOVERNANCE_FILES" ]; then
+if [ "$RAW_GATE" != "true" ] && [ -n "$GOVERNANCE_FILES" ]; then
     GOV_REVIEW_DONE="false"
     for AGENT_TYPE in "contrarian-reviewer" "coherence-auditor" "validator"; do
         FOUND=$(python3 "$HOOK_DIR/scan_transcript.py" --subagent "$AGENT_TYPE" "$TRANSCRIPT" 2>/dev/null || echo "false")
@@ -936,7 +955,7 @@ for PATTERN in "COMPLETION-CHECKLIST" "completion-sequence-aigov" "completion-se
     fi
 done
 debug "Completion checklist consulted: $CHECKLIST_READ"
-if [ "$CHECKLIST_READ" = "false" ]; then
+if [ "$RAW_GATE" != "true" ] && [ "$CHECKLIST_READ" = "false" ]; then
     ISSUES="${ISSUES}Completion checklist not consulted. Run /completion-sequence-aigov and verify applicable items before pushing. "
 fi
 

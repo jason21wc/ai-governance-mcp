@@ -94,9 +94,15 @@ def test_body_respects_the_codex_doc_budget():
 
 
 def test_safety_boundary_enforcement_stays_in_claude_overlay():
-    # Governance ENFORCEMENT (hook block) belongs in the CLAUDE.md overlay, never in
-    # the imported AGENTS.md body (title-10 Appendix A / K.3). Cheap structural pin.
-    assert "ENFORCED BY HOOK" in c.SCAFFOLD_CLAUDE_MD
+    # Host enforcement belongs in the overlay, but a generated file is not proof
+    # a hook was installed or executed. Preserve the safety rule without claiming
+    # technical enforcement on an unverified adopter machine.
+    assert "UNVERIFIED" in c.SCAFFOLD_CLAUDE_MD
+    assert (
+        "Safety stop rules still apply when no hook is running" in c.SCAFFOLD_CLAUDE_MD
+    )
+    assert "ENFORCED BY HOOK" not in c.SCAFFOLD_CLAUDE_MD
+    assert "hook BLOCKS" not in c.SCAFFOLD_CLAUDE_MD
     for token in ("BLOCKS", "ENFORCED BY HOOK", "S-Series"):
         assert token not in c.SCAFFOLD_AGENTS_MD, (
             f"enforcement language {token!r} leaked into the imported AGENTS.md body"

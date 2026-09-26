@@ -6,6 +6,12 @@ domain: "meta"
 governance_level: "testing-framework"
 schema_version: 1
 entries:
+  - id: FM-CONTEXT-IGNORE-LAYERING
+    description: "A root .contextignore must extend .gitignore instead of discarding it. Context negations may restore ordinary files but never security exclusions. Each unreadable or oversized layer is independent. Watcher policy changes, including atomic replacements, must reconcile additions and removals and continue delivering subsequent edits under the new policy."
+    must_cover: true
+    scope: project
+    introduced: "2026-09-22"
+    source: "BACKLOG #173; cache corpus contamination and stale watcher filtering"
   - id: FM-HYGIENE-KEEP-REF-IDENTITY
     description: "Worktree keep markers must match collected branch identity, including namespaced and origin-prefixed spellings, in both alarm suppression and stale-marker detection. Legacy short names remain supported; an exact namespaced marker must not suppress a different branch sharing its leaf name."
     must_cover: true

@@ -58,6 +58,6 @@ task-specific checks; disclose the choice. Manual export can unblock extraction
 if no supported renderer works, but does not satisfy an unattended workflow.
 Native application checks are supplementary and only run when authorized.
 
-Legacy `.doc`/`.ppt` conversion remains the separate procedure in SKILL.md; this
+Legacy `.doc`/`.ppt` conversion remains the separate procedure in source-handling.md; this
 helper accepts modern OOXML inputs only. Title 10 §9.4.5 owns saved-artifact
 validation; Title 35 owns reader-task and visual communication checks.

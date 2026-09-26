@@ -1,16 +1,16 @@
 ---
-version: "3.58.0"
+version: "3.59.0"
 status: "active"
-effective_date: "2026-09-20"
+effective_date: "2026-09-22"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.58.0
+**Version:** 3.59.0
 **Status:** Active
-**Effective Date:** 2026-09-20
+**Effective Date:** 2026-09-22
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -2344,9 +2344,9 @@ The floor is **15 directives**, in `tiers.json` order.
 
 **7. `close-with-the-ask`** — implements `meta-governance-human-ai-authority-accountability`
 
-- **Check:** End each substantive response with one explicit next action or a direct question for genuinely missing input, authority or a necessary decision. The next action may belong to the AI: state it and perform it. Existing authorization survives checkpoints; do not manufacture a permission question to close a progress update. Recommend-not-ask still governs technical choices; the human retains priority, scope and authorization.
+- **Check:** End each substantive response with one explicit next action or a direct question for genuinely missing input, authority or a necessary decision. The next action may belong to the AI: state it and perform it. Existing authorization survives checkpoints; do not manufacture a permission question to close a progress update. Recommend-not-ask still governs technical choices; the human retains priority, scope and authorization. Before asking, check earlier grants and state the specific missing input or authority. A new phase, checkpoint, pause or resumed session does not erase applicable authorization.
 - **Wrong:** "Here are three things I found." [ends] — the reader is left to infer what is wanted from them
-- **Right:** "Fixed the count drift and the stale pin; the kernel divergence is still open. Pushing this touches main — go ahead?" (an authorization ask, not a fix-or-file ask: a small self-contained defect is closed on sight, never offered as a choice)
+- **Right:** "The focused checks passed; I am continuing with integration and review under your existing approval." Ask "May I publish this concrete change to main?" only when that publication lacks applicable authorization or a fresh confirmation is explicitly required.
 
 **8. `proportional-rigor`**
 
@@ -5997,6 +5997,7 @@ This meta-method defines the universal scaffold format. Domain-specific methods 
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.59.0 | 2026-09-22 | MINOR: synchronize the generated behavioral floor with persistent scoped authorization and condition permission questions on a missing grant. Constitution v8.5.0 remains the authority; host/safety gates remain. Governance: `gov-e20f5a676213`. |
 | 3.58.0 | 2026-09-20 | MINOR: align §7.7.2 with Constitution v8.4.0 evidence sufficiency and investigative autonomy. Replace blanket clarification for every gap with investigation within authorization and human input for unresolved material decisions; preserve dependent-action and safety boundaries. Governance: `gov-7d2e635f9b52`. |
 | 3.57.0 | 2026-09-18 | MINOR: scope concise reporting to the message, not task termination; the next action may belong to the AI and needs no manufactured permission question (§7.15); regenerate from tiers.json v2.10.0. Retain genuine authority boundaries. Governance: `gov-ac3263445f20`. |
 | 3.56.0 | 2026-09-13 | MINOR: bounded delivery candidate removes the Claude-only planning gate from the generated universal behavioral floor; the Claude hook/workflow requirement remains. Coding tests/design checks move to the existing coding domain floor; previous-task closeout stays in completion workflows. Source knowledge is retained. Candidate host outcomes remain unverified. Governance: `gov-520856c13c5c`, `gov-43baa979d9d9`. |

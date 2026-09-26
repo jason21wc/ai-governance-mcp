@@ -11,6 +11,7 @@ from mcp.types import TextContent, Tool
 
 from .. import __version__
 from ..models import ErrorResponse
+from ._response_trust import frame_response
 from ._constants import (
     AVAILABLE_AGENTS,
     GOVERNANCE_REMINDER,
@@ -211,7 +212,9 @@ async def list_tools() -> list[Tool]:
             name="get_metrics",
             description=(
                 "Get retrieval performance metrics including query counts, "
-                "average latency, confidence distribution, and feedback stats."
+                "average latency, confidence distribution, feedback stats, and "
+                "runtime identity captured at server import (version, source digest "
+                "and optional Git revision). Use it to verify MCP reconnects."
             ),
             inputSchema={
                 "type": "object",
@@ -512,7 +515,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "kit_tier": {
                         "type": "string",
-                        "description": "Kit tier: 'core' (code: 6 files — memory files in _ai-context/ plus the three root loaders AGENTS.md/CLAUDE.md/GEMINI.md so a default project auto-loads on Claude Code, Codex, and Gemini; document: 4 files — memory + README, use-case-neutral) or 'standard' (code: 11 files; core + ARCHITECTURE.md + SPECIFICATION.md + .claude/skills/completion-sequence-aigov/checklist.md + _ai-context/BACKLOG.md + _ai-context/OPERATIONS.md, per title-10-ai-coding-cfr.md §1.5.2; document: 6 files; core + _ai-context/BACKLOG.md + _ai-context/OPERATIONS.md) or 'saas-ops' (12 files; standard + SAAS-OPS-SOP.md, a per-app SaaS production-operations SOP for a money-taking SaaS — the per-app instance of the title-45 saas-ops domain; code projects only)",
+                        "description": "Kit tier: 'core' (code: 6 files — memory files in _ai-context/ plus the three root loaders AGENTS.md/CLAUDE.md/GEMINI.md so a default project auto-loads on Claude Code, Codex, and Gemini; document: 4 files — memory + README, use-case-neutral) or 'standard' (code: 11 files; core + ARCHITECTURE.md + SPECIFICATION.md + .claude/skills/completion-sequence-aigov/checklist.md + _ai-context/BACKLOG.md + _ai-context/OPERATIONS.md, per title-10-ai-coding-cfr.md §1.5.2; document: 6 files; core + _ai-context/BACKLOG.md + _ai-context/OPERATIONS.md) or 'saas-ops' (12 files; standard + SAAS-OPS-SOP.md, a per-app SaaS lifecycle and production-operations SOP for paid services or customer-data pilots — the per-app instance of the title-45 saas-ops domain; code projects only)",
                         "enum": ["core", "standard", "saas-ops"],
                     },
                     "confirmed": {
@@ -729,10 +732,13 @@ async def list_tools() -> list[Tool]:
 
 
 def _append_governance_reminder(result: list[TextContent]) -> list[TextContent]:
-    """Append governance reminder to tool response for consistent reinforcement."""
-    if result and result[0].text:
-        result[0] = TextContent(type="text", text=result[0].text + GOVERNANCE_REMINDER)
-    return result
+    """Frame every payload before adding source-owned guidance at dispatch."""
+    return [
+        item.model_copy(
+            update={"text": frame_response(item.text) + GOVERNANCE_REMINDER}
+        )
+        for item in result
+    ]
 
 
 @server.call_tool()
@@ -745,10 +751,13 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             message="Too many requests. Please wait and try again.",
             suggestions=["Wait a few seconds before retrying"],
         )
-        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+        return _append_governance_reminder(
+            [TextContent(type="text", text=error.model_dump_json(indent=2))]
+        )
 
     try:
-        engine = get_engine()
+        # Diagnostics must work even if retrieval initialization is unavailable.
+        engine = None if name == "get_metrics" else get_engine()
 
         if name == "query_governance":
             result = await _handle_query_governance(engine, arguments)
