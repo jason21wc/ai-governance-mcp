@@ -29,7 +29,7 @@ Quick-reference for routing subagent `model` and `effort` via the Agent tool or 
 |--------------------|-------|--------|-------------|
 | Heavy implementation | `opus` | xhigh | Multi-file code changes, complex refactors, architectural rewrites |
 | Deep analysis | `opus` | high | Security audits, multi-file code review, architecture assessment |
-| Hardest reasoning | `fable` | high | Long-horizon autonomous runs, problems opus stalls on — 2× opus cost, so earn it |
+| Hardest reasoning | `fable` | high | Only where opus has demonstrably fallen short — long-horizon autonomous runs, problems opus stalls on. Since Opus 5.5, opus matches fable on most work at ~2.5× less cost, so fable must be earned by an observed opus failure, not anticipated |
 | LLM-as-judge | `fable` | medium | Eval scoring, independent quality assessment, grading rubrics |
 | Standard tasks | `sonnet` | medium | Single-file edits, test writing, documentation, data transforms |
 | Mechanical work | `sonnet` | low | Log analysis, formatting, simple lookups, template expansion |
@@ -37,7 +37,7 @@ Quick-reference for routing subagent `model` and `effort` via the Agent tool or 
 | Cross-vendor review | Codex (MCP) | *n/a* | Independent second opinion, peer review — dispatched via `mcp__codex__codex`, not Agent tool; effort param not exposed |
 | **Inherit (no override)** | *omit* | *omit* | Task matches session model's tier — often the right call |
 
-**Relative cost:** haiku ≪ sonnet < opus < **fable** (~2× opus). Reach for fable for capability, not habit. Reaching for opus on a sonnet-tier task wastes tokens; reaching for haiku on an opus-tier task wastes quality. Check the vendor pricing page for current per-MTok rates.
+**Relative cost:** haiku ≪ sonnet < opus < **fable** (~2.5× opus since Opus 5.5). Reach for fable for capability, not habit. Reaching for opus on a sonnet-tier task wastes tokens; reaching for haiku on an opus-tier task wastes quality. Check the vendor pricing page for current per-MTok rates.
 
 **Context window is no longer a routing axis between the top tiers.** opus, sonnet, and fable share the same large window. Only `haiku` is smaller — that is the one case where window size decides.
 
@@ -46,6 +46,7 @@ Quick-reference for routing subagent `model` and `effort` via the Agent tool or 
 Manufacturer-reported, not empirically validated (DOE BACKLOG #209 pending). These shift with each release — treat as approximate:
 
 - **opus low and medium punch well above their weight** — start at `xhigh` for coding/agentic and `high` elsewhere, then sweep *down* and keep the cheapest level your evals still pass. Effort defaults from a prior generation rarely transfer.
+- **Opus 5.5 ships with `medium` as its default effort** (prior opus defaulted to `high`). Vendor launch material reports Opus 5.5 at its *lowest* effort outperforming Opus 5 at `high` on a bug-finding eval, and reports it performing at Fable 5.1's level on most work. Treat this as a reason to sweep lower, not as a validated calibration.
 - sonnet medium ≈ prior-gen high
 - sonnet high ≈ prior-gen max
 - fable low often exceeds prior-gen xhigh/max
@@ -78,6 +79,7 @@ Agent({ prompt: "...", description: "..." })
 
 - **Volatile — and this file is the framework's designated live source, which makes that a load-bearing property, not a caveat.** `rules-of-procedure` §10.1.4 tells authors *not* to pin model versions in governance documents and to resolve them from a live source instead; this skill is one of the sources it names. So the values here are supposed to be current — but the file is hand-maintained markdown, not an API, and a "keep this updated" note is not an enforcement mechanism (the lesson `tests/test_document_versions_pin.py` was built on).
   **The honest statement of the gap:** every value below rots on a vendor's release cadence, nothing checks that this file was refreshed, and a governance document that de-pinned *to* here inherits whatever staleness sits here. Treat a stale entry as a defect in the doctrine's plumbing, not a cosmetic lag.
+  **Last verified:** 2026-09-25, against the Opus 5.5 release (anthropic.com/claude-opus-5-5). If a newer model has shipped since, this file is stale until re-verified.
   **Refresh trigger:** OPERATIONS **T-166** (working-model upgrade) whenever it fires. If today is materially past a release you know about, verify against the vendor's models API before trusting a value here — and say so when you do, per `meta-safety-transparent-limitations`.
 - **Agent tool effort gap:** The Agent tool does not expose an `effort` parameter. Use Workflow `agent()` when effort control matters.
 - **Haiku has no effort control:** `effort` is not a parameter on haiku. Omit it rather than passing a level that has no meaning there.

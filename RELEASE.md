@@ -72,7 +72,7 @@ If private content ever reaches this public repository:
 This tree is generated, not authored. It is an allowlist extraction of a
 private source repository.
 
-- **source-commit:** `395311c327ec1e0117823fa821f0d0c05eef7ff1`
+- **source-commit:** `11cfdfe287ed00ab9ad6029a86443768327bbda0`
 - **generator:** `build-public-release.sh` (stamp v1)
 
 <!-- END generated:provenance -->
