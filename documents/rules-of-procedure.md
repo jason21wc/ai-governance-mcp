@@ -1,16 +1,16 @@
 ---
-version: "3.59.0"
+version: "3.59.1"
 status: "active"
-effective_date: "2026-09-22"
+effective_date: "2026-09-30"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.59.0
+**Version:** 3.59.1
 **Status:** Active
-**Effective Date:** 2026-09-22
+**Effective Date:** 2026-09-30
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -314,7 +314,7 @@ Since v3.20.0, version metadata lives in YAML frontmatter, not filenames. Filena
 | 2. Version | Update `version` and `effective_date` in YAML frontmatter | Top of file (`---` block) |
 | 3. Version | Add version history entry in document | Version History section |
 | 4. Propagate | Run `scripts/gen_quick_reference.py` if MINOR/MAJOR | `STATUS.md` (generated) |
-| 5. Rebuild | Rebuild the search index | `python -m ai_governance_mcp.extractor` |
+| 5. Rebuild | Rebuild the search index | `python scripts/run_local.py ai_governance_mcp.extractor` |
 | 6. Validate | Run tests, verify new content is searchable | `pytest tests/ -m "not slow"` |
 | 7. Validate | Check §4.3.2 — if coherence audit is triggered, run it | See Part 4.3 |
 | 8. Validate | Query governance server for a key term from updated content | Confirm new item appears |
@@ -416,8 +416,13 @@ Rebuild index when:
 
 **Applies To:** rebuilding the MCP index after governance document changes, running the extractor and verifying the rebuilt index with a test query
 
+From the intended checkout, use an interpreter with the project dependencies.
+Run `python scripts/run_local.py --check ai_governance_mcp.extractor` first and
+verify the source and explicit index/reference-library paths. Shells do not inherit
+MCP host settings; follow [the shell contract](../docs/local-python.md).
+
 ```bash
-python -m ai_governance_mcp.extractor
+python scripts/run_local.py ai_governance_mcp.extractor
 ```
 
 **Verification:** If rebuild completes without errors, the index is valid. Test with:
@@ -604,7 +609,7 @@ After document updates, verify IDs are generated correctly:
 
 ```bash
 # Rebuild index
-python -m ai_governance_mcp.extractor
+python scripts/run_local.py ai_governance_mcp.extractor
 
 # Check generated IDs
 python3 -c "
@@ -973,7 +978,7 @@ After any framework update, validate:
 |----------|-------|---------------|
 | **Document** | Version updated, history entry added | Read document header |
 | **References** | Domain files discoverable with correct frontmatter | Check `documents/title-*-*.md` frontmatter |
-| **Index** | Rebuilt and searchable | `python -m ai_governance_mcp.extractor` |
+| **Index** | Rebuilt and searchable | `python scripts/run_local.py ai_governance_mcp.extractor` |
 | **Functional** | Tools respond, queries return results | `pytest tests/ -m "not slow"` |
 
 **Quick Validation:** If tests pass after index rebuild, the update is valid.
@@ -1172,7 +1177,7 @@ The key test is not "have I already done this?" but "will AI-specific failure mo
 - [ ] Any domain that out-scoped this content to a "future" domain — point it at the real one now (and bump it)
 
 **E. Build + validate**
-- [ ] Rebuild index: `python -m ai_governance_mcp.extractor`
+- [ ] Rebuild index: `python scripts/run_local.py ai_governance_mcp.extractor`
 - [ ] `python scripts/gen_quick_reference.py` (regenerates the counts block) then `--check`
 - [ ] Full suite green; `bash scripts/build-public-release.sh` (proves the leak guard actually runs)
 - [ ] **Validate routing with NAIVE user phrasings**, not the domain's own jargon: the domain must reach the routed top-3 for the queries a real user would type. A domain that only retrieves for its own vocabulary does not retrieve. **Now structural** — add the domain's phrasings to `tests/test_domain_routing_evals.py::NAIVE_ROUTING_CASES`; a registered domain with no cases fails CI. (Advisory did not hold: `visual-communication` v1.0.0 shipped with **zero** accessibility vocabulary, so "is this PDF accessible?" routed to ui-ux and was answered with ARIA roles.)
@@ -1257,7 +1262,7 @@ Governance documents follow a two-stage lifecycle. **All documents use `document
 1. Content passes the **Content Quality Framework** (§9.8.4)
 2. File present in `documents/` with valid `domain:` frontmatter (§5.1.3)
 3. Frontmatter `version` set to `"1.0.0"`, `status` set to `"active"`
-4. Index rebuilt (`python -m ai_governance_mcp.extractor`)
+4. Index rebuilt (`python scripts/run_local.py ai_governance_mcp.extractor`)
 
 **Key rule:** Do not create subdirectories under `documents/` for lifecycle stages (no `drafts/`, `wip/`, `staging/`, `archive/`). Frontmatter `status` is the lifecycle indicator. Git history is the archive.
 
@@ -5997,6 +6002,7 @@ This meta-method defines the universal scaffold format. Domain-specific methods 
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.59.1 | 2026-09-30 | PATCH: correct active extractor command examples to use the checkout launcher (#363), preserving interpreter and explicit runtime configuration. No governance behavior changes; existing activation version floors remain satisfied. Governance: `gov-01bdedd82334`. |
 | 3.59.0 | 2026-09-22 | MINOR: synchronize the generated behavioral floor with persistent scoped authorization and condition permission questions on a missing grant. Constitution v8.5.0 remains the authority; host/safety gates remain. Governance: `gov-e20f5a676213`. |
 | 3.58.0 | 2026-09-20 | MINOR: align §7.7.2 with Constitution v8.4.0 evidence sufficiency and investigative autonomy. Replace blanket clarification for every gap with investigation within authorization and human input for unresolved material decisions; preserve dependent-action and safety boundaries. Governance: `gov-7d2e635f9b52`. |
 | 3.57.0 | 2026-09-18 | MINOR: scope concise reporting to the message, not task termination; the next action may belong to the AI and needs no manufactured permission question (§7.15); regenerate from tiers.json v2.10.0. Retain genuine authority boundaries. Governance: `gov-ac3263445f20`. |

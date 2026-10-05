@@ -96,7 +96,7 @@ Domains are **modular and self-describing**. The system discovers domains automa
    ---
    ```
 2. Optionally create `documents/title-NN-yourdomain-cfr.md` for methods (discovered by convention).
-3. Rebuild the index: `python -m ai_governance_mcp.extractor`
+3. Rebuild the index: `python scripts/run_local.py ai_governance_mcp.extractor`
 4. Restart the server. `list_domains` now includes your domain.
 
 **Frontmatter fields:** `domain` (required — the machine name), `prefix` (principle ID prefix, e.g. `"yd"` → IDs like `yd-category-title`), `display_name` (human-readable), `description` (used for semantic domain routing — include keywords for your domain's topics), `priority` (sort order; 0 = highest). An optional `domains.json` can override any frontmatter field without editing the markdown files.
@@ -237,7 +237,7 @@ Clone, install, and configure:
 git clone https://github.com/jason21wc/ai-governance-mcp.git
 cd ai-governance-mcp
 pip install -e .
-python -m ai_governance_mcp.extractor   # Build the search index
+python scripts/run_local.py ai_governance_mcp.extractor   # Build the search index
 ```
 
 Then use the config generator to set up your AI client:
@@ -372,13 +372,18 @@ Full enforcement architecture: [EXECUTION-FRAMEWORK.md §8.4](EXECUTION-FRAMEWOR
 
 ## Local Installation
 
+For primary clones and linked worktrees, use the [checkout Python launcher](docs/local-python.md).
+Choose an interpreter with the project dependencies and run its `--check` preflight
+before rebuilding. This selects the intended source without changing a shared
+editable installation; explicit runtime paths remain the caller's responsibility.
+
 For development or customization:
 
 ```bash
 git clone https://github.com/jason21wc/ai-governance-mcp.git
 cd ai-governance-mcp
 pip install -e .                       # install with dependencies
-python -m ai_governance_mcp.extractor  # build the index (first time)
+python scripts/run_local.py ai_governance_mcp.extractor  # build the index (first time)
 python -m ai_governance_mcp.server     # run the server
 ```
 
@@ -483,7 +488,7 @@ The watcher daemon keeps indexes fresh automatically. It auto-restarts every ~12
 
 **CI failing on hook tests:** hooks require shell matching `Bash|Edit|Write`. Verify `.claude/settings.json` PreToolUse matcher includes all three.
 
-**Governance index stale after document edit:** run `python -m ai_governance_mcp.extractor`. The running server detects the new `global_index.json` commit signal on the next query and reloads without a restart. If an integrity gate rejects the generation, the server keeps the last known-good index, retries once, then waits for the next rebuild rather than retrying on every query.
+**Governance index stale after document edit:** run `python scripts/run_local.py ai_governance_mcp.extractor`. The running server detects the new `global_index.json` commit signal on the next query and reloads without a restart. If an integrity gate rejects the generation, the server keeps the last known-good index, retries once, then waits for the next rebuild rather than retrying on every query.
 
 **Server still behaves like old code after an update:** call `get_metrics` on the
 connection you are using. Its `runtime_identity` records the imported package

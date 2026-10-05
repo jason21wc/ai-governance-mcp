@@ -26,7 +26,10 @@ content cannot leak by omission:
    check run before publish and in this repo's CI (`public-release-guard` job):
    - **path allowlist** — every file must match an allowlist glob, else fail;
    - **content scan** (private-side only) — proprietary markers must not appear in
-     an allowlisted file;
+     an allowlisted file. An explicit `--forbidden` policy must be readable UTF-8,
+     contain at least one pattern, and have no malformed entries. Missing, empty,
+     unreadable or invalid policy exits 2, including mixed valid/invalid rows;
+     omitting `--forbidden` intentionally remains supported for public CI;
    - **structural invariant** — the domain-enumerating fallback must be absent;
      JSON under `src/` and `documents/`, plus `tiers.json` anywhere in the tree,
      must contain no private domain-prefixed strings or `domain_floors`. This
@@ -72,7 +75,7 @@ If private content ever reaches this public repository:
 This tree is generated, not authored. It is an allowlist extraction of a
 private source repository.
 
-- **source-commit:** `11cfdfe287ed00ab9ad6029a86443768327bbda0`
+- **source-commit:** `d938320fb91fbb2ddeab5d1f466c6a2f299adf5c`
 - **generator:** `build-public-release.sh` (stamp v1)
 
 <!-- END generated:provenance -->

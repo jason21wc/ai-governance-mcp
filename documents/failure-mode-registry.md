@@ -6,6 +6,12 @@ domain: "meta"
 governance_level: "testing-framework"
 schema_version: 1
 entries:
+  - id: FM-RELEASE-EXPLICIT-DENYLIST-INVALID
+    description: "An explicitly supplied public-release denylist must be readable UTF-8 and contain at least one valid pattern. Missing, empty or malformed policy, including a bad row among valid rows, must fail the guard rather than disable or narrow the content scan. Omitting the private policy intentionally remains supported in public CI."
+    must_cover: true
+    scope: project
+    introduced: "2026-09-26"
+    source: "BACKLOG #380"
   - id: FM-CONTEXT-IGNORE-LAYERING
     description: "A root .contextignore must extend .gitignore instead of discarding it. Context negations may restore ordinary files but never security exclusions. Each unreadable or oversized layer is independent. Watcher policy changes, including atomic replacements, must reconcile additions and removals and continue delivering subsequent edits under the new policy."
     must_cover: true

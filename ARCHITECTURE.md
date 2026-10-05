@@ -73,7 +73,7 @@ incompatible roles — product content and per-user runtime data.
 | Directory | Default location | Setting | Why it is not in the repo |
 |---|---|---|---|
 | **Reference Library** | `~/.ai-governance/reference-library/` | `AI_GOVERNANCE_REFERENCE_LIBRARY_PATH` | **User data.** Written at runtime by `capture_reference` and accumulating one person's lessons across *all* their projects. Stored in-repo, a capture made while working in an unrelated project landed in this working tree — so the tree was never clean, and a dirty checkout blocks a concurrent session's fast-forward merge. Worse for adopters: their captures would land inside their clone of *this* repo, and their next `git pull` is refused (uncommitted index) or hits an unmergeable `.npy` conflict. |
-| **Index** | `~/.ai-governance/index/` | `AI_GOVERNANCE_INDEX_PATH` | **Build artifact, and user-specific by construction** — it is embedded from `documents/` *plus* the reference library, so two people with this same checkout legitimately hold different indexes. Rebuild with `python -m ai_governance_mcp.extractor`. The public repo already treated it this way. |
+| **Index** | `~/.ai-governance/index/` | `AI_GOVERNANCE_INDEX_PATH` | **Build artifact, and user-specific by construction** — it is embedded from `documents/` *plus* the reference library, so two people with this same checkout legitimately hold different indexes. Rebuild with `python scripts/run_local.py ai_governance_mcp.extractor`. The public repo already treated it this way. |
 
 A missing index is **loud**, not silent (`retrieval.py`): an empty principle set is
 indistinguishable from "no principles apply", so the enforcement hook would record a
@@ -81,6 +81,13 @@ satisfied governance call over a server that retrieved nothing. That failure had
 made visible before the index could stop being committed.
 
 `documents/` stays in the repo — it *is* the product, identical for every user.
+
+Shell execution uses [`scripts/run_local.py`](docs/local-python.md) to put the
+invoked checkout's source ahead of shared editable installations. The caller
+selects a dependency-equipped interpreter. Extractor preflight checks imports
+and reports configured paths without loading a model or building an index.
+The launcher preserves cwd and settings; source routing does not choose the
+index or reference libraries and does not activate a running MCP server.
 
 ---
 
@@ -627,7 +634,7 @@ Known failure modes for the multi-agent and orchestration patterns used in this 
 | Scenario | Trigger | Recovery |
 |----------|---------|----------|
 | **Repeated validation failure** | Same gate fails 3+ times | Escalate to user — indicates systemic issue |
-| **Index corruption** | `global_index.json` malformed or embeddings shape mismatch | Re-run `python -m ai_governance_mcp.extractor` from source docs |
+| **Index corruption** | `global_index.json` malformed or embeddings shape mismatch | Re-run `python scripts/run_local.py ai_governance_mcp.extractor` from source docs |
 | **Feedback loop** | `log_feedback()` boosts irrelevant principles, degrading future retrieval | Review feedback.jsonl; remove erroneous entries; rebalance boost/penalty weights |
 | **Memory file bloat** | SESSION-STATE >300 lines, causing slow context loading | Apply distillation triggers (§7.0.4); prune completed work |
 

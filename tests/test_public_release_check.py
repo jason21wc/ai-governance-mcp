@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import subprocess
 import json
+import runpy
+import sys
 
 import pytest
 from pathlib import Path
@@ -87,6 +89,80 @@ def test_clean_allowlisted_tree_passes(tmp_path: Path) -> None:
         },
     )
     result = run_guard(root)
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        None,
+        b"",
+        b"  \n# comments only\n",
+        b"[PRIVATE_POLICY_SENTINEL",
+        b"valid\n[PRIVATE_POLICY_SENTINEL",
+        b" | missing pattern\n",
+        b"valid\n | missing pattern\n",
+        b"valid\n\xff",
+        b"a{9999999999999999999999}",
+        b"(" * 1000,
+    ],
+    ids=[
+        "missing",
+        "empty",
+        "comments",
+        "regex",
+        "mixed-regex",
+        "empty-pattern",
+        "mixed-empty-pattern",
+        "invalid-utf8",
+        "regex-overflow",
+        "regex-recursion",
+    ],
+)
+def test_explicit_invalid_denylist_fails(tmp_path: Path, policy: bytes | None) -> None:
+    """A clean tree cannot hide an invalid or partly valid explicit policy.
+
+    Covers: FM-RELEASE-EXPLICIT-DENYLIST-INVALID
+    """
+    root, _ = make_tree(tmp_path, {"README.md": "Ordinary public text\n"})
+    policy_path = tmp_path / "policy.txt"
+    if policy is not None:
+        policy_path.write_bytes(policy)
+    result = run_guard(root, policy_path)
+    assert result.returncode == 2, result.stderr
+    assert "error: denylist" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert "PRIVATE_POLICY_SENTINEL" not in result.stdout + result.stderr
+
+
+def test_explicit_unreadable_denylist_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Permission failure must report policy failure even on privileged runners.
+
+    Covers: FM-RELEASE-EXPLICIT-DENYLIST-INVALID
+    """
+    guard = runpy.run_path(str(SCRIPT_PATH))
+    root, policy = make_tree(tmp_path, {"README.md": "Public\n"}, forbidden=FORBIDDEN)
+    original = Path.read_text
+
+    def denied(path: Path, *args, **kwargs):
+        if path == policy:
+            raise PermissionError("test policy permission denied")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", denied)
+    monkeypatch.setattr(
+        sys, "argv", [str(SCRIPT_PATH), "--root", str(root), "--forbidden", str(policy)]
+    )
+    assert guard["main"]() == 2
+    assert "error: denylist" in capsys.readouterr().err
+
+
+def test_valid_explicit_denylist_allows_clean_tree(tmp_path: Path) -> None:
+    """Valid policy is not itself a violation; omission is tested separately."""
+    root, policy = make_tree(tmp_path, {"README.md": "Public\n"}, forbidden=FORBIDDEN)
+    result = run_guard(root, policy)
     assert result.returncode == 0, result.stderr
 
 

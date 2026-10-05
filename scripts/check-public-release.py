@@ -143,14 +143,35 @@ def load_allowlist(root: Path) -> set[str]:
     return allowed
 
 
+class DenylistError(ValueError):
+    """An explicit content policy cannot safely be used for a release scan."""
+
+
 def load_forbidden(path: Path) -> list[tuple[re.Pattern[str], str]]:
-    """Load (compiled-regex, raw) pairs from a denylist file (case-insensitive)."""
+    """Load the entire explicit policy or fail; never scan with partial policy."""
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise DenylistError(f"denylist {path}: cannot read UTF-8 policy") from exc
+
     out: list[tuple[re.Pattern[str], str]] = []
-    for raw in _parse_pipe_file(path):
+    for line_number, line in enumerate(lines, 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        # Split before stripping so ' | reason' remains an empty pattern.
+        # Bare '|' inside a regex is alternation, not the reason delimiter.
+        raw = line.split(" | ", 1)[0].strip()
+        if not raw:
+            raise DenylistError(f"denylist {path}: empty pattern at line {line_number}")
         try:
             out.append((re.compile(raw, re.IGNORECASE), raw))
-        except re.error as exc:  # pragma: no cover - guards malformed denylist
-            print(f"error: bad denylist regex {raw!r}: {exc}", file=sys.stderr)
+        except (re.error, OverflowError, RecursionError) as exc:
+            # The policy is private: identify the bad row without echoing it.
+            raise DenylistError(
+                f"denylist {path}: invalid regex at line {line_number}"
+            ) from exc
+    if not out:
+        raise DenylistError(f"denylist {path}: no patterns")
     return out
 
 
@@ -346,7 +367,8 @@ def main() -> int:
         "--forbidden",
         type=Path,
         default=None,
-        help="Optional PRIVATE content-denylist file (enables the content layer).",
+        help="Optional PRIVATE content-denylist file; when supplied, must be "
+        "readable UTF-8 with at least one pattern and no invalid entries.",
     )
     args = parser.parse_args()
 
@@ -361,7 +383,11 @@ def main() -> int:
         )
         return 2
 
-    violations = find_violations(root, args.forbidden)
+    try:
+        violations = find_violations(root, args.forbidden)
+    except DenylistError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     if not violations:
         return 0
 

@@ -14,7 +14,7 @@
 | mcp | 1.28.1 | MIT | MCP Python SDK (`mcp.server.Server`) |
 | pydantic | 2.11.9 | MIT | Data validation and schemas |
 | pydantic-settings | 2.11.0 | MIT | Settings management |
-| sentence-transformers | 5.2.0 | Apache 2.0 | Embedding generation and cross-encoder reranking |
+| sentence-transformers | 6.1.0 | Apache 2.0 | Embedding generation and cross-encoder reranking |
 | rank-bm25 | 0.2.2 | Apache 2.0 | BM25 keyword search |
 | numpy | 1.26.4 | BSD-3-Clause | Vector operations |
 | requests | >=2.33.0 | Apache 2.0 | HTTP client (required by sentence-transformers) |

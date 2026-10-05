@@ -27,6 +27,7 @@ import argparse
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import fcntl
+import glob
 import hashlib
 import json
 import os
@@ -381,6 +382,30 @@ def check(root, transcript, state_dir, min_lines=250, recency=400):
         return {"action": "degraded", "reason": "state_unavailable"}
 
 
+def relocated_transcript(transcript, identity):
+    """Find the recorded transcript after the host moved it between folders.
+
+    Claude Code keeps one transcript file per session but renames it into a
+    different ``~/.claude/projects/<slug>/`` folder when the session enters or
+    leaves a worktree. A pending request then names a path that no longer
+    exists. Search sibling folders for the same file name and accept only the
+    file whose device and inode match the recorded identity. A rename keeps
+    that identity; a copy or an unrelated same-named file does not. The normal
+    prefix-digest continuity check still runs on whatever this returns.
+    """
+    if not identity:
+        return None
+    matches = []
+    for candidate in transcript.parent.parent.glob("*/" + glob.escape(transcript.name)):
+        try:
+            info = os.stat(candidate, follow_symlinks=False)
+        except OSError:
+            continue
+        if stat.S_ISREG(info.st_mode) and [info.st_dev, info.st_ino] == identity:
+            matches.append(candidate)
+    return matches[0] if len(matches) == 1 else None
+
+
 def complete(root, transcript, state_dir, request_id, outcome):
     root, transcript, state_dir = (
         Path(root).resolve(),
@@ -396,7 +421,12 @@ def complete(root, transcript, state_dir, request_id, outcome):
             state = read_state(path)
             if state is None:
                 return {"accepted": False, "reason": "no_current_request"}
-            _, continuous = transcript_snapshot(transcript, state)
+            source = transcript
+            if not os.path.lexists(transcript):
+                source = relocated_transcript(transcript, state.get("identity"))
+                if source is None:
+                    return {"accepted": False, "reason": "transcript_missing"}
+            _, continuous = transcript_snapshot(source, state)
             pending = state["pending"]
             if not continuous or not pending or pending["request_id"] != request_id:
                 return {"accepted": False, "reason": "stale_or_foreign_request"}
@@ -416,8 +446,12 @@ def complete(root, transcript, state_dir, request_id, outcome):
                 "covered_lines": pending["covered_lines"],
                 "evidence": "main_agent_self_attestation",
             }
-    except (OSError, ValueError, TypeError):
-        return {"accepted": False, "reason": "state_unavailable"}
+    except (OSError, ValueError, TypeError) as e:
+        return {
+            "accepted": False,
+            "reason": "state_unavailable",
+            "error": type(e).__name__,
+        }
 
 
 class AdvisoryParser(argparse.ArgumentParser):

@@ -26,7 +26,7 @@ dependencies = [
     "mcp==1.28.1",  # >=1.28.1 clears CVE-2026-52869/-52870/-59950 (SDK HTTP/WS transport advisories); this server is stdio-only
     "pydantic==2.11.9",
     "pydantic-settings==2.11.0",
-    "sentence-transformers==5.2.0",
+    "sentence-transformers==6.1.0",  # v6 enforces trust_remote_code=False for local modules (CVE-2026-68770)
     "rank-bm25==0.2.2",
     "numpy==1.26.4",
     "requests>=2.33.0",  # Required by sentence-transformers but not declared as of huggingface-hub>=1.0
@@ -84,7 +84,8 @@ testpaths = ["tests"]
 # never actually resolving to the primary checkout — the "silent false green" this
 # was first justified with does not reproduce under pytest. What DOES reproduce is
 # the bare-interpreter case (`python -m ai_governance_mcp.extractor`, any plain
-# `python -c`), which no pytest setting can reach and which stays open on #363.
+# `python -c`), which no pytest setting can reach. For supported shell execution,
+# use scripts/run_local.py (docs/local-python.md; #363).
 #
 # Kept because explicit configuration beats an incidental side effect of a conftest
 # import — if that line is ever deleted as redundant, this holds the property. The

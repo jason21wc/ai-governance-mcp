@@ -156,7 +156,8 @@ def test_agents_md_documents_the_interpreter_requirement():
     docs never mentioned.
     """
     text = (REPO / "AGENTS.md").read_text(encoding="utf-8")
-    assert "python -m ai_governance_mcp.extractor" in text
+    assert "python scripts/run_local.py ai_governance_mcp.extractor" in text
+    assert "python scripts/run_local.py --check ai_governance_mcp.extractor" in text
     assert "sentence-transformers" in text, (
         "AGENTS.md documents the rebuild command but never states that it needs "
         "an interpreter carrying sentence-transformers"

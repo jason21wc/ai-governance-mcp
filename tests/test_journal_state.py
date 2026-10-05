@@ -335,3 +335,93 @@ def test_below_minimum_does_not_claim_a_request(session):
     session[1].write_text("small\n")
     assert check(session)["action"] == "silent"
     assert not list(session[2].glob("*.events.jsonl"))
+
+
+def _projects_session(tmp_path):
+    """Mirror Claude Code's layout: ~/.claude/projects/<slug>/<session>.jsonl."""
+    root = tmp_path / "project"
+    root.mkdir()
+    (root / "SESSION-STATE.md").write_text("baseline\n")
+    worktree_dir = tmp_path / "projects" / "-repo--claude-worktrees-topic"
+    worktree_dir.mkdir(parents=True)
+    tx = worktree_dir / "abc123.jsonl"
+    tx.write_text(' {"type":"user"}\n' * 10)
+    return root, tx, tmp_path / "state"
+
+
+def test_receipt_follows_host_rename_of_transcript(tmp_path):
+    # Claude Code renames the session transcript into a different project
+    # folder when a session leaves a worktree; the request names the old path.
+    session = _projects_session(tmp_path)
+    request = check(session)
+    assert request["action"] == "fire"
+    moved_dir = tmp_path / "projects" / "-repo"
+    moved_dir.mkdir()
+    moved = moved_dir / session[1].name
+    session[1].rename(moved)
+    with moved.open("a") as f:
+        f.write('{"type":"user"}\n' * 3)
+    result = complete(session, request)
+    assert result["accepted"], result
+    assert not complete(session, request)["accepted"]
+
+
+def test_receipt_rejects_a_copied_transcript_after_the_original_vanishes(tmp_path):
+    # Same name and bytes but a different file: not the recorded transcript.
+    session = _projects_session(tmp_path)
+    request = check(session)
+    other_dir = tmp_path / "projects" / "-repo"
+    other_dir.mkdir()
+    (other_dir / session[1].name).write_bytes(session[1].read_bytes())
+    session[1].unlink()
+    assert complete(session, request) == {
+        "accepted": False,
+        "reason": "transcript_missing",
+    }
+
+
+def test_receipt_ignores_a_symlink_to_the_moved_transcript(tmp_path):
+    # A link stats as its own inode, so only the real file can match.
+    session = _projects_session(tmp_path)
+    request = check(session)
+    hidden = tmp_path / "elsewhere.jsonl"
+    session[1].rename(hidden)
+    link_dir = tmp_path / "projects" / "-repo"
+    link_dir.mkdir()
+    (link_dir / session[1].name).symlink_to(hidden)
+    assert complete(session, request)["reason"] == "transcript_missing"
+
+
+def test_moved_then_rewritten_transcript_is_still_stale(tmp_path):
+    # Relocation finds the file; continuity must still reject new content.
+    session = _projects_session(tmp_path)
+    request = check(session)
+    moved_dir = tmp_path / "projects" / "-repo"
+    moved_dir.mkdir()
+    moved = moved_dir / session[1].name
+    session[1].rename(moved)
+    with moved.open("r+") as f:
+        f.truncate(0)
+        f.write("rewritten transcript\n" * 20)
+    assert complete(session, request)["reason"] == "stale_or_foreign_request"
+
+
+def test_receipt_reports_missing_transcript_explicitly(tmp_path):
+    session = _projects_session(tmp_path)
+    request = check(session)
+    session[1].unlink()
+    assert complete(session, request)["reason"] == "transcript_missing"
+
+
+def test_unexpected_receipt_failure_names_the_error_type(session, monkeypatch):
+    request = check(session)
+
+    def boom(*_args, **_kwargs):
+        raise OSError("disk gone")
+
+    monkeypatch.setattr(js, "transcript_snapshot", boom)
+    assert complete(session, request) == {
+        "accepted": False,
+        "reason": "state_unavailable",
+        "error": "OSError",
+    }

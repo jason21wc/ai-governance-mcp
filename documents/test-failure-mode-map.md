@@ -231,6 +231,13 @@
 
 - `tests/test_validator.py` → `TestFailureModeCoverage::test_every_covers_id_exists_in_registry`
 
+### `FM-RELEASE-EXPLICIT-DENYLIST-INVALID`
+
+> An explicitly supplied public-release denylist must be readable UTF-8 and contain at least one valid pattern. Missing, empty or malformed policy, including a bad row among valid rows, must fail the guard rather than disable or narrow the content scan. Omitting the private policy intentionally remains supported in public CI.
+
+- `tests/test_public_release_check.py` → `test_explicit_invalid_denylist_fails`
+- `tests/test_public_release_check.py` → `test_explicit_unreadable_denylist_fails`
+
 ### `FM-S-SERIES-KEYWORD-FALSE-POSITIVE`
 
 > Governance S-Series keyword scanner must demote matches when (a) every sentence containing the keyword also contains a safe-context leader phrase (negation incl. no/not/never/cannot and the n't contraction suffix, meta-description, governance-prose idiom, temporal-distancing) AND (b) no danger verb threatens the keyword across TWO tiers with DIFFERENT scoping: a MUTATION verb (`_IMPERATIVE_ACTION_VERBS`: delete/drop/rm/nuke/...) anywhere in the action blocks demotion FIELD-WIDE; an EGRESS/disclosure verb (`_EGRESS_VERBS`: send/email/publish/upload/exfiltrate/transmit/disclose/expose/leak/dump/export/...) blocks only when co-located in the keyword's own sentence. Field-wide mutation catches 'delete the prod DB; credentials not affected' (dangerous clause has no critical keyword); sentence-scoped egress closes 'not destructive, send the credential' WITHOUT re-flagging 'publish the notes; no credentials'. The SAME predicate suppresses ADVISORY-keyword warnings in safe context (zero veto impact — advisory never escalates alone). Sentence-boundary regex must include em-dash, en-dash, semicolon, and newline (not just `[.!?]`). Field-bridging guard: per-field calls to `_detect_safety_concerns` (planned_action / context / concerns separately) prevent leaders in one field from covering keywords in another. Leader list, mutation-verb list, and egress-verb list co-evolve — widening the leader list (e.g. negation forms) requires auditing BOTH verb tiers. Residual (lexical limit): exotic egress verbs + cross-sentence pronoun reference — tracked under BACKLOG #73 (semantic retrieval precision).

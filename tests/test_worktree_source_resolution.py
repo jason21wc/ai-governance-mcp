@@ -14,9 +14,9 @@ incidentally, as a side effect of a conftest import, rather than by configuratio
 `pythonpath = ["src", "tests"]` makes the property explicit; these tests hold it.
 
 So this is defence in depth against `conftest.py`'s insert being deleted as
-redundant — NOT the instrument for a live defect. The live half of #363 is the bare
-interpreter (`python -m ai_governance_mcp.extractor`), which no pytest setting can
-reach and which no test here covers.
+redundant — NOT the instrument for a live defect. The bare-interpreter half of #363 is outside pytest configuration. The supported
+shell launcher is covered separately in test_local_python_launcher.py, using
+fresh processes and a competing editable-install path.
 
 Stated this plainly because a guard advertised as catching something it cannot is
 worse than no guard: it spends the reader's trust.

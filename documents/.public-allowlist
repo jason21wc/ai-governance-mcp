@@ -54,6 +54,8 @@ scripts/check_pipefail_early_consumers.py | shell hook pipefail/SIGPIPE class gu
 scripts/check-skill-preambles.py | portable zero-executable-preamble guard for public global skills and public pre-commit
 scripts/repo_hygiene.py | computed repo close-out inventory (BACKLOG #200); generic, no domain content
 scripts/check_index_freshness.py | index freshness gate (BACKLOG #206); generic comparison logic, no domain content
+scripts/run_local.py | checkout-local Python module launcher; source/dependency checks, no private configuration
+docs/local-python.md | public shell invocation contract for the checkout launcher
 documents/.citation-allowlist | citation allowlist read by check-citations.py
 
 # --- Root docs ---
